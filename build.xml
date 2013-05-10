@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<project name="MS2UniversalLauncher" default="main" basedir=".">
+	<!-- Values can be accessed via ${name} -->
+	<property name="src.dir" location="src" />
+	<property name="build.dir" location="bin" />
+	<property name="dist.dir" location="dist" />
+	<property name="dist.jarname" value="mineshaftersquared.jar" />
+	<property name="libs.dir" location="libs" />
+	<property name="resources.dir" location="resources" />
+	<property name="manifest.mainclass" value="com.mineshaftersquared.MS2Entry" />
+	<property name="simpleapi.jarname" value="simpleapi.jar" />
+
+	<path id="build.classpath">
+		<fileset dir="${libs.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<target name="prepare">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+	</target>
+
+	<target name="compile" depends="clean, prepare">
+		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.6"/>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${dist.dir}\${dist.jarname}" basedir="${build.dir}" filesetmanifest="skip">
+			<manifest>
+				<attribute name="Main-Class" value="${manifest.mainclass}" />
+			</manifest>
+			<zipfileset dir="${resources.dir}" includes="ms2.png" fullpath="com/mineshaftersquared/resources/ms2.png" />
+			<zipgroupfileset dir="${libs.dir}" includes="${simpleapi.jarname}" />
+		</jar>
+	</target>
+
+	<target name="package" depends="jar">
+		<copy todir="${dist.dir}">
+			<fileset dir="${resources.dir}">
+				<include name="ms2-run-*.*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="main" depends="package">
+		<description>Main target</description>
+	</target>
+</project>
+
