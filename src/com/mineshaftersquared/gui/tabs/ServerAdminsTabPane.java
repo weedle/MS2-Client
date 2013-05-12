@@ -130,7 +130,7 @@ public class ServerAdminsTabPane extends AbstractTabPane {
 								ServerAdminsTabPane.this.prefs.getString("proxy.authserver",
 										UniversalLauncher.DEFAULT_AUTH_SERVER) });
 
-					new Thread(new ProcessOutputRedirector(p, "[MS2-Server]: ")).start();
+					new Thread(new ProcessOutputRedirector(p, "[MS2-Server]: %s")).start();
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}
@@ -199,7 +199,7 @@ public class ServerAdminsTabPane extends AbstractTabPane {
 								ServerAdminsTabPane.this.prefs.getString("proxy.authserver",
 										UniversalLauncher.DEFAULT_AUTH_SERVER), });
 					Process p = JarProcessBuilder.create(commands);
-					new Thread(new ProcessOutputRedirector(p, "[MS2-Bukkit]: ")).start();
+					new Thread(new ProcessOutputRedirector(p, "[MS2-Bukkit]: %s")).start();
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}

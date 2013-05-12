@@ -64,7 +64,7 @@ public class FTBEntry {
 		Process p = JarProcessBuilder.create(jarname, new String[] { "-Dhttp.proxyHost=127.0.0.1",
 			"-Dhttp.proxyPort=" + String.valueOf(proxy.getPort()), "-Djava.net.preferIPv4Stack=true" }, shiftedArgs);
 
-		Thread t = new Thread(new ProcessOutputRedirector(p, "[MS2-FTB]: "));
+		Thread t = new Thread(new ProcessOutputRedirector(p, "[MS2-FTB]: %s"));
 		t.setDaemon(true);
 		t.start();
 		try {

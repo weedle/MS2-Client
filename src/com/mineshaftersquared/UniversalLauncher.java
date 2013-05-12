@@ -45,7 +45,7 @@ import com.mineshaftersquared.gui.tabs.SettingsTabPane;
  */
 public class UniversalLauncher {
 
-	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.2.12");
+	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.2.13");
 	public static final String POLLING_SERVER = "ms2.creatifcubed.com/polling_scripts/";
 	public static final String DEFAULT_AUTH_SERVER = "mineshaftersquared.com";
 	public static final String BETA_AUTH_SERVER = "ms2auth.creatifcubed.com";

@@ -128,7 +128,7 @@ public class ModsTabPane extends AbstractTabPane {
 					Process p = JarProcessBuilder.create(path, null,
 							new String[] { "spoutcraft", modded.getName(), });
 
-					new Thread(new ProcessOutputRedirector(p, "[MS2-Spoutcraft]: ")).start();
+					new Thread(new ProcessOutputRedirector(p, "[MS2-SpoutcraftProxy]: %s")).start();
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}
@@ -201,7 +201,7 @@ public class ModsTabPane extends AbstractTabPane {
 								ModsTabPane.this.prefs.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER),
 								String.valueOf(minRam), String.valueOf(maxRam) });
 
-					new Thread(new ProcessOutputRedirector(p, "[MS2-FTBProxy]: ")).start();
+					new Thread(new ProcessOutputRedirector(p, "[MS2-FTBProxy]: %s")).start();
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}
@@ -289,7 +289,7 @@ public class ModsTabPane extends AbstractTabPane {
 									ModsTabPane.this.prefs.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER),
 									String.valueOf(minRam), String.valueOf(maxRam), proxyPort });
 
-					new Thread(new ProcessOutputRedirector(p, "[MS2-TechnicProxy]: ")).start();
+					new Thread(new ProcessOutputRedirector(p, "[MS2-TechnicProxy]: %s")).start();
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}

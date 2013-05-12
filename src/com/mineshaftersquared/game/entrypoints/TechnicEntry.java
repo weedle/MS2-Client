@@ -77,7 +77,7 @@ public class TechnicEntry {
 		Process p = JarProcessBuilder.create(jarname, new String[] { "-Dhttp.proxyHost=127.0.0.1",
 			"-Dhttp.proxyPort=" + proxyPort, "-Djava.net.preferIPv4Stack=true", "-noverify" }, shiftedArgs);
 
-		Thread t = new Thread(new ProcessOutputRedirector(p, "[MS2-Technic]: "));
+		Thread t = new Thread(new ProcessOutputRedirector(p, "[MS2-Technic]: %s"));
 		t.setDaemon(true);
 		t.start();
 		try {

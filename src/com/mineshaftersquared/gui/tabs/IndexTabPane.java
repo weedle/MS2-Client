@@ -106,7 +106,7 @@ public class IndexTabPane extends AbstractTabPane {
 										IndexTabPane.this.prefs.getInt("launcher.pathfind", Utils.PATH_LOCAL).toString(),
 										IndexTabPane.this.prefs
 										.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER) });
-					new Thread(new ProcessOutputRedirector(p, "[MS2-Game]: ")).start();
+					new Thread(new ProcessOutputRedirector(p, "[MS2-Game]: %s")).start();
 					if (IndexTabPane.this.prefs.getInt("launcher.closeonlaunch", 1) == 1) {
 						((JFrame) IndexTabPane.this.prefs.tmpGetObject("launcher.window")).dispose();
 					}

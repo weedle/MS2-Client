@@ -28,7 +28,7 @@ public class SpoutcraftEntry {
 
 		Process p = JarProcessBuilder.create(jarname, new String[] { "-noverify" }, shiftedArgs);
 
-		Thread t = new Thread(new ProcessOutputRedirector(p, "[MS2-Spoutcraft]: "));
+		Thread t = new Thread(new ProcessOutputRedirector(p, "[MS2-Spoutcraft]: %s"));
 		t.setDaemon(true);
 		t.start();
 		try {

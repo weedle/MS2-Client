@@ -272,8 +272,8 @@ public class MineProxyHandler extends Thread {
 					}
 					Socket sock = new Socket(u.getHost(), port);
 
-					SimpleStreams.pipeStreamsConcurrent(sock.getInputStream(), this.toClient);
-					SimpleStreams.pipeStreamsConcurrent(this.connection.getInputStream(), sock.getOutputStream());
+					SimpleStreams.pipeStreamsConcurrently(sock.getInputStream(), this.toClient);
+					SimpleStreams.pipeStreamsConcurrently(this.connection.getInputStream(), sock.getOutputStream());
 					// TODO Maybe put POST here instead, less to do, but would
 					// it work?
 
