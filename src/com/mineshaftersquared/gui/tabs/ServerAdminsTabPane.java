@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 
 import com.creatifcubed.simpleapi.SimpleISettings;
 import com.creatifcubed.simpleapi.SimpleUtils;
+import com.creatifcubed.simpleapi.swing.SimpleLinkableLabel;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.resources.JarProcessBuilder;
@@ -52,8 +53,11 @@ public class ServerAdminsTabPane extends AbstractTabPane {
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.WEST;
 		c.weightx = 1.0;
-		infoPanel.add(new JLabel("<html><ul>" + "<li>Use the RAM config on the Settings tab</li>"
+		infoPanel.add(new SimpleLinkableLabel("<html><ul>" + "<li>Use the RAM config on the Settings tab</li>"
 				+ "<li>Put Mineshafter Squared in your servers folder (server fold is MS2 folder)</li>"
+				+ "<li><a href=\"http://ms2.creatifcubed.com/server_admins.php\">Read about special server admin options at ms2.creatifcubed.com</a></li>"
+				+ "<li>You can also find server-specific instructions at <a href=\"http://ms2.creatifcubed.com\">ms2.creatifcubed.com</a></li>"
+				+ "<li>Example: Instructions for Bukkit servers are under the <a href=\"http://ms2.creatifcubed.com/bukkit.php\">Bukkit page</a></li>"
 				+ "</ul></html>"), c);
 
 		JButton openLocal = new JButton("Open servers folder");

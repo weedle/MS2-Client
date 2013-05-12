@@ -327,7 +327,7 @@ public class IndexTabPane extends AbstractTabPane {
 						OldAuth.Response response = OldAuth.login(username, password, IndexTabPane.this.prefs.getString("proxy.authserver",
 								UniversalLauncher.DEFAULT_AUTH_SERVER));
 						if (response.sessionId != null) {
-							IndexTabPane.this.prefs.tmpPut("username", username);
+							IndexTabPane.this.prefs.tmpPut("username", response.username);
 							IndexTabPane.this.prefs.tmpPut("sessionId", response.sessionId);
 							IndexTabPane.this.launchButton.setText("Launch");
 							if (rememberme.isSelected()) {

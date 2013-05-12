@@ -87,7 +87,7 @@ public class UniversalLauncher {
 				mainWindow.setVisible(true);
 				UniversalLauncher.this.mainWindow = mainWindow;
 
-				UniversalLauncher.checkVersionUpdates();
+				UniversalLauncher.this.checkVersionUpdates();
 
 				UniversalLauncher.this.checkLastVersion();
 				UniversalLauncher.this.logCurrentVersion();
@@ -139,7 +139,7 @@ public class UniversalLauncher {
 		this.prefs.tmpPut("instance", this);
 	}
 
-	public static void checkVersionUpdates() {
+	public void checkVersionUpdates() {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -147,10 +147,15 @@ public class UniversalLauncher {
 					String result = new String(new SimpleHTTPRequest("http://" + POLLING_SERVER + "latestversion.php")
 							.addGet("currentversion", MS2_VERSION.toString()).doGet(SimpleHTTPRequest.NO_PROXY)).trim();
 					SimpleVersion latest = new SimpleVersion(result);
+					UniversalLauncher.this.prefs.tmpPut("latestversion.string", latest.toString());
 					UniversalLauncher.log.info("Latest version: " + latest.toString());
 					if (MS2_VERSION.shouldUpdateTo(latest)) {
 						JOptionPane.showMessageDialog(null,
 								"There is an update at ms2.creatifcubed.com. Latest version: " + latest.toString());
+					}
+					JLabel latestVersionLabel = (JLabel) UniversalLauncher.this.prefs.tmpGetObject("latestversion.label");
+					if (latestVersionLabel != null) {
+						latestVersionLabel.setText(latest.toString());
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();

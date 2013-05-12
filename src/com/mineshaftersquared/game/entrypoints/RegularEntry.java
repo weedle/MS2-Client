@@ -47,7 +47,8 @@ public class RegularEntry {
 				if (result.sessionId == null) {
 					UniversalLauncher.log.info("Could not log in: " + result.message);
 				} else {
-					UniversalLauncher.log.info(String.format("Logged in with username {%s} and sessionId {%s}", result.message, sessionId));
+					UniversalLauncher.log.info(String.format("Logged in with username {%s} and sessionId {%s}", result.username, sessionId));
+					username = result.username;
 					sessionId = result.sessionId;
 				}
 			}

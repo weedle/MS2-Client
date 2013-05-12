@@ -13,13 +13,13 @@ public class OldAuth {
 	
 	private static Response parse(String raw) {
 		if (raw == null) {
-			return new Response(null, null, null);
+			return new Response(null, null, null, null);
 		}
 		String[] parts = raw.split(":");
 		try {
-			return new Response(raw, parts[3], parts[2]);
+			return new Response(raw, parts[2], parts[3], parts[2]);
 		} catch (ArrayIndexOutOfBoundsException ex) {
-			return new Response(raw, null, parts[0]);
+			return new Response(raw, null, null, parts[0]);
 		}
 	}
 	
@@ -27,9 +27,11 @@ public class OldAuth {
 		public final String rawResponse;
 		public final String sessionId;
 		public final String message;
+		public final String username;
 		
-		private Response(String raw, String sessionId, String message) {
+		private Response(String raw, String username, String sessionId, String message) {
 			this.rawResponse = raw;
+			this.username = username;
 			this.sessionId = sessionId;
 			this.message = message;
 		}

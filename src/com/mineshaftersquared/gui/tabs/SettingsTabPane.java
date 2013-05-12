@@ -154,7 +154,7 @@ public class SettingsTabPane extends AbstractTabPane {
 		}
 		bin += "</ul>";
 		
-		systemInfoPanel.add(new JEditorPane("text/html", "<html>" + bin + "</html>"), BorderLayout.CENTER);
+		systemInfoPanel.add(new JEditorPane("text/html", "<html><div style=\"width: 500px;\"" + bin + "</div></html>"), BorderLayout.CENTER);
 		
 		return systemInfoPanel;
 	}

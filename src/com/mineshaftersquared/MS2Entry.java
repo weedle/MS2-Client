@@ -6,6 +6,7 @@ package com.mineshaftersquared;
 
 import java.util.Arrays;
 
+import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.game.entrypoints.BukkitEntry;
 import com.mineshaftersquared.game.entrypoints.FTBEntry;
 import com.mineshaftersquared.game.entrypoints.ProxyEntry;
@@ -13,6 +14,7 @@ import com.mineshaftersquared.game.entrypoints.RegularEntry;
 import com.mineshaftersquared.game.entrypoints.ServerEntry;
 import com.mineshaftersquared.game.entrypoints.SpoutcraftEntry;
 import com.mineshaftersquared.game.entrypoints.TechnicEntry;
+import com.mineshaftersquared.game.entrypoints.UpdateEntry;
 
 /**
  * 
@@ -54,6 +56,12 @@ public class MS2Entry {
 			return;
 		} else if (entry.equals("proxy")) {
 			ProxyEntry.main(shiftedArgs);
+			return;
+		} else if (entry.equals("update-step1")) { // called from new version, rename old
+			UpdateEntry.main(SimpleUtils.appendArrays(new String[] { "0" }, shiftedArgs));
+			return;
+		} else if (entry.equals("update-step2")) { // called from old version, rename new and start new
+			UpdateEntry.main(SimpleUtils.appendArrays(new String[] { "1" }, shiftedArgs));
 			return;
 		}
 		UniversalLauncher.main(shiftedArgs);

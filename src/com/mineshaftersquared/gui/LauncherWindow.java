@@ -80,7 +80,7 @@ public class LauncherWindow extends JFrame {
 		tabbedPane.add("Feedback", new FeedbackTabPane(this.prefs));
 		tabbedPane.add("Mods", new ModsTabPane(this.prefs));
 		tabbedPane.add("Server Admins", new ServerAdminsTabPane(this.prefs));
-		tabbedPane.add("News", new NewsTabPane());
+		tabbedPane.add("News", new NewsTabPane(this.prefs));
 		tabbedPane.add("Dev Console", new ConsoleTabPane());
 		this.tabbedPane = tabbedPane;
 
