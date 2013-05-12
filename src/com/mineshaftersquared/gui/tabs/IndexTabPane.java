@@ -107,7 +107,7 @@ public class IndexTabPane extends AbstractTabPane {
 										IndexTabPane.this.prefs
 										.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER) });
 					new Thread(new ProcessOutputRedirector(p, "[MS2-Game]: ")).start();
-					if (IndexTabPane.this.prefs.getInt("launcher.closeonlaunch", 0) == 1) {
+					if (IndexTabPane.this.prefs.getInt("launcher.closeonlaunch", 1) == 1) {
 						((JFrame) IndexTabPane.this.prefs.tmpGetObject("launcher.window")).dispose();
 					}
 				} catch (IOException ex) {
