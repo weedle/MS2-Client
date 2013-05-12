@@ -71,7 +71,7 @@ public class TechnicEntry {
 		}
 
 		for (String str : shiftedArgs) {
-			System.out.println("Shifted args: " + str);
+			UniversalLauncher.log.info("Shifted args: " + str);
 		}
 
 		Process p = JarProcessBuilder.create(jarname, new String[] { "-Dhttp.proxyHost=127.0.0.1",

@@ -37,7 +37,7 @@ public class NewsTabPane extends AbstractTabPane {
 
 		browser.setEditable(false);
 		browser.setMargin(null);
-		browser.setBackground(Color.DARK_GRAY);
+//		browser.setBackground(Color.DARK_GRAY);
 		browser.setContentType("text/html");
 
 		browser.setText("<html><body><h1>Loading Mojang Minecraft news..</h1></body></html>");
@@ -67,7 +67,7 @@ public class NewsTabPane extends AbstractTabPane {
 
 		browser.setEditable(false);
 		browser.setMargin(null);
-		browser.setBackground(Color.DARK_GRAY);
+//		browser.setBackground(Color.DARK_GRAY);
 		browser.setContentType("text/html");
 
 		browser.setText("<html><body><h1>Loading Mineshafter Squared news..</h1></body></html>");

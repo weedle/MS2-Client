@@ -51,7 +51,7 @@ public class MineProxyHandler extends Thread {
 		String[] requestLine = readUntil(this.fromClient, '\n').split(" ");
 		String method = requestLine[0].trim().toUpperCase();
 		String url = requestLine[1].trim();
-		System.out.println("run beginning: request to: " + url);
+		UniversalLauncher.log.info("run beginning: request to: " + url);
 
 		UniversalLauncher.log.info("Request: " + method + " " + url);
 
@@ -158,7 +158,7 @@ public class MineProxyHandler extends Thread {
 			UniversalLauncher.log.info("To: " + url);
 
 			try {
-				System.out.println("old url " + oldUrl);
+				UniversalLauncher.log.info("old url " + oldUrl);
 				char[] postdata = new char[0];
 				if (getversionMatcher.matches()) {
 					String contentLength = headers.get("content-length");
@@ -170,7 +170,7 @@ public class MineProxyHandler extends Thread {
 					String queryPart = oldUrl.split("\\?")[1];
 					postdata = queryPart.toCharArray();
 				}
-				System.out.println("POSTDATA: " + new String(postdata));
+				UniversalLauncher.log.info("POSTDATA: " + new String(postdata));
 
 				String postString = new String();
 				for (char c : postdata) {
@@ -182,7 +182,7 @@ public class MineProxyHandler extends Thread {
 				data = postRequest(url, new String(postdata), "application/x-www-form-urlencoded");
 
 				String response = new String(data);
-				System.out.println("data: " + response);
+				UniversalLauncher.log.info("data: " + response);
 
 				if (HELP_TICKET_LOGIN_REGEX.matcher(response).matches()) {
 					// TODO: Flip Help Toggle

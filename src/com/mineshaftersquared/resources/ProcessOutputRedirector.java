@@ -7,6 +7,8 @@ package com.mineshaftersquared.resources;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import com.mineshaftersquared.UniversalLauncher;
+
 /**
  * 
  * @author Adrian
@@ -29,9 +31,9 @@ public class ProcessOutputRedirector implements Runnable {
 				if (str == null) {
 					throw new NullPointerException("reading stdout was null (is okay)");
 				}
-				System.out.println(this.log + " - " + str);
+				UniversalLauncher.log.info(this.log + " - " + str);
 			} catch (Exception ex) {
-				System.out.println("{ProcessOutputRedirector: caught exception {" + ex.getMessage() + "}, is done}");
+				UniversalLauncher.log.info("{ProcessOutputRedirector: caught exception {" + ex.getMessage() + "}, is done}");
 				break;
 			}
 		}

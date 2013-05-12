@@ -74,8 +74,8 @@ public class IndexTabPane extends AbstractTabPane {
 			public void actionPerformed(ActionEvent e) {
 				int pathfind = IndexTabPane.this.prefs.getInt("launcher.pathfind", Utils.PATH_LOCAL);
 				String path = Utils.getMCPath(pathfind);
-				// System.out.println("EXISTS: " + !(new File(path).exists()));
-				// System.out.println("path: " + path);
+				// UniversalLauncher.log.info("EXISTS: " + !(new File(path).exists()));
+				// UniversalLauncher.log.info("path: " + path);
 				if (!Utils.existsInstallationIn(pathfind)) {
 					JOptionPane.showMessageDialog(null, "Minecraft not found in: {" + path + "}"
 							+ "\nAre you sure you chose the right path location (local vs. default location)?");
@@ -219,16 +219,22 @@ public class IndexTabPane extends AbstractTabPane {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String path = Utils.getAppDataPath();
-				System.out.println("App data path: " + path);
-				String fileExplorer = SimpleUtils.getOSFileExplorer();
-				if (fileExplorer == null) {
-					fileExplorer = JOptionPane.showInputDialog("Could not find file browser."
-							+ "\nSpecify your file browser, or manually go to " + path, "xterm");
-				}
-				if (fileExplorer != null) {
-					new File(Utils.getMCPath(Utils.PATH_DEFAULTMC)).mkdir();
-					SimpleUtils.openFolder(fileExplorer, path);
+				UniversalLauncher.log.info("App data path: " + path);
+				String[] options = new String[] {"Go back", "Open app data folder"};
+				if (JOptionPane.showOptionDialog(null, String.format("<html>Your app data folder is: %s", path)
+						+ "<br />That is the parent directory where Minecraft is normally installed"
+						+ String.format("<br />The actual Minecraft (sub)folder is %s", Utils.getMCPath(Utils.PATH_DEFAULTMC))
+						, "Minecraft default folder", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]) == 1) {
+					String fileExplorer = SimpleUtils.getOSFileExplorer();
+					if (fileExplorer == null) {
+						fileExplorer = JOptionPane.showInputDialog("Could not find file browser."
+								+ "\nSpecify your file browser, or manually go to " + path, "xterm");
+					}
+					if (fileExplorer != null) {
+						new File(Utils.getMCPath(Utils.PATH_DEFAULTMC)).mkdir();
+						SimpleUtils.openFolder(fileExplorer, path);
 
+					}
 				}
 			}
 		});

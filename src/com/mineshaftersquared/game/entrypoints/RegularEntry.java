@@ -45,9 +45,9 @@ public class RegularEntry {
 			if (args[4].equals("login")) {
 				OldAuth.Response result = OldAuth.login(username, sessionId, authserver);
 				if (result.sessionId == null) {
-					System.out.println("Could not log in: " + result.message);
+					UniversalLauncher.log.info("Could not log in: " + result.message);
 				} else {
-					System.out.println(String.format("Logged in with username {%s} and sessionId {%s}", result.message, sessionId));
+					UniversalLauncher.log.info(String.format("Logged in with username {%s} and sessionId {%s}", result.message, sessionId));
 					sessionId = result.sessionId;
 				}
 			}

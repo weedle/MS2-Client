@@ -8,9 +8,12 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.URL;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
@@ -46,10 +49,24 @@ public class LauncherWindow extends JFrame {
 		// this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.prefs = prefs;
+		
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				UniversalLauncher launcher = ((UniversalLauncher) LauncherWindow.this.prefs.tmpGetObject("instance"));
+				if (launcher.proxy != null && !launcher.proxy.isEnded) {
+					if (JOptionPane.showConfirmDialog(null,
+							"The proxy is still running. Are you sure you want to close?") == 0) {
+					} else {
+						return;
+					}
+				}
+				e.getWindow().dispose();
+			}
+		});
 
 		SimpleSwingUtils.setSystemLookAndFeel();
-
-		this.setIcon("com/mineshaftersquared/resources/ms2.png");
+		SimpleSwingUtils.setIcon(this, "com/mineshaftersquared/resources/ms2.png");
 
 		JPanel contentPane = new JPanel(new BorderLayout());
 
@@ -84,13 +101,6 @@ public class LauncherWindow extends JFrame {
 
 	public void updateServerStatusMessage(String msg) {
 		this.setTitle(UniversalLauncher.getWindowTitle() + " - " + msg);
-	}
-
-	private void setIcon(String path) {
-		URL iconURL = SimpleResources.loadAsURL(path);
-		Toolkit kit = Toolkit.getDefaultToolkit();
-		Image img = kit.createImage(iconURL);
-		this.setIconImage(img);
 	}
 
 }

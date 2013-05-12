@@ -4,6 +4,7 @@
  */
 package com.mineshaftersquared.gui.tabs;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -13,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -37,12 +39,15 @@ import com.mineshaftersquared.resources.Utils;
 public class SettingsTabPane extends AbstractTabPane {
 
 	private SimpleISettings prefs;
+	private JLabel serverStatus;
 
 	public SettingsTabPane(SimpleISettings prefs) {
 		this.prefs = prefs;
 		this.add(this.createSystemInfoPanel());
 		this.add(this.createRamPanel());
 		this.add(this.createProxyPane());
+
+		this.prefs.tmpPut("tabs.settings", this);
 	}
 
 	public JPanel createRamPanel() {
@@ -132,10 +137,8 @@ public class SettingsTabPane extends AbstractTabPane {
 	}
 
 	public JPanel createSystemInfoPanel() {
-		JPanel systemInfoPanel = new JPanel(new GridBagLayout());
+		JPanel systemInfoPanel = new JPanel(new BorderLayout());
 		systemInfoPanel.setBorder(SimpleSwingUtils.createLineBorder("System"));
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.NORTHWEST;
 
 		List<String> infos = new LinkedList<String>();
 
@@ -150,18 +153,9 @@ public class SettingsTabPane extends AbstractTabPane {
 			bin += "<li>" + str + "</li>";
 		}
 		bin += "</ul>";
-
-		c.gridx = 0;
-		c.gridy = 0;
-		systemInfoPanel.add(new SimpleWrappedLabel(bin, 550), c);
-
-		// JPanel openDirsPanel = new JPanel();
-
-		// openDirsPanel.add(openLocal);
-		// openDirsPanel.add(openDefaultMC);
-		// c.gridy++;
-		// systemInfoPanel.add(openDirsPanel, c);
-
+		
+		systemInfoPanel.add(new JEditorPane("text/html", "<html>" + bin + "</html>"), BorderLayout.CENTER);
+		
 		return systemInfoPanel;
 	}
 
@@ -169,6 +163,10 @@ public class SettingsTabPane extends AbstractTabPane {
 		JPanel proxyPanel = new JPanel(new GridLayout(0, 1));
 		JPanel serverPanel = new JPanel();
 		proxyPanel.setBorder(SimpleSwingUtils.createLineBorder("Proxy"));
+
+		JPanel serverStatusPanel = new JPanel();
+		final JLabel serverStatus = new JLabel("Server status: loading...");
+		this.serverStatus = serverStatus;
 
 		final JTextField serverField = new JTextField(20);
 		serverField.setText(this.prefs.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER));
@@ -181,8 +179,7 @@ public class SettingsTabPane extends AbstractTabPane {
 				SettingsTabPane.this.prefs.put("proxy.authserver", serverField.getText().trim());
 				SettingsTabPane.this.prefs.save();
 				JOptionPane.showMessageDialog(null, "Saved auth server");
-				((UniversalLauncher) SettingsTabPane.this.prefs.tmpGetObject("instance")).pingAuthServer(serverField
-						.getText().trim());
+				SettingsTabPane.this.pingAuthServer();
 			}
 		});
 
@@ -194,8 +191,7 @@ public class SettingsTabPane extends AbstractTabPane {
 				SettingsTabPane.this.prefs.put("proxy.authserver", serverField.getText());
 				SettingsTabPane.this.prefs.save();
 				JOptionPane.showMessageDialog(null, "Saved auth server (MS2 stable server)");
-				((UniversalLauncher) SettingsTabPane.this.prefs.tmpGetObject("instance"))
-						.pingAuthServer(UniversalLauncher.DEFAULT_AUTH_SERVER);
+				SettingsTabPane.this.pingAuthServer();
 			}
 		});
 
@@ -207,8 +203,7 @@ public class SettingsTabPane extends AbstractTabPane {
 				SettingsTabPane.this.prefs.put("proxy.authserver", serverField.getText());
 				SettingsTabPane.this.prefs.save();
 				JOptionPane.showMessageDialog(null, "Saved auth server (MS2 alpha server)");
-				((UniversalLauncher) SettingsTabPane.this.prefs.tmpGetObject("instance"))
-						.pingAuthServer(UniversalLauncher.BETA_AUTH_SERVER);
+				SettingsTabPane.this.pingAuthServer();
 			}
 		});
 
@@ -218,6 +213,8 @@ public class SettingsTabPane extends AbstractTabPane {
 		serverPanel.add(saveButton);
 		serverPanel.add(defaultServerButton);
 		serverPanel.add(altServerButton);
+
+		serverStatusPanel.add(serverStatus);
 
 		JPanel embeddedProxyPanel = new JPanel();
 
@@ -241,10 +238,6 @@ public class SettingsTabPane extends AbstractTabPane {
 						public void run() {
 							app.proxy.shouldEnd = true;
 							while (!app.proxy.isEnded) {
-								// if (System.currentTimeMillis() / 1000 % 5 ==
-								// 0)
-								// System.out.println("Server isEnded: " +
-								// app.proxy.isEnded);
 								SimpleUtils.wait(1);
 							}
 							app.proxy = null;
@@ -267,6 +260,29 @@ public class SettingsTabPane extends AbstractTabPane {
 
 		proxyPanel.add(serverPanel);
 		proxyPanel.add(embeddedProxyPanel);
+		proxyPanel.add(serverStatusPanel);
 		return proxyPanel;
+	}
+
+	public void pingAuthServer() {
+		final String server = SettingsTabPane.this.prefs.getString("proxy.authserver",
+				UniversalLauncher.DEFAULT_AUTH_SERVER);
+		this.serverStatus.setText("Server status: pinging...");
+		((UniversalLauncher) this.prefs.tmpGetObject("instance")).getMainWindow().updateServerStatusMessage(
+				String.format("Pinging %s ...", server));
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				if (SimpleUtils.httpPing(server)) {
+					SettingsTabPane.this.serverStatus.setText("Server status: OK");
+					((UniversalLauncher) SettingsTabPane.this.prefs.tmpGetObject("instance")).getMainWindow()
+							.updateServerStatusMessage(String.format("Server %s OK", server));
+				} else {
+					SettingsTabPane.this.serverStatus.setText("Server status: Unable to reach");
+					((UniversalLauncher) SettingsTabPane.this.prefs.tmpGetObject("instance")).getMainWindow()
+							.updateServerStatusMessage(String.format("Server %s unreachable", server));
+				}
+			}
+		}).start();
 	}
 }

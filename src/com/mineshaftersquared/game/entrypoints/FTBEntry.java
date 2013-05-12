@@ -58,7 +58,7 @@ public class FTBEntry {
 		}
 
 		for (String str : shiftedArgs) {
-			System.out.println("Shifted args: " + str);
+			UniversalLauncher.log.info("Shifted args: " + str);
 		}
 
 		Process p = JarProcessBuilder.create(jarname, new String[] { "-Dhttp.proxyHost=127.0.0.1",
@@ -68,12 +68,12 @@ public class FTBEntry {
 		t.setDaemon(true);
 		t.start();
 		try {
-			System.out.println("Waiting...");
+			UniversalLauncher.log.info("Waiting...");
 			p.waitFor();
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
 		}
-		System.out.println("Done");
+		UniversalLauncher.log.info("Done");
 		proxy.shouldEnd = true;
 	}
 }

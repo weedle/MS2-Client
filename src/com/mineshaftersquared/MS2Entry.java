@@ -6,6 +6,7 @@ package com.mineshaftersquared;
 
 import java.util.Arrays;
 
+import com.mineshaftersquared.game.entrypoints.BukkitEntry;
 import com.mineshaftersquared.game.entrypoints.FTBEntry;
 import com.mineshaftersquared.game.entrypoints.ProxyEntry;
 import com.mineshaftersquared.game.entrypoints.RegularEntry;
@@ -31,7 +32,7 @@ public class MS2Entry {
 			}
 		}
 		for (int i = 0; i < shiftedArgs.length; i++) {
-			System.out.println("Shifted args: " + shiftedArgs[i]);
+			UniversalLauncher.log.info("Shifted args: " + shiftedArgs[i]);
 		}
 		if (entry.equals("regular")) {
 			RegularEntry.main(shiftedArgs);
@@ -46,7 +47,7 @@ public class MS2Entry {
 			TechnicEntry.main(shiftedArgs);
 			return;
 		} else if (entry.equals("server-bukkit")) {
-			ServerEntry.main(shiftedArgs);
+			BukkitEntry.main(shiftedArgs);
 			return;
 		} else if (entry.equals("spoutcraft")) {
 			SpoutcraftEntry.main(shiftedArgs);

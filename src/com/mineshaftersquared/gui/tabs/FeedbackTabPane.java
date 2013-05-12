@@ -4,11 +4,14 @@
  */
 package com.mineshaftersquared.gui.tabs;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.ProxySelector;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -19,10 +22,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleISettings;
 import com.creatifcubed.simpleapi.SimpleWaiter;
+import com.creatifcubed.simpleapi.swing.SimpleLinkableLabel;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.mineshaftersquared.UniversalLauncher;
 
@@ -36,6 +43,60 @@ public class FeedbackTabPane extends AbstractTabPane {
 
 	public FeedbackTabPane(SimpleISettings prefs) {
 		this.prefs = prefs;
+		
+		this.add(this.createFeedbackPanel());
+	}
+	
+	private JPanel createFeedbackPanel() {
+//		JPanel panel = new JPanel(new GridLayout(0, 1));
+//		byte[] data = new SimpleHTTPRequest("http://" + UniversalLauncher.POLLING_SERVER + "feedback_tips.php").doGet(SimpleHTTPRequest.DEFAULT_PROXY);
+//		String bin = data == null ? "Unable to get feedback tips. Please check ms2.creatifcubed.com" : new String(data);
+//		panel.add(new SimpleLinkableLabel(bin));
+//		
+//		return panel;
+		JPanel panel = new JPanel(new BorderLayout());
+
+		final JTextPane browser = new JTextPane();
+
+		browser.setEditable(false);
+		browser.setMargin(null);
+		//browser.setBackground(Color.DARK_GRAY);
+		browser.setContentType("text/html");
+		
+		browser.addHyperlinkListener(SimpleSwingUtils.createHyperlinkListenerOpen("Unable to open link \"%s\" (reason: {%s})"));
+
+		browser.setText("<html><body><h1>Loading feedback info...</h1></body></html>");
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					browser.setPage(new URL("http://" + UniversalLauncher.POLLING_SERVER  + "feedback_info.php"));
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					browser.setText("<html><body><h1>Failed to fetch feedback info</h1><br>Error: " + ex.toString()
+							+ "</body></html>");
+				}
+			}
+		}).start();
+
+		panel.add(new JScrollPane(browser), BorderLayout.CENTER);
+
+		return panel;
+	}
+
+	private JPanel createFeedbackNoticePanel() {
+		JPanel feedbackNoticePanel = new JPanel(new GridLayout(0, 1));
+
+		feedbackNoticePanel.add(new JLabel("If you need help, you need to include your email."));
+		feedbackNoticePanel.add(new JLabel(
+				"We are not psychic; the more info you give us, the faster we can fix something."));
+		feedbackNoticePanel.add(new JLabel("READ FAQ FOR COMMON PROBLEMS AT ms2.creatifcubed.com/more.php"));
+
+		return feedbackNoticePanel;
+	}
+	
+	private JPanel createFeedbackFormPanel() {
 		JPanel feedbackPane = new JPanel(new GridBagLayout());
 		feedbackPane.setBorder(SimpleSwingUtils.createLineBorder("Feedback/Bug Reports"));
 		GridBagConstraints c = new GridBagConstraints();
@@ -92,7 +153,7 @@ public class FeedbackTabPane extends AbstractTabPane {
 									.addPost("username", FeedbackTabPane.this.prefs.tmpGetString("username", ""))
 									.addPost("java", System.getProperty("java.version"))
 									.doPost(SimpleHTTPRequest.NO_PROXY);
-							System.out.println("Feedback: " + new String(returned));
+							UniversalLauncher.log.info("Feedback: " + new String(returned));
 							JOptionPane
 									.showMessageDialog(
 											null,
@@ -130,18 +191,6 @@ public class FeedbackTabPane extends AbstractTabPane {
 		c.ipady = 5;
 		// c.anchor = GridBagConstraints.WEST;
 		feedbackPane.add(submit, c);
-
-		this.add(feedbackPane);
-	}
-
-	private JPanel createFeedbackNoticePanel() {
-		JPanel feedbackNoticePanel = new JPanel(new GridLayout(0, 1));
-
-		feedbackNoticePanel.add(new JLabel("<html>If you need help, you need to include your email."));
-		feedbackNoticePanel.add(new JLabel(
-				"We are not psychic; the more info you give us, the faster we can fix something."));
-		feedbackNoticePanel.add(new JLabel("READ FAQ FOR COMMON PROBLEMS AT ms2.creatifcubed.com/more.php"));
-
-		return feedbackNoticePanel;
+		return feedbackPane;
 	}
 }

@@ -24,30 +24,30 @@ public class MS2LauncherUpdater {
 			System.exit(-1);
 		}
 		String launchername = args[0];
-		System.out.println("Removing old launcher...");
+		UniversalLauncher.log.info("Removing old launcher...");
 		while (true) {
 			File f = new File(launchername);
 			f.delete();
 			if (!f.exists()) {
 				break;
 			}
-			System.out.println("Not deleted yet, waiting 3 seconds... ");
+			UniversalLauncher.log.info("Not deleted yet, waiting 3 seconds... ");
 			try {
 				Thread.sleep(10000 * 3);
 			} catch (InterruptedException ignore) {
 				ignore.printStackTrace();
 			}
 		}
-		System.out.println("Old launcher gone.");
-		System.out.println("Downloading file...");
+		UniversalLauncher.log.info("Old launcher gone.");
+		UniversalLauncher.log.info("Downloading file...");
 		try {
 			SimpleUtils.downloadFile(new URL("http://ms2.creatifcubed.com/latestdownload.php?jar=yes"), new File(
 					launchername).getCanonicalPath(), 1 << 24);
-			System.out.println("Downloaded new launcher.");
+			UniversalLauncher.log.info("Downloaded new launcher.");
 
-			System.out.println("Relaunching...");
+			UniversalLauncher.log.info("Relaunching...");
 			Process p = JarProcessBuilder.create(launchername, null, null);
-			System.out.println("Done. Process is null (should be false): " + (p == null));
+			UniversalLauncher.log.info("Done. Process is null (should be false): " + (p == null));
 			return;
 		} catch (MalformedURLException ex) {
 			ex.printStackTrace();
@@ -56,6 +56,6 @@ public class MS2LauncherUpdater {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		System.out.println("Something went wrong.");
+		UniversalLauncher.log.info("Something went wrong.");
 	}
 }

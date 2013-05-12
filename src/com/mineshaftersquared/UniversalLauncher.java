@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.logging.Logger;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import com.creatifcubed.simpleapi.SimpleAggregateOutputStream;
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
@@ -21,6 +23,7 @@ import com.creatifcubed.simpleapi.SimpleXMLSettings;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.mineshaftersquared.gui.LauncherWindow;
 import com.mineshaftersquared.proxy.MineProxy;
+import com.mineshaftersquared.gui.tabs.SettingsTabPane;
 
 /*
  * Settings:
@@ -71,35 +74,27 @@ public class UniversalLauncher {
 		
 		this.initializeResources();
 		this.proxy = null;
-		LauncherWindow mainWindow = new LauncherWindow(getWindowTitle(), this.prefs);
-		if (this.args.length > 0) {
-			if (this.args[0].toLowerCase().equals("server")) {
-				mainWindow.setActiveTab(5);
-			}
-		}
-		mainWindow.setVisible(true);
-		this.mainWindow = mainWindow;
-		this.mainWindow.addWindowListener(new WindowAdapter() {
+		
+		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void windowClosing(WindowEvent e) {
-				if (UniversalLauncher.this.proxy != null && !UniversalLauncher.this.proxy.isEnded) {
-					if (JOptionPane.showConfirmDialog(null,
-							"The proxy is still running. Are you sure you want to close?") == 0) {
-
-					} else {
-						return;
+			public void run() {
+				LauncherWindow mainWindow = new LauncherWindow(getWindowTitle(), UniversalLauncher.this.prefs);
+				if (UniversalLauncher.this.args.length > 0) {
+					if (UniversalLauncher.this.args[0].toLowerCase().equals("server")) {
+						mainWindow.setActiveTab(5);
 					}
 				}
-				e.getWindow().dispose();
+				mainWindow.setVisible(true);
+				UniversalLauncher.this.mainWindow = mainWindow;
+
+				UniversalLauncher.checkVersionUpdates();
+
+				UniversalLauncher.this.checkLastVersion();
+				UniversalLauncher.this.logCurrentVersion();
+				
+				((SettingsTabPane) UniversalLauncher.this.prefs.tmpGetObject("tabs.settings")).pingAuthServer();
 			}
 		});
-
-		UniversalLauncher.checkVersionUpdates();
-
-		this.checkLastVersion();
-		this.logCurrentVersion();
-		this.pingAuthServer(UniversalLauncher.this.prefs.getString("proxy.authserver", DEFAULT_AUTH_SERVER));
-
 	}
 
 	public static String getWindowTitle() {
@@ -127,35 +122,11 @@ public class UniversalLauncher {
 			System.out
 					.println("Couldn't get last version. If this isn't the first launch, check updates at ms2.creatifcubed.com");
 		}
-
-		if (lastVersion == null) {
-			new File("ms2-resources").delete();
-			this.initializeResources();
-		}
 	}
 
 	private void logCurrentVersion() {
 		this.prefs.put("launcher.lastversion", MS2_VERSION.toString());
 		this.prefs.save();
-	}
-
-	public void pingAuthServer(final String server) {
-		// System.out.println("Pinging " +
-		// UniversalLauncher.this.prefs.getString("proxy.authserver",
-		// DEFAULT_AUTH_SERVER));
-		// System.out.println(server);
-		this.mainWindow.updateServerStatusMessage("Pinging " + server + " ...");
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				if (SimpleUtils.httpPing(server)) {
-					UniversalLauncher.this.mainWindow.updateServerStatusMessage("Server " + server + " OK");
-				} else {
-					UniversalLauncher.this.mainWindow.updateServerStatusMessage("Server " + server + " Offline");
-				}
-			}
-		}).start();
-
 	}
 
 	private void initializeResources() {
@@ -176,7 +147,7 @@ public class UniversalLauncher {
 					String result = new String(new SimpleHTTPRequest("http://" + POLLING_SERVER + "latestversion.php")
 							.addGet("currentversion", MS2_VERSION.toString()).doGet(SimpleHTTPRequest.NO_PROXY)).trim();
 					SimpleVersion latest = new SimpleVersion(result);
-					System.out.println("Latest version: " + latest.toString());
+					UniversalLauncher.log.info("Latest version: " + latest.toString());
 					if (MS2_VERSION.shouldUpdateTo(latest)) {
 						JOptionPane.showMessageDialog(null,
 								"There is an update at ms2.creatifcubed.com. Latest version: " + latest.toString());

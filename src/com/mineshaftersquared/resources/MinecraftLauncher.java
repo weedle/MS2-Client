@@ -13,6 +13,8 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mineshaftersquared.UniversalLauncher;
+
 /**
  * 
  * @author Adrian
@@ -33,7 +35,7 @@ public class MinecraftLauncher implements Runnable {
 			Class mc = cl.loadClass("net.minecraft.client.Minecraft");
 			this.fixMCPathField(mc);
 
-			System.out.println("Launching as applet...");
+			UniversalLauncher.log.info("Launching as applet...");
 			Class AppletWrapperClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
 			Applet app = (Applet) AppletWrapperClass.newInstance();
 			MS2Frame frame = new MS2Frame();
@@ -46,7 +48,7 @@ public class MinecraftLauncher implements Runnable {
 			parameters.put("stand-alone", "true");
 
 			MS2Container container = new MS2Container(parameters, app);
-			System.out.println("Starting frame/container/app...");
+			UniversalLauncher.log.info("Starting frame/container/app...");
 
 			frame.setVisible(true);
 			frame.start(container);
@@ -78,7 +80,7 @@ public class MinecraftLauncher implements Runnable {
 
 	private ClassLoader initClassLoader() {
 		try {
-			System.out.println("Minecraft Launcher - init classloading...");
+			UniversalLauncher.log.info("Minecraft Launcher - init classloading...");
 			String[] jarfiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
 			URL[] urls = new URL[jarfiles.length];
 			File binDir = new File(this.path, "bin");
@@ -86,7 +88,7 @@ public class MinecraftLauncher implements Runnable {
 			for (int i = 0; i < urls.length; i++) {
 				File f = new File(binDir, jarfiles[i]);
 				urls[i] = f.toURI().toURL();
-				System.out.println("Loaded jar file: " + urls[i].toString());
+				UniversalLauncher.log.info("Loaded jar file: " + urls[i].toString());
 			}
 
 			String nativesDir = new File(binDir, "natives").toString();
@@ -94,13 +96,13 @@ public class MinecraftLauncher implements Runnable {
 			System.setProperty("org.lwjgl.librarypath", nativesDir);
 			System.setProperty("net.java.games.input.librarypath", nativesDir);
 
-			System.out.println("Set natives paths");
+			UniversalLauncher.log.info("Set natives paths");
 
 			URLClassLoader cl = new URLClassLoader(urls);
 
 			System.setProperty("minecraft.applet.TargetDirectory", this.path);
-			System.out.println("Created classloader and set TargetDirectory");
-			System.out.println("Minecraft Launcher - done init classloader");
+			UniversalLauncher.log.info("Created classloader and set TargetDirectory");
+			UniversalLauncher.log.info("Minecraft Launcher - done init classloader");
 
 			return cl;
 

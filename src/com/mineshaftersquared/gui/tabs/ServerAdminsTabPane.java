@@ -194,26 +194,7 @@ public class ServerAdminsTabPane extends AbstractTabPane {
 								serverName,
 								ServerAdminsTabPane.this.prefs.getString("proxy.authserver",
 										UniversalLauncher.DEFAULT_AUTH_SERVER), });
-
-					String[] consoleCommand = JarProcessBuilder.getConsoleCommand(commands);
-					if (consoleCommand == null) {
-						String input = JOptionPane
-								.showInputDialog(
-										"Unknown OS. Enter command to start process in new console. Default {xterm -e}",
-										"xterm -e");
-						if (input == null) {
-							JOptionPane
-							.showMessageDialog(null,
-									"Cannot start bukkit graphically.\nRead about command line launching at ms2.creatifcubed.com");
-							return;
-						}
-						consoleCommand = input.split(" ");
-						consoleCommand = SimpleUtils.appendArrays(consoleCommand,
-								commands.toArray(new String[commands.size()]));
-					}
-
-					Process p = JarProcessBuilder.create(consoleCommand);
-
+					Process p = JarProcessBuilder.create(commands);
 					new Thread(new ProcessOutputRedirector(p, "[MS2-Bukkit]: ")).start();
 				} catch (IOException ex) {
 					ex.printStackTrace();
@@ -246,8 +227,8 @@ public class ServerAdminsTabPane extends AbstractTabPane {
 					this.prefs.save();
 					JOptionPane.showMessageDialog(null, "Your proxy has been updated (see settings tab)"
 							+ "\nNew users can join your server");
-					((UniversalLauncher) this.prefs.tmpGetObject("instance"))
-					.pingAuthServer(UniversalLauncher.BETA_AUTH_SERVER);
+					((SettingsTabPane) this.prefs.tmpGetObject("tabs.settings"))
+					.pingAuthServer();
 					((JTextField) this.prefs.tmpGetObject("proxy.serverfield"))
 					.setText(UniversalLauncher.BETA_AUTH_SERVER);
 				} else if (result == 1) {

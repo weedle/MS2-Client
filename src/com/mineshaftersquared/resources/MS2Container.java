@@ -8,6 +8,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
+import com.mineshaftersquared.UniversalLauncher;
+
 public class MS2Container extends Applet implements AppletStub {
 
 	private Map<String, String> parameters;
@@ -44,7 +46,7 @@ public class MS2Container extends Applet implements AppletStub {
 
 	@Override
 	public String getParameter(String name) {
-		System.out.println("getting param" + name);
+		UniversalLauncher.log.info("getting param" + name);
 		String local = this.parameters.get(name);
 		if (local != null) {
 			return local;
@@ -78,19 +80,19 @@ public class MS2Container extends Applet implements AppletStub {
 
 	@Override
 	public void appletResize(int width, int height) {
-		System.out.println(width + ", " + height);
+		UniversalLauncher.log.info(width + ", " + height);
 		this.applet.resize(width, height);
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		System.out.println(width + ", " + height);
+		UniversalLauncher.log.info(width + ", " + height);
 		this.applet.resize(width, height);
 	}
 
 	@Override
 	public void resize(Dimension d) {
-		System.out.println(d.width + ", " + d.height);
+		UniversalLauncher.log.info(d.width + ", " + d.height);
 		this.applet.resize(d);
 	}
 

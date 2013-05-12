@@ -42,7 +42,7 @@ public class ServerEntry {
 		}
 
 		for (String str : shiftedArgs) {
-			System.out.println("Shifted args: " + str);
+			UniversalLauncher.log.info("Shifted args: " + str);
 		}
 
 		JarProcessBuilder.wrapJar(jarname, shiftedArgs);

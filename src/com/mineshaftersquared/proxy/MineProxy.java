@@ -83,7 +83,7 @@ public class MineProxy extends Thread {
 			while (true) {
 				try {
 					if (this.shouldEnd) {
-						System.out.println("Proxy on port " + this.port + " ending");
+						UniversalLauncher.log.info("Proxy on port " + this.port + " ending");
 						break;
 					}
 					Socket connection = server.accept();
@@ -91,21 +91,21 @@ public class MineProxy extends Thread {
 					MineProxyHandler handler = new MineProxyHandler(this, connection);
 					handler.start();
 				} catch (Exception ignore) {
-					// System.out.println("{MineProxy timed out (normal)}");
+					// UniversalLauncher.log.info("{MineProxy timed out (normal)}");
 				}
 			}
 		} catch (IOException ex) {
 			UniversalLauncher.log.info("Error in server accept loop: " + ex.getLocalizedMessage());
 		} finally {
 			try {
-				// System.out.println("Closing proxy server");
+				// UniversalLauncher.log.info("Closing proxy server");
 				server.close();
 			} catch (Exception ignore) {
 				//
 			} finally {
-				// System.out.println("Setting isEnded to true");
+				// UniversalLauncher.log.info("Setting isEnded to true");
 				this.isEnded = true;
-				System.out.println("This.isended: " + this.isEnded);
+				UniversalLauncher.log.info("This.isended: " + this.isEnded);
 			}
 		}
 	}

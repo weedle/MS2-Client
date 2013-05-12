@@ -5,6 +5,7 @@
 package com.mineshaftersquared.game.entrypoints;
 
 import com.creatifcubed.simpleapi.SimpleConsole;
+import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.proxy.MineProxy;
 
 /**
@@ -20,7 +21,7 @@ public class ProxyEntry {
 		}
 		MineProxy proxy = new MineProxy(authserver);
 		proxy.start();
-		System.out.println("Proxying on port: " + proxy.getPort());
+		UniversalLauncher.log.info("Proxying on port: " + proxy.getPort());
 		while (true) {
 			String in = SimpleConsole.readLine("Commands: stop\n");
 			if (in.equals("stop")) {

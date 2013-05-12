@@ -17,6 +17,7 @@ import java.util.jar.JarFile;
 
 import com.creatifcubed.simpleapi.SimpleOS;
 import com.creatifcubed.simpleapi.SimpleUtils;
+import com.mineshaftersquared.UniversalLauncher;
 
 /**
  * 
@@ -36,11 +37,12 @@ public class JarProcessBuilder {
 	}
 
 	public static Process create(String[] commands) {
-		System.out.println("Creating command...");
+		UniversalLauncher.log.info("Creating command...");
+		String bin = "";
 		for (String str : commands) {
-			System.out.print(str + " ");
+			bin += str + " ";
 		}
-		System.out.println();
+		UniversalLauncher.log.info(bin);
 		ProcessBuilder pb = new ProcessBuilder(Arrays.asList(commands));
 		try {
 			Process p = pb.start();
@@ -136,7 +138,7 @@ public class JarProcessBuilder {
 
 			URL u = new File(load).toURI().toURL();
 
-			System.out.println("{JarProcessBuilder: wrapping jar {" + load + "}, main class {" + mainClass + "}");
+			UniversalLauncher.log.info("{JarProcessBuilder: wrapping jar {" + load + "}, main class {" + mainClass + "}");
 
 			URLClassLoader cl = new URLClassLoader(new URL[] { u });
 
@@ -144,7 +146,7 @@ public class JarProcessBuilder {
 			Method mainMethod = main.getDeclaredMethod("main", String[].class);
 
 			for (String str : args) {
-				System.out.println("Wrapping with args: " + str);
+				UniversalLauncher.log.info("Wrapping with args: " + str);
 			}
 
 			// TODO

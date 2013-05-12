@@ -108,10 +108,10 @@ public class ModsTabPane extends AbstractTabPane {
 					JOptionPane.showMessageDialog(null, "Proxy has not been started. Start it in the settings tab");
 					return;
 				} else {
-					System.out.println("Spoutcraft using proxy: " + proxy.getPort());
+					UniversalLauncher.log.info("Spoutcraft using proxy: " + proxy.getPort());
 				}
 				jarName += ".jar";
-				System.out.println("Modding Spoutcraft Launcher {" + jarName + "}...");
+				UniversalLauncher.log.info("Modding Spoutcraft Launcher {" + jarName + "}...");
 				File original = new File(jarName);
 				File modded = Utils.getModdedFile(original);
 				modded.delete();
@@ -119,7 +119,7 @@ public class ModsTabPane extends AbstractTabPane {
 				// changes.put("org/spoutcraft/launcher/util/Utils.class",
 				// Utils.MOD_REPLACE);
 				Utils.editJar(original, modded, changes);
-				System.out.println("Done modding Spoutcraft launcher {" + modded.getName() + "}");
+				UniversalLauncher.log.info("Done modding Spoutcraft launcher {" + modded.getName() + "}");
 				try {
 					String path = SimpleUtils.getJarPath().getCanonicalPath();
 					List<String> commands = JarProcessBuilder.getCommand(path, null, new String[] { "proxy",
@@ -179,7 +179,7 @@ public class ModsTabPane extends AbstractTabPane {
 					ModsTabPane.this.prefs.save();
 				}
 				jarName += ".jar";
-				System.out.println("Modding FTB Launcher {" + jarName + "}...");
+				UniversalLauncher.log.info("Modding FTB Launcher {" + jarName + "}...");
 				File original = new File(jarName);
 				File modded = Utils.getModdedFile(original);
 				modded.delete();
@@ -187,7 +187,7 @@ public class ModsTabPane extends AbstractTabPane {
 				changes.put("net/ftb/mclauncher/MinecraftLauncher.class", Utils.MOD_REPLACE);
 				changes.put("net/ftb/workers/LoginWorker.class", Utils.MOD_REPLACE);
 				Utils.editJar(original, modded, changes);
-				System.out.println("Done modding FTB launcher {" + modded.getName() + "}");
+				UniversalLauncher.log.info("Done modding FTB launcher {" + modded.getName() + "}");
 
 				int minRam = ModsTabPane.this.prefs.getInt("runtime.ram.min", 0);
 				int maxRam = ModsTabPane.this.prefs.getInt("runtime.ram.max", 0);
@@ -254,7 +254,7 @@ public class ModsTabPane extends AbstractTabPane {
 					ModsTabPane.this.prefs.save();
 				}
 				jarName += ".jar";
-				System.out.println("Modding Technic Launcher {" + jarName + "}...");
+				UniversalLauncher.log.info("Modding Technic Launcher {" + jarName + "}...");
 				File original = new File(jarName);
 				File modded = Utils.getModdedFile(original);
 				modded.delete();
@@ -262,7 +262,7 @@ public class ModsTabPane extends AbstractTabPane {
 				// changes.put("org/spoutcraft/launcher/util/Utils.class",
 				// Utils.MOD_REPLACE);
 				Utils.editJar(original, modded, changes);
-				System.out.println("Done modding Technic launcher {" + modded.getName() + "}");
+				UniversalLauncher.log.info("Done modding Technic launcher {" + modded.getName() + "}");
 
 				int minRam = ModsTabPane.this.prefs.getInt("runtime.ram.min", 0);
 				int maxRam = ModsTabPane.this.prefs.getInt("runtime.ram.max", 0);
@@ -278,7 +278,7 @@ public class ModsTabPane extends AbstractTabPane {
 						return;
 					} else {
 						proxyPort = String.valueOf(proxy.getPort());
-						System.out.println("Technic using proxy: " + proxyPort);
+						UniversalLauncher.log.info("Technic using proxy: " + proxyPort);
 					}
 					Process p = JarProcessBuilder.create(
 							path,

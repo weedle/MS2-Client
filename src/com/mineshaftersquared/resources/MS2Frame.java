@@ -10,6 +10,8 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.mineshaftersquared.UniversalLauncher;
+
 public class MS2Frame extends JFrame {
 
 	private JPanel wrapper;
@@ -42,7 +44,7 @@ public class MS2Frame extends JFrame {
 	}
 
 	public void start(Applet applet) {
-		System.out.println("Starting " + applet.getClass().getCanonicalName());
+		UniversalLauncher.log.info("Starting " + applet.getClass().getCanonicalName());
 		applet.init();
 		this.wrapper.add(applet, BorderLayout.CENTER);
 		this.validate();
