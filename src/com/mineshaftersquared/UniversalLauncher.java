@@ -8,6 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.PrintStream;
+import java.net.Proxy;
 import java.util.logging.Logger;
 
 import javax.swing.JLabel;
@@ -145,7 +146,7 @@ public class UniversalLauncher {
 			public void run() {
 				try {
 					String result = new String(new SimpleHTTPRequest("http://" + POLLING_SERVER + "latestversion.php")
-							.addGet("currentversion", MS2_VERSION.toString()).doGet(SimpleHTTPRequest.NO_PROXY)).trim();
+							.addGet("currentversion", MS2_VERSION.toString()).doGet(Proxy.NO_PROXY)).trim();
 					SimpleVersion latest = new SimpleVersion(result);
 					UniversalLauncher.this.prefs.tmpPut("latestversion.string", latest.toString());
 					UniversalLauncher.log.info("Latest version: " + latest.toString());

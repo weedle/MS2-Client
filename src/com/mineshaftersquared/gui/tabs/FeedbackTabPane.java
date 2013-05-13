@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -152,7 +153,7 @@ public class FeedbackTabPane extends AbstractTabPane {
 									.addPost("os", System.getProperty("os.name"))
 									.addPost("username", FeedbackTabPane.this.prefs.tmpGetString("username", ""))
 									.addPost("java", System.getProperty("java.version"))
-									.doPost(SimpleHTTPRequest.NO_PROXY);
+									.doPost(Proxy.NO_PROXY);
 							UniversalLauncher.log.info("Feedback: " + new String(returned));
 							JOptionPane
 									.showMessageDialog(

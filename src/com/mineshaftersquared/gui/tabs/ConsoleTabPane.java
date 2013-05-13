@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -24,7 +25,7 @@ public class ConsoleTabPane extends AbstractTabPane {
 	private JPanel createConsoleTab() {
 		JPanel container = new JPanel(new BorderLayout());
 		
-		container.add(UniversalLauncher.console.getOutputField(), BorderLayout.CENTER);
+		container.add(new JScrollPane(UniversalLauncher.console.getOutputField()), BorderLayout.CENTER);
 		
 		final JCheckBox autoscroll = new JCheckBox("Autoscroll?", true);
 		autoscroll.addActionListener(new ActionListener() {
@@ -34,6 +35,7 @@ public class ConsoleTabPane extends AbstractTabPane {
 			}
 			
 		});
+		SimpleSwingUtils.setAutoscroll(UniversalLauncher.console.getOutputField(), true);
 		
 		final JButton selectall = new JButton("Select all");
 		selectall.addActionListener(new ActionListener() {

@@ -10,13 +10,12 @@ import java.util.regex.Pattern;
 
 import com.mineshaftersquared.UniversalLauncher;
 
-
 public class MineProxy extends Thread {
 
-	public static String authServer;
+	public String authServer;
 	private int port;
 	public volatile boolean shouldEnd;
-	public boolean isEnded;
+	public volatile boolean isEnded;
 	// Patterns
 	public static final Pattern SKIN_URL = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+?)\\.png");
 	public static final Pattern CLOAK_URL = Pattern
@@ -41,15 +40,15 @@ public class MineProxy extends Thread {
 			.compile("http://cdn.spout.org/game/vanilla/cape/(.+?)\\.png");
 
 	/* NTS: See if this is still needed */
-	public Hashtable<String, byte[]> skinCache;
-	public Hashtable<String, byte[]> cloakCache;
+	public final Hashtable<String, byte[]> skinCache;
+	public final Hashtable<String, byte[]> cloakCache;
 
 	public MineProxy(String currentAuthServer) {
 		this.setName("MineProxy Thread");
 		this.setDaemon(true);
 
-		MineProxy.authServer = currentAuthServer; // TODO maybe change this
-													// leave it for now
+		this.authServer = currentAuthServer; // TODO maybe change this
+												// leave it for now
 
 		this.skinCache = new Hashtable<String, byte[]>();
 		this.cloakCache = new Hashtable<String, byte[]>();
@@ -58,7 +57,6 @@ public class MineProxy extends Thread {
 		this.isEnded = true;
 	}
 
-	// @SuppressWarnings("resource")
 	@Override
 	public void run() {
 		ServerSocket server = null;
@@ -98,12 +96,10 @@ public class MineProxy extends Thread {
 			UniversalLauncher.log.info("Error in server accept loop: " + ex.getLocalizedMessage());
 		} finally {
 			try {
-				// UniversalLauncher.log.info("Closing proxy server");
 				server.close();
 			} catch (Exception ignore) {
 				//
 			} finally {
-				// UniversalLauncher.log.info("Setting isEnded to true");
 				this.isEnded = true;
 				UniversalLauncher.log.info("This.isended: " + this.isEnded);
 			}

@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.List;
 
@@ -381,7 +382,7 @@ public class IndexTabPane extends AbstractTabPane {
 						+ "<li>You should check manually at ms2.creatifcubed.com</li></ul>";
 				try {
 					updates = new String(new SimpleHTTPRequest("http://" + UniversalLauncher.POLLING_SERVER
-							+ "updates_messages.php").doGet(SimpleHTTPRequest.NO_PROXY));
+							+ "updates_messages.php").doGet(Proxy.NO_PROXY));
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
