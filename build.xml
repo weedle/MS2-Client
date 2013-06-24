@@ -9,6 +9,7 @@
 	<property name="resources.dir" location="resources" />
 	<property name="manifest.mainclass" value="com.mineshaftersquared.MS2Entry" />
 	<property name="simpleapi.jarname" value="simpleapi.jar" />
+	<property name="gson.jarname" value="gson-2.2.4.jar" />
 
 	<path id="build.classpath">
 		<fileset dir="${libs.dir}">
@@ -27,7 +28,7 @@
 	</target>
 
 	<target name="compile" depends="clean, prepare">
-		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.6"/>
+		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.6" source="1.6"/>
 	</target>
 
 	<target name="jar" depends="compile">
@@ -36,7 +37,7 @@
 				<attribute name="Main-Class" value="${manifest.mainclass}" />
 			</manifest>
 			<zipfileset dir="${resources.dir}" includes="ms2.png" fullpath="com/mineshaftersquared/resources/ms2.png" />
-			<zipgroupfileset dir="${libs.dir}" includes="${simpleapi.jarname}" />
+			<zipgroupfileset dir="${libs.dir}" includes="${simpleapi.jarname},${gson.jarname}" />
 		</jar>
 	</target>
 

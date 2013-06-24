@@ -31,6 +31,7 @@ import com.mineshaftersquared.gui.tabs.ModsTabPane;
 import com.mineshaftersquared.gui.tabs.NewsTabPane;
 import com.mineshaftersquared.gui.tabs.ServerAdminsTabPane;
 import com.mineshaftersquared.gui.tabs.SettingsTabPane;
+import com.mineshaftersquared.gui.tabs.VersionsTabPane;
 
 /**
  * 
@@ -75,6 +76,7 @@ public class LauncherWindow extends JFrame {
 		this.prefs.tmpPut("launcher.window", this);
 
 		tabbedPane.add("Index", new IndexTabPane(this.prefs));
+		tabbedPane.add("Versions", new VersionsTabPane(this.prefs));
 		tabbedPane.add("Settings", new SettingsTabPane(this.prefs));
 		tabbedPane.add("About", new AboutTabPane());
 		tabbedPane.add("Feedback", new FeedbackTabPane(this.prefs));

@@ -1,5 +1,6 @@
 # Mineshafter Squared - Universal Launcher (4.2.12)
 =====
+I try to follow [semantic versioning](http://semver.org/")
 
 ### Website
 - [ms2.creatifcubed.com](http://ms2.creatifcubed.com)
