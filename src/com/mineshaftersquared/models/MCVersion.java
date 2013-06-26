@@ -37,7 +37,7 @@ public class MCVersion {
 	private static final Map<String, MCVersion> cachedVersionsMap = new HashMap<String, MCVersion>();
 	private static final Map<String, String> cachedVersionsData = new HashMap<String, String>();
 
-	private MCVersion(String versionId, Date releaseTime, MCVersionType type) {
+	public MCVersion(String versionId, Date releaseTime, MCVersionType type) {
 		this.versionId = versionId;
 		this.releaseTime = releaseTime;
 		this.type = type;
@@ -55,42 +55,9 @@ public class MCVersion {
 	}
 	private MCVersionDetails fetchDetails(String url, boolean flush) {
 		String data = getMCVersionData(this.versionId, url, flush);
-		JsonObject root = new JsonParser().parse(data).getAsJsonObject();
-		
-		String[] processArguments = root.get("processArguments").getAsString().split("_");
-		String[] minecraftArguments = root.get("minecraftArguments").getAsString().split(" ");
-		String mainClass = root.get("mainClass").getAsString();
-		
-		JsonArray jsonLibraries = root.get("libraries").getAsJsonArray();
-		List<MCLibrary> libraries = new LinkedList<MCLibrary>();
-		for (JsonElement each : jsonLibraries) {
-			JsonObject jsonLib = each.getAsJsonObject();
-			MCLibrary lib = new MCLibrary(jsonLib.get("name").getAsString());
-			if (jsonLib.has("natives")) {
-				for (Map.Entry<String, JsonElement> pair : jsonLib.get("natives").getAsJsonObject().entrySet()) {
-					SimpleOS os = JSON_JAVA_OS_MAP.get(pair.getKey());
-					if (os == null) {
-						os = SimpleOS.UNKNOWN;
-						Logger.getLogger(this.getClass().getCanonicalName()).info(String.format("Parsing libs for %s, lib: %s, unknown natives os %s for value %s", this.versionId, lib.name, pair.getKey(), pair.getValue()));
-					}
-					lib.addNative(os, pair.getValue().getAsString());
-				}
-			}
-			if (jsonLib.has("extract")) {
-				JsonObject extract = jsonLib.get("extract").getAsJsonObject();
-				if (extract.has("exclude")) {
-					JsonArray jsonExcludes = extract.get("exclude").getAsJsonArray();
-					for (JsonElement eachExclude : jsonExcludes) {
-						lib.unpackingRules.addExclude(eachExclude.getAsString());
-					}
-				}
-			}
-			libraries.add(lib);
-		}
-		
-		return new MCVersionDetails(libraries.toArray(new MCLibrary[libraries.size()]), processArguments, minecraftArguments, mainClass);
+		return detailsFromData(data);
 	}
-	
+
 	public MCLibrary[] getLibrariesForOS(SimpleOS os) {
 		List<MCLibrary> libs = new LinkedList<MCLibrary>();
 		MCVersionDetails details = this.getDetails();
@@ -102,7 +69,7 @@ public class MCVersion {
 		}
 		return libs.toArray(new MCLibrary[libs.size()]);
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof MCVersion) {
@@ -110,7 +77,7 @@ public class MCVersion {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return this.versionId.hashCode();
@@ -126,10 +93,13 @@ public class MCVersion {
 		return cachedVersionsMap.get(id);
 	}
 	public static MCVersion fetchMCVersion(String id, String urlTemplate, boolean flush) {
+		String data = getMCVersionData(id, urlTemplate, flush);
+		return mcVersionFromData(data);
+	}
+	public static MCVersion mcVersionFromData(String data) {
+		JsonObject root = new JsonParser().parse(data).getAsJsonObject();
 		try {
-			String data = getMCVersionData(id, urlTemplate, flush);
-			JsonObject root = new JsonParser().parse(data).getAsJsonObject();
-			
+			String id = root.get("id").getAsString();
 			Date releaseTime = new SimpleDateFormat(VERSION_JSON_DATE_FORMAT).parse(root.get("releaseTime").getAsString());
 			MCVersionType type = MCVersionType.fromString(root.get("type").getAsString());
 			return new MCVersion(id, releaseTime, type);
@@ -138,7 +108,44 @@ public class MCVersion {
 		}
 		return null;
 	}
-	
+	public static MCVersionDetails detailsFromData(String data) {
+		JsonObject root = new JsonParser().parse(data).getAsJsonObject();
+		
+		String id = root.get("id").getAsString();
+		String[] processArguments = root.get("processArguments").getAsString().split("_");
+		String[] minecraftArguments = root.get("minecraftArguments").getAsString().split(" ");
+		String mainClass = root.get("mainClass").getAsString();
+
+		JsonArray jsonLibraries = root.get("libraries").getAsJsonArray();
+		List<MCLibrary> libraries = new LinkedList<MCLibrary>();
+		for (JsonElement each : jsonLibraries) {
+			JsonObject jsonLib = each.getAsJsonObject();
+			MCLibrary lib = new MCLibrary(jsonLib.get("name").getAsString());
+			if (jsonLib.has("natives")) {
+				for (Map.Entry<String, JsonElement> pair : jsonLib.get("natives").getAsJsonObject().entrySet()) {
+					SimpleOS os = JSON_JAVA_OS_MAP.get(pair.getKey());
+					if (os == null) {
+						os = SimpleOS.UNKNOWN;
+						Logger.getLogger(MCVersion.class.getCanonicalName()).info(String.format("Parsing libs for %s, lib: %s, unknown natives os %s for value %s", id, lib.name, pair.getKey(), pair.getValue()));
+					}
+					lib.addNative(os, pair.getValue().getAsString());
+				}
+			}
+			if (jsonLib.has("extract")) {
+				JsonObject extract = jsonLib.get("extract").getAsJsonObject();
+				if (extract.has("exclude")) {
+					JsonArray jsonExcludes = extract.get("exclude").getAsJsonArray();
+					for (JsonElement eachExclude : jsonExcludes) {
+						lib.unpackingRules.addExclude(eachExclude.getAsString());
+					}
+				}
+			}
+			libraries.add(lib);
+		}
+
+		return new MCVersionDetails(libraries.toArray(new MCLibrary[libraries.size()]), processArguments, minecraftArguments, mainClass);
+	}
+
 	public static String getMCVersionData(String id, String urlTemplate, boolean flush) {
 		if (cachedVersionsData.get(id) == null || flush) {
 			cachedVersionsData.put(id, new String(new SimpleHTTPRequest(String.format(urlTemplate, id)).doGet()));
@@ -215,7 +222,7 @@ public class MCVersion {
 			}
 			return UNKNOWN;
 		}
-		
+
 		@Override
 		public String toString() {
 			switch (this) {
@@ -230,7 +237,7 @@ public class MCVersion {
 		}
 	}
 
-	public class MCVersionDetails {
+	public static class MCVersionDetails {
 		public final MCLibrary[] libraries;
 		public final String[] processArguments;
 		public final String[] minecraftArguments;

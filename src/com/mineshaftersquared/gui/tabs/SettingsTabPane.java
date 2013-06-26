@@ -23,6 +23,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
 import com.creatifcubed.simpleapi.SimpleISettings;
+import com.creatifcubed.simpleapi.SimpleSwingWaiter;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.creatifcubed.simpleapi.SimpleWaiter;
 import com.creatifcubed.simpleapi.swing.SimpleLinkableLabel;
@@ -72,48 +73,29 @@ public class SettingsTabPane extends AbstractTabPane {
 										+ " I detected default %d MB of ram for the Java VM. Minecraft recommends a minimum 2GB (2048 MB) of RAM.",
 								physicalRam, Math.round((double) physicalRam / 1024 * 100) / 100.0, (Runtime
 										.getRuntime().maxMemory() / 1024 / 1024)), 550), c);
-
-		final JLabel minRamLabel = new JLabel("Initial Memory (MB)");
-		final JLabel maxRamLabel = new JLabel("Max Memory (MB");
-		updateMemoryLabels(minRamLabel, minRam, maxRamLabel, maxRam);
-
-		final SpinnerNumberModel minMemorySpinnerModel = new SpinnerNumberModel(minRam, 0, physicalRam, 256);
+		
+		final JLabel maxRamLabel = new JLabel("Memory (MB");
+		updateMemoryLabels(maxRamLabel, maxRam);
 		final SpinnerNumberModel maxMemorySpinnerModel = new SpinnerNumberModel(maxRam, 0, physicalRam, 256);
 
-		JSpinner minMemorySpinner = new JSpinner(minMemorySpinnerModel);
 		JSpinner maxMemorySpinner = new JSpinner(maxMemorySpinnerModel);
 
 		JButton saveRam = new JButton("Save");
 		saveRam.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int minRam = minMemorySpinnerModel.getNumber().intValue();
 				int maxRam = maxMemorySpinnerModel.getNumber().intValue();
 
-				if (minRam != 0 && minRam > maxRam) {
-					JOptionPane.showMessageDialog(null, "Initial ram cannot be greater than max ram");
-					return;
-				}
-
-				SettingsTabPane.this.prefs.put("runtime.ram.min", minRam);
+				SettingsTabPane.this.prefs.put("runtime.ram.min", maxRam);
 				SettingsTabPane.this.prefs.put("runtime.ram.max", maxRam);
 				SettingsTabPane.this.prefs.save();
-				SettingsTabPane.updateMemoryLabels(minRamLabel, minRam, maxRamLabel, maxRam);
+				SettingsTabPane.updateMemoryLabels(maxRamLabel, maxRam);
 			}
 		});
 
 		c.gridwidth = 1;
 		c.ipadx = 0;
 		c.gridy++;
-		c.gridx = 0;
-		c.anchor = GridBagConstraints.NORTHWEST;
-		ramPanel.add(minRamLabel, c);
-		c.gridx = 1;
-		c.ipadx = 50;
-		c.anchor = GridBagConstraints.NORTHEAST;
-		ramPanel.add(minMemorySpinner, c);
-		c.gridy++;
-		c.ipadx = 0;
 		c.gridx = 0;
 		c.anchor = GridBagConstraints.NORTHWEST;
 		ramPanel.add(maxRamLabel, c);
@@ -131,9 +113,8 @@ public class SettingsTabPane extends AbstractTabPane {
 		return ramPanel;
 	}
 
-	private static void updateMemoryLabels(JLabel minMemoryLabel, int min, JLabel maxMemoryLabel, int max) {
-		maxMemoryLabel.setText("Max Memory (MB): " + (max == 0 ? "(unused)" : ("-Xmx" + max + "m")));
-		minMemoryLabel.setText("Initial Memory (MB): " + (min == 0 ? "(unused)" : ("-Xms" + min + "m")));
+	private static void updateMemoryLabels(JLabel maxMemoryLabel, int max) {
+		maxMemoryLabel.setText("Memory (MB): " + (max == 0 ? "(unused)" : ("-Xms" + max + "m -Xmx" + max + "m")));
 	}
 
 	public JPanel createSystemInfoPanel() {
@@ -143,10 +124,8 @@ public class SettingsTabPane extends AbstractTabPane {
 		List<String> infos = new LinkedList<String>();
 
 		infos.add("Java version: " + System.getProperty("java.version"));
-		infos.add("Local folder at: " + Utils.getMCPath(Utils.PATH_LOCAL) + " (found: "
-				+ Utils.existsInstallationIn(Utils.PATH_LOCAL) + ")");
-		infos.add("Default MC folder at: " + Utils.getMCPath(Utils.PATH_DEFAULTMC) + " (found: "
-				+ Utils.existsInstallationIn(Utils.PATH_DEFAULTMC) + ")");
+		infos.add("Local folder at: " + Utils.getMCPath(Utils.PATH_LOCAL));
+		infos.add("Default MC folder at: " + Utils.getMCPath(Utils.PATH_DEFAULTMC));
 
 		String bin = "<ul>";
 		for (String str : infos) {
@@ -233,9 +212,10 @@ public class SettingsTabPane extends AbstractTabPane {
 					startstopProxyButton.setText("Stop");
 					proxyLabel.setText("Proxying on port " + app.proxy.getPort());
 				} else {
-					new SimpleWaiter("Stopping proxy...", new Runnable() {
+					SimpleSwingWaiter waiter = new SimpleSwingWaiter("Stopping proxy...");
+					waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
 						@Override
-						public void run() {
+						public Void doInBackground() {
 							app.proxy.shouldEnd = true;
 							while (!app.proxy.isEnded) {
 								SimpleUtils.wait(1);
@@ -243,8 +223,10 @@ public class SettingsTabPane extends AbstractTabPane {
 							app.proxy = null;
 							startstopProxyButton.setText("Start");
 							proxyLabel.setText("Not proxying");
+							return null;
 						}
-					}, null).run();
+					};
+					waiter.run();
 				}
 			}
 		});

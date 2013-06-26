@@ -23,6 +23,7 @@ import java.util.zip.ZipOutputStream;
 import com.creatifcubed.simpleapi.SimpleOS;
 import com.creatifcubed.simpleapi.SimpleResources;
 import com.creatifcubed.simpleapi.SimpleStreams;
+import com.mineshaftersquared.models.LocalMCVersion;
 
 /**
  * 
@@ -47,9 +48,7 @@ public class Utils {
 		case PATH_DEFAULTMC:
 			return getDefaultMCPath();
 		}
-		return System.getProperty("user.dir", "."); // know it's just local, but
-													// may do something with it
-													// later
+		return System.getProperty("user.dir", ".");
 	}
 
 	public static String getAppDataPath() {
@@ -183,4 +182,12 @@ public class Utils {
 		}
 		return version;
 	}
+	
+	public static LocalMCVersion[] getLocalLocationVersions() {
+		return LocalMCVersion.findInstallationsInRoot(new File(Utils.getMCPath(Utils.PATH_LOCAL)), true);
+	}
+	public static LocalMCVersion[] getDefaultLocationVersions() {
+		return LocalMCVersion.findInstallationsInRoot(new File(Utils.getMCPath(Utils.PATH_DEFAULTMC)), false);
+	}
+	
 }

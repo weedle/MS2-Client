@@ -28,6 +28,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 
 import com.creatifcubed.simpleapi.SimpleISettings;
+import com.creatifcubed.simpleapi.SimpleSwingWaiter;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.creatifcubed.simpleapi.SimpleWaiter;
 import com.creatifcubed.simpleapi.SimpleXMLSettings;
@@ -140,9 +141,10 @@ public class NewsTabPane extends AbstractTabPane {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(null, "After downloading, this app will close. Wait for the 'update done' message");
-				new SimpleWaiter("Downloading update...", new Runnable() {
+				SimpleSwingWaiter waiter = new SimpleSwingWaiter("Downloading update...");
+				waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
 					@Override
-					public void run() {
+					public Void doInBackground() {
 						try {
 							SimpleUtils.downloadFile(new URL("http://" + UniversalLauncher.POLLING_SERVER + "latestdownload.php?jar=yes"), UpdateEntry.DOWNLOAD_NAME, 1 << 24);
 							List<String> commands = new LinkedList<String>();
@@ -166,8 +168,10 @@ public class NewsTabPane extends AbstractTabPane {
 							JOptionPane.showMessageDialog(null, "<html>Error downloading update.<br />Check the dev console or download manually at ms2.creatifcubed.com</html>");
 							e.printStackTrace();
 						}
+						return null;
 					}
-				}, null).run();
+				};
+				waiter.run();
 			}
 		});
 

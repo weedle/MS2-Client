@@ -4,15 +4,20 @@
  */
 package com.mineshaftersquared.gui.tabs;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.net.URL;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 
 import com.creatifcubed.simpleapi.swing.SimpleLinkedLabel;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.creatifcubed.simpleapi.swing.SimpleWrappedLabel;
+import com.mineshaftersquared.UniversalLauncher;
 
 /**
  * 
@@ -20,8 +25,40 @@ import com.creatifcubed.simpleapi.swing.SimpleWrappedLabel;
  */
 public class AboutTabPane extends AbstractTabPane {
 	public AboutTabPane() {
-		this.add(this.createTeamPanel());
-		this.add(this.createSupportPanel());
+		//this.add(this.createTeamPanel());
+		//this.add(this.createSupportPanel());
+		this.add(this.createAboutInfoPanel());
+	}
+	
+	private JPanel createAboutInfoPanel() {
+		JPanel panel = new JPanel(new BorderLayout());
+
+		final JTextPane browser = new JTextPane();
+
+		browser.setEditable(false);
+		browser.setMargin(null);
+		browser.setContentType("text/html");
+		
+		browser.addHyperlinkListener(SimpleSwingUtils.createHyperlinkListenerOpen("Unable to open link %s"));
+
+		browser.setText("<html><body><h1>Loading about info...</h1></body></html>");
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					browser.setPage(new URL("http://" + UniversalLauncher.POLLING_SERVER  + "about_info.php"));
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					browser.setText("<html><body><h1>Failed to fetch feedback info</h1><br>Error: " + ex.toString()
+							+ "</body></html>");
+				}
+			}
+		}).start();
+
+		panel.add(new JScrollPane(browser), BorderLayout.CENTER);
+
+		return panel;
 	}
 
 	private JPanel createTeamPanel() {

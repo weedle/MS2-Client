@@ -29,6 +29,7 @@ import javax.swing.event.HyperlinkListener;
 
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleISettings;
+import com.creatifcubed.simpleapi.SimpleSwingWaiter;
 import com.creatifcubed.simpleapi.SimpleWaiter;
 import com.creatifcubed.simpleapi.swing.SimpleLinkableLabel;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
@@ -134,9 +135,10 @@ public class FeedbackTabPane extends AbstractTabPane {
 						return;
 					}
 				}
-				new SimpleWaiter("Submitting", new Runnable() {
+				SimpleSwingWaiter waiter = new SimpleSwingWaiter("Submitting");
+				waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
 					@Override
-					public void run() {
+					public Void doInBackground() {
 						try {
 							String email = emailField.getText().trim();
 							String feedbackContent = feedbackContentField.getText().trim();
@@ -164,8 +166,10 @@ public class FeedbackTabPane extends AbstractTabPane {
 						} catch (Exception ex) {
 							ex.printStackTrace();
 						}
+						return null;
 					}
-				}, null).run();
+				};
+				waiter.run();
 			}
 		});
 

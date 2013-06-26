@@ -5,6 +5,7 @@
 package com.mineshaftersquared.gui.tabs;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -17,8 +18,10 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -27,14 +30,17 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleISettings;
+import com.creatifcubed.simpleapi.SimpleSwingWaiter;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.creatifcubed.simpleapi.SimpleWaiter;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.creatifcubed.simpleapi.swing.SimpleWrappedLabel;
 import com.mineshaftersquared.UniversalLauncher;
+import com.mineshaftersquared.models.LocalMCVersion;
 import com.mineshaftersquared.models.OldAuth;
 import com.mineshaftersquared.resources.GameUpdaterProxy;
 import com.mineshaftersquared.resources.JarProcessBuilder;
@@ -50,16 +56,72 @@ public class IndexTabPane extends AbstractTabPane {
 	private SimpleISettings prefs;
 	private JButton launchButton;
 	private JTextField usernameField;
+	private JComboBox versionsChooser;
+	private LocalMCVersion[] localVersions;
 
 	public IndexTabPane(SimpleISettings prefs) {
 		this.launchButton = null;
+		this.usernameField = null;
+		this.versionsChooser = null;
 		this.prefs = prefs;
+		this.localVersions = null;
 		this.add(this.createUpdatesPanel());
 		this.add(this.createLoginPanel());
 		this.add(this.createLaunchPanel());
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				IndexTabPane.this.refreshVersions();
+			}
+		});
 	}
 
 	public JPanel createLaunchPanel() {
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		panel.setBorder(SimpleSwingUtils.createLineBorder("Launch"));
+
+		this.versionsChooser = new JComboBox(new DefaultComboBoxModel());
+		JButton launch = new JButton("Launch");
+		launch.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				int index = IndexTabPane.this.versionsChooser.getSelectedIndex();
+				System.out.println("Selected index: " + index);
+			}
+		});
+		JButton refresh = new JButton("Refresh");
+		refresh.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				IndexTabPane.this.refreshVersions();
+			}
+		});
+		JButton download = new JButton("Download/Manage Versions");
+		download.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				((UniversalLauncher) IndexTabPane.this.prefs.tmpGetObject("instance")).getMainWindow().setActiveTab(1);
+			}
+		});
+
+		panel.add(launch);
+		panel.add(this.versionsChooser);
+		panel.add(refresh);
+		panel.add(download);
+		return panel;
+	}
+
+	private void refreshVersions() {
+		this.localVersions = SimpleUtils.appendArrays(Utils.getLocalLocationVersions(), Utils.getDefaultLocationVersions());
+		String[] versions = new String[this.localVersions.length];
+		for (int i = 0; i < versions.length; i++) {
+			versions[i] = this.localVersions[i].name + " - " + (this.localVersions[i].isLocal ? "Local" : "App Data");
+		}
+		this.versionsChooser.setModel(new DefaultComboBoxModel(versions));
+	}
+
+	public JPanel oldcreateLaunchPanel() {
 		JPanel launchPanel = new JPanel(new GridBagLayout());
 		launchPanel.setBorder(SimpleSwingUtils.createLineBorder("Launch"));
 		GridBagConstraints c = new GridBagConstraints();
@@ -185,16 +247,7 @@ public class IndexTabPane extends AbstractTabPane {
 						}
 					}
 					final int finalForceUpdate = forceUpdate;
-					new SimpleWaiter("MS2 - Downloading", new Runnable() {
-						@Override
-						public void run() {
-							GameUpdaterProxy downloader = new GameUpdaterProxy(Utils.getMCPath(map[i]));
-							downloader.forceUpdate = (finalForceUpdate == 0); // "yes"
-							// in
-							// dialog
-							downloader.update();
-						}
-					}, null).run();
+
 				}
 			}
 		});
@@ -319,9 +372,10 @@ public class IndexTabPane extends AbstractTabPane {
 		ActionListener loginAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new SimpleWaiter("Logging in", new Runnable() {
+				SimpleSwingWaiter waiter = new SimpleSwingWaiter("Logging in");
+				waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
 					@Override
-					public void run() {
+					public Void doInBackground() {
 						String username = usernameField.getText();
 						String password = new String(passwordField.getPassword());
 
@@ -356,9 +410,10 @@ public class IndexTabPane extends AbstractTabPane {
 							IndexTabPane.this.prefs.tmpRemove("sessionId");
 							IndexTabPane.this.launchButton.setText("Play offline");
 						}
+						return null;
 					}
-				}, null).run();
-
+				};
+				waiter.run();
 			}
 		};
 
