@@ -11,10 +11,17 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -34,13 +41,15 @@ import javax.swing.SwingUtilities;
 
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleISettings;
-import com.creatifcubed.simpleapi.SimpleSwingWaiter;
+import com.creatifcubed.simpleapi.SimpleOS;
+import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.creatifcubed.simpleapi.SimpleWaiter;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.creatifcubed.simpleapi.swing.SimpleWrappedLabel;
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.models.LocalMCVersion;
+import com.mineshaftersquared.models.MCVersion.MCVersionDetails;
 import com.mineshaftersquared.models.OldAuth;
 import com.mineshaftersquared.resources.GameUpdaterProxy;
 import com.mineshaftersquared.resources.JarProcessBuilder;
@@ -82,12 +91,30 @@ public class IndexTabPane extends AbstractTabPane {
 		panel.setBorder(SimpleSwingUtils.createLineBorder("Launch"));
 
 		this.versionsChooser = new JComboBox(new DefaultComboBoxModel());
-		JButton launch = new JButton("Launch");
+		JButton launch = new JButton("Play Offline");
+		this.launchButton = launch;
 		launch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				int index = IndexTabPane.this.versionsChooser.getSelectedIndex();
-				System.out.println("Selected index: " + index);
+				if (index == -1) {
+					JOptionPane.showMessageDialog(null, "No version chosen to launch");
+					return;
+				}
+				IndexTabPane.this.prefs.put("launcher.gameversion", IndexTabPane.this.versionsChooser.getSelectedItem().toString());
+				IndexTabPane.this.prefs.save();
+				if (!IndexTabPane.this.prefs.tmpHas("username")) {
+					String attemptUsername = IndexTabPane.this.usernameField.getText();
+					if (attemptUsername.trim().isEmpty()) {
+						attemptUsername = System.getProperty("user.name");
+					}
+					String username = JOptionPane.showInputDialog("Specify offline username", attemptUsername);
+					if (username.trim().isEmpty()) {
+						username = System.getProperty("user.name");
+					}
+					IndexTabPane.this.prefs.tmpPut("username", username);
+				}
+				IndexTabPane.this.launchVersion(IndexTabPane.this.localVersions[index]);
 			}
 		});
 		JButton refresh = new JButton("Refresh");
@@ -104,9 +131,19 @@ public class IndexTabPane extends AbstractTabPane {
 				((UniversalLauncher) IndexTabPane.this.prefs.tmpGetObject("instance")).getMainWindow().setActiveTab(1);
 			}
 		});
+		final JCheckBox closeOnLaunch = new JCheckBox("Close on launch?",
+				this.prefs.getInt("launcher.closeonlaunch", 1) == 1);
+		closeOnLaunch.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				IndexTabPane.this.prefs.put("launcher.closeonlaunch", closeOnLaunch.isSelected() ? 1 : 0);
+				IndexTabPane.this.prefs.save();
+			}
+		});
 
 		panel.add(launch);
 		panel.add(this.versionsChooser);
+		panel.add(closeOnLaunch);
 		panel.add(refresh);
 		panel.add(download);
 		return panel;
@@ -119,6 +156,10 @@ public class IndexTabPane extends AbstractTabPane {
 			versions[i] = this.localVersions[i].name + " - " + (this.localVersions[i].isLocal ? "Local" : "App Data");
 		}
 		this.versionsChooser.setModel(new DefaultComboBoxModel(versions));
+		String selected = this.prefs.getString("launcher.gameversion");
+		if (selected != null) {
+			this.versionsChooser.setSelectedItem(selected);
+		}
 	}
 
 	public JPanel oldcreateLaunchPanel() {
@@ -450,5 +491,95 @@ public class IndexTabPane extends AbstractTabPane {
 		updatesPanel.add(scroll);
 
 		return updatesPanel;
+	}
+
+	private void launchVersion(final LocalMCVersion version) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("auth_username", this.prefs.tmpGetString("username", System.getProperty("user.name")));
+		map.put("auth_player_name", this.prefs.tmpGetString("username", System.getProperty("user.name")));
+		map.put("auth_uuid", "-1");
+		map.put("auth_session", this.prefs.tmpGetString("sessionId", "-1"));
+
+		map.put("profile_name", "default");
+		map.put("version_name", version.name);
+		
+		File root = new File(Utils.getMCPath(version.isLocal ? Utils.PATH_LOCAL : Utils.PATH_DEFAULTMC));
+		File gameDir = new File(new File(root, "versions"), version.name);
+		try {
+			map.put("game_directory", gameDir.getCanonicalPath());
+			map.put("game_assets", new File(root, "assets").getCanonicalPath());
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error launching game. See console");
+			return;
+		}
+		MCVersionDetails details = version.getDetailsFromFile();
+		String[] mcArgs = details.minecraftArguments;
+		for (int i = 0; i < mcArgs.length; i++) {
+			String replacement = map.get(mcArgs[i].substring("${".length(), mcArgs[i].length() - "}".length()));
+			if (replacement != null) {
+				mcArgs[i] = replacement;
+			}
+		}
+		
+		try {
+			File natives = new File(gameDir, version.versionId + "-natives");
+			if (!natives.exists()) {
+				File[] candidates = gameDir.listFiles(new FileFilter() {
+					@Override
+					public boolean accept(File file) {
+						return file.getName().startsWith(version.versionId + "-natives");
+					}
+				});
+				if (candidates.length == 0) {
+					JOptionPane.showMessageDialog(null, "Natives dir not found");
+					return;
+				}
+				Logger.getLogger(this.getClass().getName()).info("Using natives dir " + candidates[0].getCanonicalPath());
+				natives = candidates[0];
+			}
+			
+			List<String> args = new LinkedList<String>();
+			args.add("java");
+			int min = this.prefs.getInt("runtime.ram.min", 0);
+			int max = this.prefs.getInt("runtime.ram.max", 0);
+			if (min > 0) {
+				args.add("-Xms" + this.prefs.getInt("runtime.ram.min", 0) + "m");
+			}
+			if (max > 0) {
+				args.add("-Xmx" + this.prefs.getInt("runtime.ram.max", 0) + "m");
+			}
+			args.add("-Djava.library.path=" + natives.getCanonicalPath());
+			args.add("-cp");
+			args.add(buildClassPath(SimpleUtils.appendArrays(version.getClassPath(SimpleOS.getOS(), root), new File[] {SimpleUtils.getJarPath()})));
+			//args.add("com.mineshaftersquared.game.entrypoints.RegularEntry");
+			args.add(details.mainClass);
+			SimpleUtils.addArrayToList(mcArgs, args);
+//			args.add("--proxyHost");
+//			args.add("127.0.0.1");
+//			args.add("--proxyPort");
+//			args.add("9010");
+			ProcessBuilder pb = new ProcessBuilder(args);
+			Process p = pb.start();
+			
+			new Thread(new ProcessOutputRedirector(p, "[MS2-Game]: %s")).start();
+			if (this.prefs.getInt("launcher.closeonlaunch", 1) == 1) {
+				((JFrame) IndexTabPane.this.prefs.tmpGetObject("launcher.window")).dispose();
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	private static String buildClassPath(File[] files) {
+		List<String> paths = new LinkedList<String>();
+		for (int i = 0; i < files.length; i++) {
+			try {
+				paths.add(files[i].getCanonicalPath());
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+		return SimpleUtils.implode(System.getProperty("path.separator"), paths.toArray(new String[paths.size()]));
 	}
 }

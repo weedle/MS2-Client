@@ -31,9 +31,10 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 import com.creatifcubed.simpleapi.SimpleISettings;
-import com.creatifcubed.simpleapi.SimpleSwingWaiter;
+import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.creatifcubed.simpleapi.SimpleWaiter;
+import com.mineshaftersquared.gui.DownloadMenu;
 import com.mineshaftersquared.models.LocalMCVersion;
 import com.mineshaftersquared.models.MCVersion;
 import com.mineshaftersquared.resources.GameUpdaterProxy;
@@ -78,21 +79,10 @@ public class VersionsTabPane extends AbstractTabPane {
 					JOptionPane.showMessageDialog(null, "Remote versions not loaded yet, please wait");
 					return;
 				}
-				final SimpleSwingWaiter waiter = new SimpleSwingWaiter("MS2 - Downloading");
-				final MCDownloader downloader = new MCDownloader();
-				waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
-					@Override
-					public Void doInBackground() {
-						if (downloader.downloadVersion(MCVersion.find((String) version), new File(System.getProperty("user.dir")))) {
-							waiter.doneMessage = "Download appears to have completed succesfully";
-						} else {
-							waiter.doneMessage = "There appears to be an error downloading the files. Please check the console";
-						}
-						return null;
-					}
-				};
-				downloader.aggregate.addListener(waiter.stdout());
-				waiter.run();
+				DownloadMenu menu = new DownloadMenu(null, version.toString());
+				menu.pack();
+				menu.setLocationRelativeTo(null);
+				menu.setVisible(true);
 			}
 		});
 		remotesToolbar.add(new JLabel("Remote Versions"));
@@ -157,7 +147,7 @@ public class VersionsTabPane extends AbstractTabPane {
 				for (int i = 0; i < versions.length; i++) {
 					versions[i] = VersionsTabPane.this.remoteMCVersions[i].versionId;
 				}
-				VersionsTabPane.this.remoteVersionsComboBox.setModel(new DefaultComboBoxModel(versions));
+				VersionsTabPane.this.remoteVersionsComboBox.setModel(new DefaultComboBoxModel(SimpleUtils.reverseArray(versions)));
 			}
 		}).start();
 	}

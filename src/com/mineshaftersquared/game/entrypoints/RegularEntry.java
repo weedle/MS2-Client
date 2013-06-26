@@ -21,6 +21,14 @@ import com.mineshaftersquared.resources.Utils;
 public class RegularEntry {
 
 	public static void main(String[] args) {
+		System.out.println("Args length: " + args.length);
+		for (int i = 0; i < args.length; i++) {
+			System.out.println("Args " + i + ": " + args[i]);
+			System.out.println();
+		}
+		if (true) {
+			return;
+		}
 		String username = "Player" + System.currentTimeMillis() % 1000;
 		String sessionId = "-1";
 		int pathfind = Utils.PATH_LOCAL;

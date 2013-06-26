@@ -28,7 +28,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 
 import com.creatifcubed.simpleapi.SimpleISettings;
-import com.creatifcubed.simpleapi.SimpleSwingWaiter;
+import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.creatifcubed.simpleapi.SimpleWaiter;
 import com.creatifcubed.simpleapi.SimpleXMLSettings;

@@ -1,5 +1,6 @@
 package com.mineshaftersquared.models;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -109,10 +110,14 @@ public class MCVersion {
 		return null;
 	}
 	public static MCVersionDetails detailsFromData(String data) {
+		//System.out.println("Got data: " + data);
 		JsonObject root = new JsonParser().parse(data).getAsJsonObject();
 		
 		String id = root.get("id").getAsString();
-		String[] processArguments = root.get("processArguments").getAsString().split("_");
+		String[] processArguments = new String[0];
+		if (root.has("processArguments")) {
+			root.get("processArguments").getAsString().split("_");
+		}
 		String[] minecraftArguments = root.get("minecraftArguments").getAsString().split(" ");
 		String mainClass = root.get("mainClass").getAsString();
 

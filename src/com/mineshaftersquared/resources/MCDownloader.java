@@ -49,21 +49,28 @@ public class MCDownloader {
 	 * 
 	 * @param version
 	 */
-	public boolean downloadVersion(MCVersion version, File base) {
-		this.out.println("There are 4 steps to a download: the version-specific files, the libraries, unpacking the natives, resources/assets");
-		return this.downloadBasics(version, base) && this.downloadGenerics(version, base);
+	public boolean downloadVersion(MCVersion version, File base, String name) {
+		try {
+			this.out.println("There are 4 steps to a download: the version-specific files, the libraries, unpacking the natives, resources/assets");
+			this.out.println("Downloading in: " + base.getCanonicalPath());
+			return this.downloadBasics(version, base, name) && this.downloadGenerics(version, base, name);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return false;
 	}
 
-	private boolean downloadBasics(MCVersion version, File base) {
+	private boolean downloadBasics(MCVersion version, File base, String name) {
 		// Download json, jar
-		File parent = new File(base, "versions/" + version.versionId);
+		File parent = new File(base, "versions/" + name);
 		parent.mkdirs();
 		try {
-			File infoFile = new File(parent, version.versionId + ".json");
+			File infoFile = new File(parent, name + ".json");
 			this.out.println("Downloading version " + version.versionId + " ... Info at "
 					+ infoFile.toURI().toURL().toString());
 			SimpleUtils.filePutContents(infoFile,
 					MCVersion.getMCVersionData(version.versionId, MCVersion.VERSION_INFO_URL_TEMPLATE, false));
+			this.out.println("Done downloading config file. Downloading jar...");
 			SimpleUtils.downloadFile(new URL(String.format(JAR_URL_TEMPLATE, version.versionId)), new File(parent,
 					version.versionId + ".jar").getCanonicalPath(), 1 << 24);
 			this.out.println("Done downloading version specific files.");
@@ -75,7 +82,7 @@ public class MCDownloader {
 		return false;
 	}
 
-	private boolean downloadGenerics(MCVersion version, File base) {
+	private boolean downloadGenerics(MCVersion version, File base, String name) {
 		try {
 			this.out.println("Downloading libraries...");
 			SimpleOS os = SimpleOS.getOS();
@@ -93,7 +100,7 @@ public class MCDownloader {
 					SimpleUtils.downloadFile(new URL(LIBS_BASE_URL + uri), f.getCanonicalPath(), 1 << 24);
 				}
 			}
-			if (!this.unpackNatives(version, base)) {
+			if (!this.unpackNatives(version, base, name)) {
 				return false;
 			}
 			this.out.println("Done downloading libraries.");
@@ -106,12 +113,12 @@ public class MCDownloader {
 		return this.downloadResources(version, resourcesBase);
 	}
 
-	private boolean unpackNatives(MCVersion version, File base) {
+	private boolean unpackNatives(MCVersion version, File base, String name) {
 		try {
 			this.out.println("Unpacking natives...");
 			SimpleOS os = SimpleOS.getOS();
 			MCLibrary[] libs = version.getLibrariesForOS(os);
-			File parent = new File(base, "versions/" + version.versionId);
+			File parent = new File(base, "versions/" + name);
 			File nativesDir = new File(parent, version.versionId + "-natives"); // add
 																				// System.nanoTime()?
 			nativesDir.mkdirs();

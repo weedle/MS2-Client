@@ -48,6 +48,21 @@ public class MineProxyHandler extends Thread {
 		BufferedReader rd = new BufferedReader(new InputStreamReader(this.fromClient));
 		// Read the incoming request
 		String[] requestLine = null;
+		System.out.println("Starting proxy run");
+		while (true) {
+			try {
+				String str = rd.readLine();
+				if (str == null) {
+					System.out.println("String null, done");
+					break;
+				}
+				System.out.println("Read string: " + str);
+			} catch (IOException e) {
+				e.printStackTrace();
+				break;
+			}
+		}
+		if (true) return;
 		try {
 			requestLine = rd.readLine().split(" ");
 		} catch (IOException ex) {

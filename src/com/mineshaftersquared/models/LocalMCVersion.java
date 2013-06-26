@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.creatifcubed.simpleapi.SimpleOS;
 import com.creatifcubed.simpleapi.SimpleUtils;
 
 public class LocalMCVersion extends MCVersion {
@@ -46,6 +47,18 @@ public class LocalMCVersion extends MCVersion {
 		}
 		
 		return installations.toArray(new LocalMCVersion[installations.size()]);
+	}
+	
+	public File[] getClassPath(SimpleOS os, File root) {
+		MCLibrary[] libs = this.getLibrariesForOS(os);
+		List<File> files = new LinkedList<File>();
+		for (int i = 0; i < libs.length; i++) {
+			if (libs[i].getNatives().get(os) == null) {
+				files.add(new File(root, "libraries/" + libs[i].getDownloadName(os)));
+			}
+		}
+		files.add(new File(root, "versions/" + this.name + "/" + this.versionId + ".jar"));
+		return files.toArray(new File[files.size()]);
 	}
 	
 	@Override
