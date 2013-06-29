@@ -1,4 +1,4 @@
-# Mineshafter Squared - Universal Launcher (4.2.12)
+# Mineshafter Squared - Universal Launcher (4.3.0)
 =====
 I try to follow [semantic versioning](http://semver.org/")
 
@@ -18,3 +18,4 @@ I try to follow [semantic versioning](http://semver.org/")
 ### Dependencies
 - [SimpleAPI-java](https://github.com/Raekye/SimpleAPI-java)
 - [FTB_Launcher](https://github.com/Slowpoke101/FTBLaunch)
+- [Apache Commons IO](http://commons.apache.org/proper/commons-io/)

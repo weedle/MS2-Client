@@ -26,9 +26,6 @@ public class RegularEntry {
 			System.out.println("Args " + i + ": " + args[i]);
 			System.out.println();
 		}
-		if (true) {
-			return;
-		}
 		String username = "Player" + System.currentTimeMillis() % 1000;
 		String sessionId = "-1";
 		int pathfind = Utils.PATH_LOCAL;

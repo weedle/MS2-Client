@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.ConsoleHandler;
@@ -34,12 +35,16 @@ import com.creatifcubed.simpleapi.SimpleISettings;
 import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.creatifcubed.simpleapi.SimpleWaiter;
-import com.mineshaftersquared.gui.DownloadMenu;
+import com.mineshaftersquared.gui.DownloadVersionMenu;
+import com.mineshaftersquared.gui.DuplicateVersionMenu;
 import com.mineshaftersquared.models.LocalMCVersion;
 import com.mineshaftersquared.models.MCVersion;
 import com.mineshaftersquared.resources.GameUpdaterProxy;
 import com.mineshaftersquared.resources.MCDownloader;
 import com.mineshaftersquared.resources.Utils;
+
+//import org.apache.commons.io.FileDeleteStrategy;
+//import org.apache.commons.io.FileUtils;
 
 public class VersionsTabPane extends AbstractTabPane {
 	private final SimpleISettings prefs;
@@ -79,7 +84,7 @@ public class VersionsTabPane extends AbstractTabPane {
 					JOptionPane.showMessageDialog(null, "Remote versions not loaded yet, please wait");
 					return;
 				}
-				DownloadMenu menu = new DownloadMenu(null, version.toString());
+				DownloadVersionMenu menu = new DownloadVersionMenu(null, version.toString());
 				menu.pack();
 				menu.setLocationRelativeTo(null);
 				menu.setVisible(true);
@@ -91,9 +96,68 @@ public class VersionsTabPane extends AbstractTabPane {
 		remotesToolbar.add(refreshRemotes);
 
 		JPanel localsToolbar = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		JButton delete = new JButton("Delete");
+//		JButton delete = new JButton("Delete");
+//		delete.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent event) {
+//				int index = VersionsTabPane.this.localVersionsTable.getSelectedRow();
+//				if (index == -1) {
+//					JOptionPane.showMessageDialog(null, "No version selected");
+//					return;
+//				}
+//				LocalMCVersion version = VersionsTabPane.this.localMCVersions.get(index);
+//				try {
+//					FileDeleteStrategy.FORCE.delete(version.installationRoot);
+//					JOptionPane.showMessageDialog(null, "Version deleted");
+//					VersionsTabPane.this.reloadLocalData();
+//				} catch (IOException ex) {
+//					ex.printStackTrace();
+//					JOptionPane.showMessageDialog(null, "Unable to delete version. Please see console");
+//				}
+//
+//			}
+//		});
 		JButton show = new JButton("Show in Folder");
+		show.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				int index = VersionsTabPane.this.localVersionsTable.getSelectedRow();
+				if (index == -1) {
+					JOptionPane.showMessageDialog(null, "No version selected");
+					return;
+				}
+				LocalMCVersion version = VersionsTabPane.this.localMCVersions.get(index);
+				String explorer = SimpleUtils.getOSFileExplorer();
+				if (explorer == null) {
+					explorer = JOptionPane.showInputDialog("Unable to detect OS file explorer. Please enter name of your file explorer program");
+				}
+				try {
+					if (explorer.trim().isEmpty()) {
+						JOptionPane.showMessageDialog(null, String.format("No file explorer. Please open %s manually", version.installationRoot.getCanonicalPath()));
+					}
+					SimpleUtils.openFolder(explorer, version.installationRoot.getCanonicalPath());
+				} catch (IOException ex) {
+					ex.printStackTrace();
+					JOptionPane.showMessageDialog(null, String.format("Unable to open path %s. Please see console for details", version.installationRoot.getAbsolutePath()));
+				}
+			}
+		});
 		JButton duplicate = new JButton("Duplicate");
+		duplicate.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				int index = VersionsTabPane.this.localVersionsTable.getSelectedRow();
+				if (index == -1) {
+					JOptionPane.showMessageDialog(null, "No version selected");
+					return;
+				}
+				LocalMCVersion version = VersionsTabPane.this.localMCVersions.get(index);
+				DuplicateVersionMenu menu = new DuplicateVersionMenu(null, version);
+				menu.pack();
+				menu.setLocationRelativeTo(null);
+				menu.setVisible(true);
+			}
+		});
 		JButton refreshLocals = new JButton("Refresh");
 		refreshLocals.addActionListener(new ActionListener() {
 			@Override
@@ -101,12 +165,40 @@ public class VersionsTabPane extends AbstractTabPane {
 				VersionsTabPane.this.reloadLocalData();
 			}
 		});
-
+		JButton repairLocal = new JButton("Repair");
+		repairLocal.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				int index = VersionsTabPane.this.localVersionsTable.getSelectedRow();
+				if (index == -1) {
+					JOptionPane.showMessageDialog(null, "No version selected");
+					return;
+				}
+				final LocalMCVersion version = VersionsTabPane.this.localMCVersions.get(index);
+				final SimpleSwingWaiter waiter = new SimpleSwingWaiter("MS2 - Downloading");
+				final MCDownloader downloader = new MCDownloader();
+				waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
+					@Override
+					public Void doInBackground() {
+						if (downloader.downloadVersion(version, version.installationRoot, version.name)) {
+							waiter.doneMessage = "Download appears to have completed succesfully";
+						} else {
+							waiter.doneMessage = "There appears to be an error downloading the files. Please check the console";
+						}
+						return null;
+					}
+				};
+				downloader.aggregate.addListener(waiter.stdout());
+				waiter.run();
+			}
+		});
+		
 		localsToolbar.add(new JLabel("Local Versions"));
-		localsToolbar.add(delete);
+//		localsToolbar.add(delete);
 		localsToolbar.add(show);
 		localsToolbar.add(duplicate);
 		localsToolbar.add(refreshLocals);
+		localsToolbar.add(repairLocal);
 
 		JPanel topPanel = new JPanel(new BorderLayout());
 		JButton help = new JButton("Info");
@@ -153,18 +245,17 @@ public class VersionsTabPane extends AbstractTabPane {
 	}
 	private void reloadLocalData() {
 		this.localMCVersions.clear();
-		
+
 		SimpleUtils.addArrayToList(Utils.getLocalLocationVersions(), this.localMCVersions);
 		SimpleUtils.addArrayToList(Utils.getDefaultLocationVersions(), this.localMCVersions);
-		
-		this.localVersionsTableModel.fireTableDataChanged();
-//		SwingUtilities.invokeLater(new Runnable() {
-//			@Override
-//			public void run() {
-//				VersionsTabPane.this.localVersionsTableModel.fireTableDataChanged();
-//			}
-//		});
-		
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				VersionsTabPane.this.localVersionsTableModel.fireTableDataChanged();
+			}
+		});
+
 	}
 
 	private class VersionsTableModel extends AbstractTableModel {

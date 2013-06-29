@@ -1,6 +1,7 @@
 package com.mineshaftersquared.models;
 
 import java.io.File;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,15 +9,15 @@ import com.creatifcubed.simpleapi.SimpleOS;
 import com.creatifcubed.simpleapi.SimpleUtils;
 
 public class LocalMCVersion extends MCVersion {
-	public final File installation;
-	public final File location;
+	public final File installationRoot;
+	public final File versionLocation;
 	public final String name;
 	public final File configFile;
 	public final boolean isLocal;
 	public LocalMCVersion(MCVersion version, File installation, File location, String name, boolean isLocal) {
 		super(version.versionId, version.releaseTime, version.type);
-		this.installation = installation;
-		this.location = location;
+		this.installationRoot = installation;
+		this.versionLocation = location;
 		this.name = name;
 		this.configFile = configFile(location, name);
 		this.isLocal = isLocal;
@@ -24,6 +25,18 @@ public class LocalMCVersion extends MCVersion {
 
 	public String[] checkComplete() {
 		List<String> missing = new LinkedList<String>();
+		SimpleOS os = SimpleOS.getOS();
+		MCLibrary[] libs = this.getLibrariesForOS(os);
+		File parent = new File(this.installationRoot, "libraries");
+		for (int i = 0; i < libs.length; i++) {
+			String uri = libs[i].getDownloadName(os);
+			File f = new File(parent, uri);
+			if (f.exists()) {
+				continue;
+			} else {
+				missing.add(String.format("No lib %s", libs[i].name));
+			}
+		}
 		return missing.toArray(new String[missing.size()]);
 	}
 	

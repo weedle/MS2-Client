@@ -10,6 +10,7 @@
 	<property name="manifest.mainclass" value="com.mineshaftersquared.MS2Entry" />
 	<property name="simpleapi.jarname" value="simpleapi.jar" />
 	<property name="gson.jarname" value="gson-2.2.4.jar" />
+	<property name="commons.io.jarname" value="commons-io-2.4.jar" />
 
 	<path id="build.classpath">
 		<fileset dir="${libs.dir}">

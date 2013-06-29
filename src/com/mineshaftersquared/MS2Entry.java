@@ -9,6 +9,7 @@ import java.util.Arrays;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.game.entrypoints.BukkitEntry;
 import com.mineshaftersquared.game.entrypoints.FTBEntry;
+import com.mineshaftersquared.game.entrypoints.OneSixRegularEntry;
 import com.mineshaftersquared.game.entrypoints.ProxyEntry;
 import com.mineshaftersquared.game.entrypoints.RegularEntry;
 import com.mineshaftersquared.game.entrypoints.ServerEntry;
@@ -62,6 +63,9 @@ public class MS2Entry {
 			return;
 		} else if (entry.equals("update-step2")) { // called from old version, rename new and start new
 			UpdateEntry.main(SimpleUtils.appendArrays(new String[] { "1" }, shiftedArgs));
+			return;
+		} else if (entry.equals("onesix-regular")) {
+			OneSixRegularEntry.main(shiftedArgs);
 			return;
 		}
 		UniversalLauncher.main(shiftedArgs);

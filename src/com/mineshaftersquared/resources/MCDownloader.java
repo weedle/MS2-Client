@@ -60,7 +60,7 @@ public class MCDownloader {
 		return false;
 	}
 
-	private boolean downloadBasics(MCVersion version, File base, String name) {
+	public boolean downloadBasics(MCVersion version, File base, String name) {
 		// Download json, jar
 		File parent = new File(base, "versions/" + name);
 		parent.mkdirs();
@@ -82,7 +82,7 @@ public class MCDownloader {
 		return false;
 	}
 
-	private boolean downloadGenerics(MCVersion version, File base, String name) {
+	public boolean downloadGenerics(MCVersion version, File base, String name) {
 		try {
 			this.out.println("Downloading libraries...");
 			SimpleOS os = SimpleOS.getOS();
@@ -92,7 +92,7 @@ public class MCDownloader {
 			for (int i = 0; i < libs.length; i++) {
 				String uri = libs[i].getDownloadName(os);
 				File f = new File(parent, uri);
-				if (f.exists()) {
+				if (f.exists() && f.length() > 0) {
 					this.out.println(String.format("Library at %s already exists, skipping", f.getCanonicalPath()));
 				} else {
 					this.out.println(String.format("Downloading library %s ...", libs[i].name));
@@ -113,7 +113,7 @@ public class MCDownloader {
 		return this.downloadResources(version, resourcesBase);
 	}
 
-	private boolean unpackNatives(MCVersion version, File base, String name) {
+	public boolean unpackNatives(MCVersion version, File base, String name) {
 		try {
 			this.out.println("Unpacking natives...");
 			SimpleOS os = SimpleOS.getOS();
@@ -175,7 +175,7 @@ public class MCDownloader {
 		return false;
 	}
 
-	private boolean downloadResources(MCVersion version, File resourcesBase) {
+	public boolean downloadResources(MCVersion version, File resourcesBase) {
 		try {
 			this.out.println("Downloading resources...");
 			resourcesBase.mkdirs();

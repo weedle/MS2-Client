@@ -23,10 +23,10 @@ import com.mineshaftersquared.models.MCVersion;
 import com.mineshaftersquared.resources.MCDownloader;
 import com.mineshaftersquared.resources.Utils;
 
-public class DownloadMenu extends JDialog {
+public class DownloadVersionMenu extends JDialog {
 	private final MCVersion version;
 	
-	public DownloadMenu(Window owner, String versionId) {
+	public DownloadVersionMenu(Window owner, String versionId) {
 		super(owner, "Download Version " + versionId, JDialog.DEFAULT_MODALITY_TYPE);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.version = MCVersion.find(versionId);
@@ -63,13 +63,13 @@ public class DownloadMenu extends JDialog {
 				this.onChange();
 			}
 			private void onChange() {
-				DownloadMenu.this.updateVersionStatus(versionName.getText(), local.isSelected(), statusLabel, doneButton);
+				DownloadVersionMenu.this.updateVersionStatus(versionName.getText(), local.isSelected(), statusLabel, doneButton);
 			}
 		});
 		ActionListener onChange = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				DownloadMenu.this.updateVersionStatus(versionName.getText(), local.isSelected(), statusLabel, doneButton);
+				DownloadVersionMenu.this.updateVersionStatus(versionName.getText(), local.isSelected(), statusLabel, doneButton);
 			}
 		};
 		local.addActionListener(onChange);
@@ -81,7 +81,7 @@ public class DownloadMenu extends JDialog {
 		doneButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				DownloadMenu.this.doneAction(versionName.getText(), local.isSelected());
+				DownloadVersionMenu.this.doneAction(versionName.getText(), local.isSelected());
 			}
 		});
 		
@@ -124,7 +124,7 @@ public class DownloadMenu extends JDialog {
 		waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
 			@Override
 			public Void doInBackground() {
-				if (downloader.downloadVersion(DownloadMenu.this.version, location, name)) {
+				if (downloader.downloadVersion(DownloadVersionMenu.this.version, location, name)) {
 					waiter.doneMessage = "Download appears to have completed succesfully";
 				} else {
 					waiter.doneMessage = "There appears to be an error downloading the files. Please check the console";

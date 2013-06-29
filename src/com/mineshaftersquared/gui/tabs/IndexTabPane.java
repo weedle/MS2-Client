@@ -552,13 +552,17 @@ public class IndexTabPane extends AbstractTabPane {
 			args.add("-Djava.library.path=" + natives.getCanonicalPath());
 			args.add("-cp");
 			args.add(buildClassPath(SimpleUtils.appendArrays(version.getClassPath(SimpleOS.getOS(), root), new File[] {SimpleUtils.getJarPath()})));
-			//args.add("com.mineshaftersquared.game.entrypoints.RegularEntry");
+//			args.add("com.mineshaftersquared.game.entrypoints.OneSixRegularEntry");
+//			args.add(this.prefs.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER));
 			args.add(details.mainClass);
 			SimpleUtils.addArrayToList(mcArgs, args);
 //			args.add("--proxyHost");
 //			args.add("127.0.0.1");
 //			args.add("--proxyPort");
 //			args.add("9010");
+			for (String each : args) {
+				System.out.print(each + " ");
+			}
 			ProcessBuilder pb = new ProcessBuilder(args);
 			Process p = pb.start();
 			

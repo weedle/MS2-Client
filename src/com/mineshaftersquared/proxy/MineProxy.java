@@ -47,8 +47,7 @@ public class MineProxy extends Thread {
 		this.setName("MineProxy Thread");
 		this.setDaemon(true);
 
-		this.authServer = currentAuthServer; // TODO maybe change this
-												// leave it for now
+		this.authServer = currentAuthServer;
 
 		this.skinCache = new Hashtable<String, byte[]>();
 		this.cloakCache = new Hashtable<String, byte[]>();

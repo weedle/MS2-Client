@@ -62,7 +62,6 @@ public class MineProxyHandler extends Thread {
 				break;
 			}
 		}
-		if (true) return;
 		try {
 			requestLine = rd.readLine().split(" ");
 		} catch (IOException ex) {
