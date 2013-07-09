@@ -7,5 +7,9 @@ You will need Ant to build and compile the project. You can import the build fil
 ### Dependencies
 These go under a "libs" folder.
 - [SimpleAPI-java](https://github.com/Raekye/SimpleAPI-java)
+- [Apache Commons Lang](http://commons.apache.org/proper/commons-lang/)
 - [Apache Commons IO](http://commons.apache.org/proper/commons-io/)
 - [Apache Commons CLI](http://commons.apache.org/proper/commons-cli/)
+- [Apache Commons Configuration](http://commons.apache.org/proper/commons-configuration/)
+- [Apache Commons Collections](http://commons.apache.org/proper/commons-collections/)
+- [Apache Commons Logging](http://commons.apache.org/proper/commons-logging/)
