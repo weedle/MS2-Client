@@ -13,6 +13,8 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.creatifcubed.simpleapi.SimpleAggregateOutputStream;
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
@@ -30,7 +32,7 @@ public class UniversalLauncher implements Runnable {
 	public static final String MS2_RESOURCES_DIR = "ms2-resources";
 	public static final String MS2_SETTINGS_NAME = "settings.xml";
 	
-	public static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	public static final Log log = LogFactory.getFactory().getInstance("[MS2]");
 	public static final SimpleGUIConsole console = new SimpleGUIConsole();
 
 	static {
@@ -102,7 +104,7 @@ public class UniversalLauncher implements Runnable {
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return "Error checking updates. Please try manually at ms2.creatifcubed.com";
+			return "Error checking updates. Please check manually at ms2.creatifcubed.com";
 		}
 		return null;
 	}

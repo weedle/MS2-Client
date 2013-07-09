@@ -15,8 +15,8 @@ public class MS2LauncherWindow extends JFrame {
 	
 	public final UniversalLauncher app;
 	
-	public static final int PREFERRED_WIDTH = 600;
-	public static final int PREFERRED_HEIGHT = 500;
+	public static final int PREFERRED_WIDTH = 900;
+	public static final int PREFERRED_HEIGHT = 600;
 	public static final String MS2_RESOURCES_DIR = "ms2-resources";
 	public static final String MS2_SETTINGS_NAME = "settings.xml";
 	
@@ -28,7 +28,7 @@ public class MS2LauncherWindow extends JFrame {
 		SimpleSwingUtils.setIcon(this, "com/mineshaftersquared/resources/ms2.png");
 		
 		JTabbedPane tabbedPane = new JTabbedPane() {{
-			add("Index", new IndexTab());
+			add("Index", new IndexTab(MS2LauncherWindow.this.app));
 			add("Profiles", new ProfilesTab());
 			add("Server Admins", new ServerAdminsTab());
 			add("About", new AboutTab());
