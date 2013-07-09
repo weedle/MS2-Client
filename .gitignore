@@ -1,0 +1,7 @@
+/bin/
+/dist/
+/libs/
+/src/com/adrian/playground/
+/resources/*.jar
+
+Thumbs.db
