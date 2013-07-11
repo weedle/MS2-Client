@@ -30,7 +30,7 @@ public class MS2LauncherWindow extends JFrame {
 		JTabbedPane tabbedPane = new JTabbedPane() {{
 			add("Index", new IndexTab(MS2LauncherWindow.this.app));
 			add("Profiles", new ProfilesTab());
-			add("Server Admins", new ServerAdminsTab());
+			add("Server Admins", new ServerAdminsTab(MS2LauncherWindow.this.app));
 			add("About", new AboutTab());
 			add("Debug", new DebugTab());
 		}};
