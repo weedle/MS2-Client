@@ -29,7 +29,7 @@ public class ServerAdminsTab extends JPanel {
 		this.add(this.createInfoPanel());
 		this.add(this.createLaunchPanel());
 		this.add(this.createOptionsPanel());
-		this.add(new Box.Filler(new Dimension(0, 0), new Dimension(0, Integer.MAX_VALUE), new Dimension(0, Integer.MAX_VALUE)));
+		//this.add(new Box.Filler(new Dimension(0, 0), new Dimension(0, Integer.MAX_VALUE), new Dimension(0, Integer.MAX_VALUE)));
 	}
 	
 	private JPanel createInfoPanel() {
@@ -113,20 +113,13 @@ public class ServerAdminsTab extends JPanel {
 		c.weightx = 1;
 		c.weighty = 1;
 		
-//		JLabel info = new JLabel(
-//			"<html><ul>"
-//				+ "<li>Arguments are split by spaces. Escape spaces with a backslash (\"\\ \")."
-//				+ "<br />Escape backslashes with another backlash (\"\\\\\") (even if you use quotations, you must escape those characters)</li>"
-//				+ "<li>Pseudocode Example: -dir=\"/Library/Application\\ Support/\" -code=a\\\\b"
-//				+ "<br />if what you wanted was (1) -dir=\"/Library/Application Support/\" and (2) -code=a\\b</li>"
-//			+ "</ul></html>");
 		JLabel info = new JLabel("Separate arguments with a new line");
 		JLabel javaOptionsLabel = new JLabel("Java Options");
-		JTextArea javaOptions = new JTextArea(3, 64);
+		JTextArea javaOptions = new JTextArea(4, 24);
 		JLabel ms2OptionsLabel = new JLabel("Mineshafter Squared Options");
-		JTextArea ms2Options = new JTextArea(3, 64);
+		JTextArea ms2Options = new JTextArea(4, 24);
 		JLabel minecraftOptionsLabel = new JLabel("Minecraft Options");
-		JTextArea minecraftOptions = new JTextArea(3, 64);
+		JTextArea minecraftOptions = new JTextArea(4, 24);
 		JButton save = new JButton("Save");
 		
 		javaOptions.setLineWrap(true);
@@ -135,21 +128,23 @@ public class ServerAdminsTab extends JPanel {
 		
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = 2;
+		c.gridwidth = 3;
 		panel.add(info, c);
 		c.gridy++;
 		c.gridwidth = 1;
 		panel.add(javaOptionsLabel, c);
+		c.gridx = 1;
+		panel.add(ms2OptionsLabel, c);
+		c.gridx = 2;
+		panel.add(minecraftOptionsLabel, c);
+		c.gridx = 0;
 		c.gridy++;
 		panel.add(new JScrollPane(javaOptions, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), c);
-		c.gridy++;
-		panel.add(ms2OptionsLabel, c);
-		c.gridy++;
+		c.gridx = 1;
 		panel.add(new JScrollPane(ms2Options, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), c);
-		c.gridy++;
-		panel.add(minecraftOptionsLabel, c);
-		c.gridy++;
+		c.gridx = 2;
 		panel.add(new JScrollPane(minecraftOptions, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), c);
+		c.gridx = 2;
 		c.gridy++;
 		c.anchor = GridBagConstraints.FIRST_LINE_END;
 		panel.add(save, c);

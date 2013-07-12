@@ -13,6 +13,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -36,9 +37,16 @@ public class SidePanel extends JPanel {
 	}
 	
 	private JPanel createProfileMenu() {
-		JPanel panel = new JPanel();
+		JPanel panel = new JPanel(new GridBagLayout());
 		panel.setBorder(BorderFactory.createTitledBorder("Profile"));
+		GridBagConstraints c = new GridBagConstraints();
+		c.insets = new Insets(5, 5, 5, 5);
 		
+		JComboBox profiles = new JComboBox();
+		
+		c.gridx = 0;
+		c.gridy = 0;
+		panel.add(profiles, c);
 		
 		return panel;
 	}

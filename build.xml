@@ -27,8 +27,11 @@
 	<target name="compile" depends="clean, prepare">
 		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.6" source="1.6" includeantruntime="false"/>
 	</target>
+	
+	<target name="jar" depends="compile, jar.existing">
+	</target>
 
-	<target name="jar" depends="compile">
+	<target name="jar.existing" depends="compile">
 		<jar destfile="${dist.dir}/${dist.jarname}" basedir="${build.dir}" filesetmanifest="skip">
 			<manifest>
 				<attribute name="Main-Class" value="${manifest.mainclass}" />
