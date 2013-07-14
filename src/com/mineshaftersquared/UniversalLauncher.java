@@ -22,6 +22,7 @@ import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.mineshaftersquared.gui.MS2LauncherWindow;
+import com.mineshaftersquared.misc.EventBus;
 import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.models.MCProfileManager;
 
@@ -29,6 +30,7 @@ public class UniversalLauncher implements Runnable {
 	
 	public final FileConfiguration prefs;
 	public final MCProfileManager profileManager;
+	public final EventBus eventBus;
 
 	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0");
 	public static final String POLLING_SERVER = "http://ms2.creatifcubed.com/polling_scripts/";
@@ -49,7 +51,7 @@ public class UniversalLauncher implements Runnable {
 
 	public UniversalLauncher() throws ConfigurationException, IOException {
 		this.profileManager = new MCProfileManager(MS2Utils.getLocalDir());
-		this.profileManager.saveProfiles();
+		this.eventBus = new EventBus();
 		
 		// Initialize resources
 		File resources = new File(MS2_RESOURCES_DIR);
@@ -60,21 +62,6 @@ public class UniversalLauncher implements Runnable {
 		this.prefs.setAutoSave(true);
 		
 		this.prefs.setProperty("launcher.lastversion", MS2_VERSION.toString());
-		
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				final String msg = UniversalLauncher.this.versionUpdates();
-				if (msg != null) {
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							JOptionPane.showMessageDialog(UniversalLauncher.this.mainWindow(), msg);
-						}
-					});
-				}
-			}
-		}).start();
 	}
 	
 	/**
@@ -104,6 +91,21 @@ public class UniversalLauncher implements Runnable {
 				UniversalLauncher.this.mainWindow.pack();
 				UniversalLauncher.this.mainWindow.setLocationRelativeTo(null);
 				UniversalLauncher.this.mainWindow.setVisible(true);
+				
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						final String msg = UniversalLauncher.this.versionUpdates();
+						if (msg != null) {
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									JOptionPane.showMessageDialog(UniversalLauncher.this.mainWindow(), msg);
+								}
+							});
+						}
+					}
+				}).start();
 			}
 			
 		});
@@ -115,6 +117,7 @@ public class UniversalLauncher implements Runnable {
 					.addGet("currentversion", MS2_VERSION.toString()).doGet(Proxy.NO_PROXY)).trim();
 			SimpleVersion latest = new SimpleVersion(result);
 			UniversalLauncher.log.info("Latest version: " + latest.toString());
+			this.eventBus.emit("latestversion", latest);
 			if (MS2_VERSION.shouldUpdateTo(latest)) {
 				return "There is an update at ms2.creatifcubed.com. Latest version: " + latest.toString();
 			}

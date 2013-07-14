@@ -22,7 +22,7 @@ public class IndexTab extends JPanel {
 		super(new BorderLayout());
 		this.app = app;
 		
-		this.add(new NewsPanel(), BorderLayout.CENTER);
+		this.add(new NewsPanel(this.app), BorderLayout.CENTER);
 		this.add(new SidePanel(this.app), BorderLayout.EAST);
 	}
 }

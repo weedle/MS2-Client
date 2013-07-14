@@ -11,13 +11,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 
+import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.WebsitePanel;
 import com.mineshaftersquared.UniversalLauncher;
+import com.mineshaftersquared.misc.EventBus;
 
 public class NewsPanel extends JPanel {
 	
-	public NewsPanel() {
+	private final UniversalLauncher app;
+	
+	public NewsPanel(UniversalLauncher app) {
 		super(new BorderLayout());
+		this.app = app;
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
@@ -42,8 +47,17 @@ public class NewsPanel extends JPanel {
 		JPanel websitePanel = new WebsitePanel("http://ms2.creatifcubed.com/polling_scripts/updates_messages.php");
 		JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5)); // 5 is default
 		JLabel currentVersion = new JLabel(String.format("Current Version: %s", UniversalLauncher.MS2_VERSION.toString()));
-		JLabel latestVersion = new JLabel("Latest Version: Loading...");
+		final JLabel latestVersion = new JLabel("Latest Version: Loading...");
 		JButton update = new JButton("Update");
+		
+		this.app.eventBus.on("latestversion", new EventBus.Listener() {
+			@Override
+			public void fire(Object obj) {
+				if (obj instanceof SimpleVersion) {
+					latestVersion.setText("Latest Version: " + obj.toString());
+				}
+			}
+		});
 		
 		toolbar.add(currentVersion);
 		toolbar.add(latestVersion);
