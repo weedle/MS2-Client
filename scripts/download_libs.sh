@@ -55,7 +55,22 @@ else
 	ant
 	cd ..
 	cp SimpleAPI-Java/dist/simpleapi.jar simpleapi.jar
-	echo
 fi
+echo
+
+if [ -d "google-gson-2.2.4" ];
+then
+	echo "Google GSON download already exists"
+else
+	curl -O "https://google-gson.googlecode.com/files/google-gson-2.2.4-release.zip"
+	unzip "google-gson-2.2.4-release.zip"
+fi
+if [ -f "gson-2.2.4.jar" ];
+then
+	echo "Google GSON jar already exists"
+else
+	cp "google-gson-2.2.4/gson-2.2.4.jar" "gson-2.2.4.jar"
+fi
+echo
 
 echo "Done getting libs for Mineshafter Squared Universal Launcher"

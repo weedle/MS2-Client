@@ -21,6 +21,7 @@ import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.mineshaftersquared.gui.MS2LauncherWindow;
+import com.mineshaftersquared.misc.MS2Utils;
 
 public class UniversalLauncher implements Runnable {
 	
@@ -45,6 +46,8 @@ public class UniversalLauncher implements Runnable {
 		// Initialize resources
 		File resources = new File(MS2_RESOURCES_DIR);
 		resources.mkdirs();
+		File defaultResources = new File(MS2Utils.getDefaultMCDir(), MS2_RESOURCES_DIR);
+		defaultResources.mkdirs();
 		this.prefs = new XMLConfiguration(new File(resources, MS2_SETTINGS_NAME));
 		this.prefs.setAutoSave(true);
 		

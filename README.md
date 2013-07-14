@@ -7,6 +7,7 @@ You will need Ant to build and compile the project. You can import the build fil
 ### Dependencies
 These go under a "libs" folder. There is a download script to set these up (`bash scripts/download_libs.sh`)
 - [SimpleAPI-Java](https://github.com/Raekye/SimpleAPI-Java)
+- [Google GSON](https://google-gson.googlecode.com/files/google-gson-2.2.4-release.zip)
 - [Apache Commons Lang](http://commons.apache.org/proper/commons-lang/)
 - [Apache Commons IO](http://commons.apache.org/proper/commons-io/)
 - [Apache Commons CLI](http://commons.apache.org/proper/commons-cli/)

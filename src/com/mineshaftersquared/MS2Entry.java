@@ -19,6 +19,7 @@ public class MS2Entry {
 		addOption("authserver", true, "server: Domain to poll for authentication, skins, etc.");
 		addOption("authport", true, "server: Proxy port");
 	}};
+	
 
 	/**
 	 * @param args
