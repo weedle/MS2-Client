@@ -9,8 +9,8 @@ public class MCProfile {
 	public static final String[] DEFAULT_JAVA_ARGS = {"-Xms1G", "-Xmx1G"};
 	
 	private String name;
-	private File gameDir;
 	private String versionId;
+	private File gameDir;
 	private String[] javaArgs;
 	private boolean isLocal;
 	
@@ -18,7 +18,7 @@ public class MCProfile {
 		this(name, null, null, null, false);
 	}
 	
-	public MCProfile(String name, File gameDir, String versionId, String[] javaArgs, boolean isLocal) {
+	public MCProfile(String name, String versionId, File gameDir, String[] javaArgs, boolean isLocal) {
 		this.setName(name);
 		this.setGameDir(gameDir);
 		this.setVersionId(versionId);
@@ -36,7 +36,7 @@ public class MCProfile {
 		if (this.getIsLocal()) {
 			return MS2Utils.getLocalDir();
 		}
-		if (gameDir == null) {
+		if (this.gameDir == null) {
 			return MS2Utils.getDefaultMCDir();
 		}
 		return this.gameDir;
@@ -71,7 +71,7 @@ public class MCProfile {
 	public boolean equals(Object other) {
 		if (other instanceof MCProfile) {
 			MCProfile that = (MCProfile) other;
-			return this.getName().equals(that.getName()) && this.getIsLocal() == that.getIsLocal() && this.getGameDir().equals(that.getGameDir());
+			return this.getName().equalsIgnoreCase(that.getName()) && (this.getIsLocal() ? this.getIsLocal() == that.getIsLocal() : this.getGameDir().equals(that.getGameDir()));
 		}
 		return false;
 	}
@@ -79,6 +79,11 @@ public class MCProfile {
 	@Override
 	public int hashCode() {
 		return this.name.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return this.getName();
 	}
 	
 }

@@ -2,6 +2,7 @@ package com.mineshaftersquared;
 
 import java.awt.Dimension;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
 import java.util.logging.Logger;
@@ -22,10 +23,12 @@ import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.mineshaftersquared.gui.MS2LauncherWindow;
 import com.mineshaftersquared.misc.MS2Utils;
+import com.mineshaftersquared.models.MCProfileManager;
 
 public class UniversalLauncher implements Runnable {
 	
 	public final FileConfiguration prefs;
+	public final MCProfileManager profileManager;
 
 	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0");
 	public static final String POLLING_SERVER = "http://ms2.creatifcubed.com/polling_scripts/";
@@ -35,6 +38,8 @@ public class UniversalLauncher implements Runnable {
 	
 	public static final Log log = LogFactory.getFactory().getInstance("[MS2]");
 	public static final SimpleGUIConsole console = new SimpleGUIConsole();
+	
+	private MS2LauncherWindow mainWindow;
 
 	static {
 		console.init();
@@ -42,7 +47,10 @@ public class UniversalLauncher implements Runnable {
 		System.setErr(new PrintStream(new SimpleAggregateOutputStream(System.err, console.getErr())));
 	}
 
-	public UniversalLauncher() throws ConfigurationException {
+	public UniversalLauncher() throws ConfigurationException, IOException {
+		this.profileManager = new MCProfileManager(MS2Utils.getLocalDir());
+		this.profileManager.saveProfiles();
+		
 		// Initialize resources
 		File resources = new File(MS2_RESOURCES_DIR);
 		resources.mkdirs();
@@ -61,7 +69,7 @@ public class UniversalLauncher implements Runnable {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							JOptionPane.showMessageDialog(null, msg);
+							JOptionPane.showMessageDialog(UniversalLauncher.this.mainWindow(), msg);
 						}
 					});
 				}
@@ -72,10 +80,15 @@ public class UniversalLauncher implements Runnable {
 	/**
 	 * @param args
 	 * @throws ConfigurationException 
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws ConfigurationException {
+	public static void main(String[] args) throws ConfigurationException, IOException {
 
 		new UniversalLauncher().run();
+	}
+	
+	public MS2LauncherWindow mainWindow() {
+		return this.mainWindow;
 	}
 
 	@Override
@@ -85,12 +98,12 @@ public class UniversalLauncher implements Runnable {
 
 			@Override
 			public void run() {
-				JFrame mainWindow = new MS2LauncherWindow(UniversalLauncher.this);
-				mainWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				mainWindow.setPreferredSize(new Dimension(MS2LauncherWindow.PREFERRED_WIDTH, MS2LauncherWindow.PREFERRED_HEIGHT));
-				mainWindow.pack();
-				mainWindow.setLocationRelativeTo(null);
-				mainWindow.setVisible(true);
+				UniversalLauncher.this.mainWindow = new MS2LauncherWindow(UniversalLauncher.this);
+				UniversalLauncher.this.mainWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				UniversalLauncher.this.mainWindow.setPreferredSize(new Dimension(MS2LauncherWindow.PREFERRED_WIDTH, MS2LauncherWindow.PREFERRED_HEIGHT));
+				UniversalLauncher.this.mainWindow.pack();
+				UniversalLauncher.this.mainWindow.setLocationRelativeTo(null);
+				UniversalLauncher.this.mainWindow.setVisible(true);
 			}
 			
 		});

@@ -31,7 +31,7 @@
 	<target name="jar" depends="compile, jar.existing">
 	</target>
 
-	<target name="jar.existing" depends="compile">
+	<target name="jar.existing">
 		<jar destfile="${dist.dir}/${dist.jarname}" basedir="${build.dir}" filesetmanifest="skip">
 			<manifest>
 				<attribute name="Main-Class" value="${manifest.mainclass}" />
@@ -40,8 +40,11 @@
 			<zipgroupfileset dir="${libs.dir}" includes="*.jar" />
 		</jar>
 	</target>
-
-	<target name="package" depends="jar">
+	
+	<target name="package" depends="jar, package.existing">
+	</target>
+	
+	<target name="package.existing">
 		<copy todir="${dist.dir}">
 			<fileset dir="${resources.dir}">
 				<include name="ms2-run-*.*" />

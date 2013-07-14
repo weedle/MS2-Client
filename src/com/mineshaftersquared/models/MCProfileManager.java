@@ -12,8 +12,11 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mineshaftersquared.UniversalLauncher;
+import com.mineshaftersquared.misc.GsonFileDeserializer;
+import com.mineshaftersquared.misc.GsonFileSerializer;
 import com.mineshaftersquared.misc.MS2Utils;
 
 public class MCProfileManager {
@@ -24,13 +27,22 @@ public class MCProfileManager {
 	public MCProfileManager(File location) {
 		this.location = location;
 		this.profiles = new HashSet<MCProfile>();
-		this.refresh();
+		this.refreshProfiles();
 	}
 	
 	public synchronized String[] validateProfile(MCProfile profile) {
 		Set<String> errors = new HashSet<String>();
 		if (this.profiles.contains(profile)) {
 			errors.add("This profile already exists");
+		}
+		if (profile.getName().isEmpty()) {
+			errors.add("Profile name is empty");
+		}
+		if (!profile.getName().matches("[a-zA-Z0-9_-]+")) {
+			errors.add("Profile name can only contain letters, numbers, underscores, and dashes");
+		}
+		if (!profile.getGameDir().exists()) {
+			errors.add("Invalid profile folder");
 		}
 		return errors.toArray(new String[errors.size()]);
 	}
@@ -44,7 +56,11 @@ public class MCProfileManager {
 	}
 	
 	public synchronized boolean saveProfiles() throws IOException {
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder()
+				.setPrettyPrinting()
+				.registerTypeAdapter(File.class, new GsonFileSerializer())
+				.registerTypeAdapter(File.class, new GsonFileDeserializer())
+				.create();
 		Set<MCProfile> locals = new HashSet<MCProfile>();
 		Set<MCProfile> globals = new HashSet<MCProfile>();
 		for (MCProfile each : this.profiles) {
@@ -55,7 +71,7 @@ public class MCProfileManager {
 		return true;
 	}
 	
-	public synchronized void refresh() {
+	public synchronized void refreshProfiles() {
 		this.profiles.clear();
 		this.profiles.addAll(this.refresh(this.getLocalProfilesFile()));
 		this.profiles.addAll(this.refresh(this.getGlobalProfilesFile()));
@@ -65,8 +81,11 @@ public class MCProfileManager {
 		return Collections.unmodifiableSet(this.profiles);
 	}
 	
-	private Set<MCProfile> refresh(File location) {
-		File json = new File(location, UniversalLauncher.MS2_RESOURCES_DIR+ "/" + PROFILES_JSON_NAME);
+	public synchronized MCProfile[] profilesAsArray() {
+		return this.profiles.toArray(new MCProfile[this.profiles.size()]);
+	}
+	
+	private Set<MCProfile> refresh(File json) {
 		try {
 			Set<MCProfile> profiles = new Gson().fromJson(new FileReader(json), new TypeToken<Set<MCProfile>>(){}.getType());
 			if (profiles != null) {
@@ -81,10 +100,10 @@ public class MCProfileManager {
 	}
 	
 	private File getLocalProfilesFile() {
-		return new File(this.location, UniversalLauncher.MS2_RESOURCES_DIR+ "/" + PROFILES_JSON_NAME);
+		return new File(this.location, UniversalLauncher.MS2_RESOURCES_DIR + "/" + PROFILES_JSON_NAME);
 	}
 	
 	private File getGlobalProfilesFile() {
-		return new File(MS2Utils.getDefaultMCDir(), UniversalLauncher.MS2_RESOURCES_DIR+ "/" + PROFILES_JSON_NAME);
+		return new File(MS2Utils.getDefaultMCDir(), UniversalLauncher.MS2_RESOURCES_DIR + "/" + PROFILES_JSON_NAME);
 	}
 }
