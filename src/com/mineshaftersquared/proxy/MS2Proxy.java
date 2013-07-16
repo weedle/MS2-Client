@@ -66,11 +66,10 @@ public class MS2Proxy implements Runnable {
 					}
 					s = this.server.accept();
 					final Socket socket = s;
-					final Handler handler = this.handlerFactory.createHandler(this);
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							handler.handle(socket);
+							MS2Proxy.this.handlerFactory.createHandler().handle(MS2Proxy.this, socket);
 						}
 					}).start();
 				} catch (SocketTimeoutException acceptable) {
@@ -104,15 +103,11 @@ public class MS2Proxy implements Runnable {
 		this.shouldStop = true;
 	}
 	
-	public static abstract class Handler {
-		public final MS2Proxy ms2Proxy;
-		public Handler(MS2Proxy ms2Proxy) {
-			this.ms2Proxy = ms2Proxy;
-		}
-		public abstract void handle(Socket socket);
+	public static interface Handler {
+		public abstract void handle(MS2Proxy ms2Proxy, Socket socket);
 	}
 	
 	public static interface HandlerFactory {
-		public Handler createHandler(MS2Proxy proxy);
+		public Handler createHandler();
 	}
 }

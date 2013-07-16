@@ -15,16 +15,17 @@ import org.apache.commons.io.IOUtils;
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.mineshaftersquared.UniversalLauncher;
 
-public class HttpProxyHandler extends MS2Proxy.Handler {
+public class HttpProxyHandler implements MS2Proxy.Handler {
 	
-	private Map<String, byte[]> skinCache = new HashMap<String, byte[]>();
-	private Map<String, byte[]> cloakCache = new HashMap<String, byte[]>();
+	private final Map<String, byte[]> skinCache;
+	private final Map<String, byte[]> cloakCache;
 	
-	public HttpProxyHandler(MS2Proxy ms2Proxy) {
-		super(ms2Proxy);
+	public HttpProxyHandler() {
+		this.skinCache = new HashMap<String, byte[]>();
+		this.cloakCache = new HashMap<String, byte[]>();
 	}
 	
-	public void handle(Socket socket) {
+	public void handle(MS2Proxy proxy, Socket socket) {
 		try {
 			
 		} finally {
@@ -32,26 +33,26 @@ public class HttpProxyHandler extends MS2Proxy.Handler {
 		}
 	}
 	
-	public void on(String method, String url, Map<String, String> headers, InputStream in, OutputStream out) {
+	public void on(String method, String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
 		switch (method.toLowerCase()) {
 		case "get":
-			this.onGet(url, headers, in, out);
+			this.onGet(url, headers, in, out, ms2Proxy);
 			break;
 		case "post":
-			this.onPost(url, headers, in, out);
+			this.onPost(url, headers, in, out, ms2Proxy);
 			break;
 		case "head":
-			this.onHead(url, headers, in, out);
+			this.onHead(url, headers, in, out, ms2Proxy);
 			break;
 		case "connect":
-			this.onConnect(url, headers, in, out);
+			this.onConnect(url, headers, in, out, ms2Proxy);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown method " + method);
 		}
 	}
 
-	public void onGet(String url, Map<String, String> headers, InputStream in, OutputStream out) {
+	public void onGet(String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
 		UniversalLauncher.log.info("Proxy - get - " + url);
 		Matcher skinMatcher = MS2Proxy.SKIN_URL.matcher(url);
 		Matcher cloakMatcher = MS2Proxy.CLOAK_URL.matcher(url);
@@ -60,7 +61,7 @@ public class HttpProxyHandler extends MS2Proxy.Handler {
 			UniversalLauncher.log.info("Proxy - skin - " + username);
 			byte[] data = this.skinCache.get(username);
 			if (data == null) {
-				String proxiedURL = this.ms2Proxy.authserver + "/mcapi/skin/" + username + ".png";
+				String proxiedURL = ms2Proxy.authserver + "/mcapi/skin/" + username + ".png";
 				data = this.getRequest(proxiedURL);
 			}
 			this.skinCache.put(username, data);
@@ -71,7 +72,7 @@ public class HttpProxyHandler extends MS2Proxy.Handler {
 			UniversalLauncher.log.info("Proxy - cloak - " + username);
 			byte[] data = this.cloakCache.get(username);
 			if (data == null) {
-				String proxiedURL = this.ms2Proxy.authserver + "/mcapi/cloak/" + username + ".png";
+				String proxiedURL = ms2Proxy.authserver + "/mcapi/cloak/" + username + ".png";
 				data = this.getRequest(proxiedURL);
 			}
 			this.cloakCache.put(username, data);
@@ -81,13 +82,13 @@ public class HttpProxyHandler extends MS2Proxy.Handler {
 			UniversalLauncher.log.info("Proxy - no handler for - " + url);
 		}
 	}
-	public void onPost(String url, Map<String, String> headers, InputStream in, OutputStream out) {
+	public void onPost(String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
 		
 	}
-	public void onHead(String url, Map<String, String> headers, InputStream in, OutputStream out) {
+	public void onHead(String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
 		
 	}
-	public void onConnect(String url, Map<String, String> headers, InputStream in, OutputStream out) {
+	public void onConnect(String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
 		
 	}
 	
