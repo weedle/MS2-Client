@@ -14,24 +14,24 @@
 		</fileset>
 	</path>
 
-	<target name="clean">
+	<target name="clean" description="Clean build and dist dirs">
 		<delete dir="${build.dir}" />
 		<delete dir="${dist.dir}" />
 	</target>
 
-	<target name="prepare">
+	<target name="prepare" description="Initialize build and dist dirs">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${dist.dir}" />
 	</target>
 
-	<target name="compile" depends="clean, prepare">
-		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.6" source="1.6" includeantruntime="false"/>
+	<target name="compile" depends="clean, prepare" description="Compile sources">
+		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.7" source="1.7" includeantruntime="false"/>
 	</target>
 	
-	<target name="jar" depends="compile, jar.existing">
+	<target name="jar" depends="compile, jar.existing" description="Compile and create Jar">
 	</target>
 
-	<target name="jar.existing">
+	<target name="jar.existing" description="Jar existing class files">
 		<jar destfile="${dist.dir}/${dist.jarname}" basedir="${build.dir}" filesetmanifest="skip">
 			<manifest>
 				<attribute name="Main-Class" value="${manifest.mainclass}" />
@@ -44,7 +44,7 @@
 	<target name="package" depends="jar, package.existing">
 	</target>
 	
-	<target name="package.existing">
+	<target name="package.existing" description="Package an existing Jar">
 		<copy todir="${dist.dir}">
 			<fileset dir="${resources.dir}">
 				<include name="ms2-run-*.*" />
@@ -52,7 +52,6 @@
 		</copy>
 	</target>
 
-	<target name="main" depends="package">
-		<description>Build and Package</description>
+	<target name="main" depends="package" description="Build and package">
 	</target>
 </project>
