@@ -25,11 +25,13 @@ import com.mineshaftersquared.gui.MS2LauncherWindow;
 import com.mineshaftersquared.misc.EventBus;
 import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.models.MCProfileManager;
+import com.mineshaftersquared.models.MCVersionManager;
 
 public class UniversalLauncher implements Runnable {
 	
 	public final FileConfiguration prefs;
-	public final MCProfileManager profileManager;
+	public final MCProfileManager profilesManager;
+	public final MCVersionManager versionsManager;
 	public final EventBus eventBus;
 
 	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0");
@@ -50,7 +52,8 @@ public class UniversalLauncher implements Runnable {
 	}
 
 	public UniversalLauncher() throws ConfigurationException, IOException {
-		this.profileManager = new MCProfileManager(MS2Utils.getLocalDir());
+		this.profilesManager = new MCProfileManager(MS2Utils.getLocalDir());
+		this.versionsManager = new MCVersionManager();
 		this.eventBus = new EventBus();
 		
 		// Initialize resources
@@ -117,7 +120,7 @@ public class UniversalLauncher implements Runnable {
 					.addGet("currentversion", MS2_VERSION.toString()).doGet(Proxy.NO_PROXY)).trim();
 			SimpleVersion latest = new SimpleVersion(result);
 			UniversalLauncher.log.info("Latest version: " + latest.toString());
-			this.eventBus.emit("latestversion", latest);
+			this.eventBus.emit("latestversion", new EventBus.EventData(null, latest));
 			if (MS2_VERSION.shouldUpdateTo(latest)) {
 				return "There is an update at ms2.creatifcubed.com. Latest version: " + latest.toString();
 			}

@@ -48,8 +48,8 @@ public class SidePanel extends JPanel {
 	}
 	
 	private void refreshProfiles() {
-		this.app.profileManager.refreshProfiles();
-		this.profiles = this.app.profileManager.profilesAsArray();
+		this.app.profilesManager.refreshProfiles();
+		this.profiles = this.app.profilesManager.profilesAsArray();
 	}
 	
 	private JPanel createProfileMenu() {

@@ -35,20 +35,10 @@ public class DebugTab extends JPanel {
 
 		});
 
-		final JButton selectall = new JButton("Select all");
-		selectall.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				UniversalLauncher.console.getOutputField().requestFocus();
-				UniversalLauncher.console.getOutputField().selectAll();
-			}
-
-		});
-
-		final JButton copy = new JButton("Copy selected");
+		final JButton copy = new JButton("Copy All");
 		copy.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent event) {
 				UniversalLauncher.console.getOutputField().copy();
 			}
 
@@ -56,7 +46,6 @@ public class DebugTab extends JPanel {
 
 		JPanel controlsUI = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		controlsUI.add(autoscroll);
-		controlsUI.add(selectall);
 		controlsUI.add(copy);
 		container.add(controlsUI, BorderLayout.SOUTH);
 

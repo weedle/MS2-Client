@@ -207,20 +207,20 @@ public class AddEditProfileForm extends JFrame {
 
 	private String[] saveProfile() {
 		MCProfile profile = this.liveProfile();
-		String[] errors = this.app.profileManager.validateProfile(profile);
+		String[] errors = this.app.profilesManager.validateProfile(profile);
 		if (errors.length > 0) {
 			return errors;
 		}
 		if (this.profile != null) {
-			if (!this.app.profileManager.deleteProfile(this.profile)) {
+			if (!this.app.profilesManager.deleteProfile(this.profile)) {
 				return new String[] { "Unknown error deleting old profile. Please contact the developer" };
 			}
 		}
-		if (!this.app.profileManager.addProfile(profile)) {
+		if (!this.app.profilesManager.addProfile(profile)) {
 			return new String[] { "Unknown error adding profile. Please contact the developer" };
 		}
 		try {
-			if (!this.app.profileManager.saveProfiles()) {
+			if (!this.app.profilesManager.saveProfiles()) {
 				return new String[] { "Unknown error saving profiles. Please contact the developer" };
 			}
 		} catch (IOException ex) {

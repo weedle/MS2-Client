@@ -21,7 +21,7 @@ public class EventBus {
 		return this.autovivicate(event).remove(listener);
 	}
 	
-	public synchronized void emit(String event, Object obj) {
+	public synchronized void emit(String event, EventObject obj) {
 		for (Listener each : this.autovivicate(event)) {
 			each.fire(obj);
 		}
@@ -45,6 +45,21 @@ public class EventBus {
 	}
 	
 	public static interface Listener extends EventListener {
-		public void fire(Object eventObj);
+		public void fire(EventObject eventObj);
+	}
+	
+	public static class EventData extends EventObject {
+		
+		public final Object obj;
+		
+		public EventData(Object data) {
+			this(null, data);
+		}
+		
+		public EventData(Object source, Object data) {
+			super(source);
+			this.obj = data;
+		}
+		
 	}
 }

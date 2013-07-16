@@ -3,6 +3,7 @@ package com.mineshaftersquared.gui.tabs.index;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.net.URL;
+import java.util.EventObject;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -15,6 +16,7 @@ import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.WebsitePanel;
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.misc.EventBus;
+import com.mineshaftersquared.misc.EventBus.EventData;
 
 public class NewsPanel extends JPanel {
 	
@@ -52,9 +54,12 @@ public class NewsPanel extends JPanel {
 		
 		this.app.eventBus.on("latestversion", new EventBus.Listener() {
 			@Override
-			public void fire(Object obj) {
-				if (obj instanceof SimpleVersion) {
-					latestVersion.setText("Latest Version: " + obj.toString());
+			public void fire(EventObject obj) {
+				if (obj instanceof EventBus.EventData) {
+					EventBus.EventData eventData = (EventData) obj;
+					if (eventData.obj instanceof SimpleVersion) {
+						latestVersion.setText("Latest Version: " + eventData.obj.toString());
+					}
 				}
 			}
 		});

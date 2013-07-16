@@ -46,8 +46,8 @@ public class ProfilesTab extends JPanel {
 	}
 	
 	public void refreshProfiles() {
-		this.app.profileManager.refreshProfiles();
-		this.profiles = this.app.profileManager.profilesAsArray();
+		this.app.profilesManager.refreshProfiles();
+		this.profiles = this.app.profilesManager.profilesAsArray();
 		this.tableModel.fireTableDataChanged();
 	}
 	
@@ -74,6 +74,7 @@ public class ProfilesTab extends JPanel {
 			public void actionPerformed(ActionEvent event) {
 				JFrame frame = new AddEditProfileForm(ProfilesTab.this.app, ProfilesTab.this, null);
 				frame.pack();
+				frame.setLocationRelativeTo(null);
 				frame.setVisible(true);
 			}
 		});
@@ -86,6 +87,7 @@ public class ProfilesTab extends JPanel {
 				}
 				JFrame frame = new AddEditProfileForm(ProfilesTab.this.app, ProfilesTab.this, profile);
 				frame.pack();
+				frame.setLocationRelativeTo(null);
 				frame.setVisible(true);
 			}
 		});
@@ -96,11 +98,11 @@ public class ProfilesTab extends JPanel {
 				if (profile == null) {
 					return;
 				}
-				if (!ProfilesTab.this.app.profileManager.deleteProfile(profile)) {
+				if (!ProfilesTab.this.app.profilesManager.deleteProfile(profile)) {
 					JOptionPane.showMessageDialog(ProfilesTab.this.app.mainWindow(), "Unknown error deleting profile. Please contact the developer");
 				}
 				try {
-					if (!ProfilesTab.this.app.profileManager.saveProfiles()) {
+					if (!ProfilesTab.this.app.profilesManager.saveProfiles()) {
 						JOptionPane.showMessageDialog(ProfilesTab.this.app.mainWindow(), "Unknown error saving profiles. Please contact the developer");
 					}
 				} catch (IOException ex) {

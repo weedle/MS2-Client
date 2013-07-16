@@ -47,7 +47,7 @@ public class ServerAdminsTab extends JPanel {
 				+ "<li>Put server Jars in the same folder as this launcher</li>"
 				+ "<li>You can start the server by command line:<ul>"
 					+ "<li>java [java options, such as -Xmx2G for 2GB of RAM] -jar [mineshaftersquared.jar]</li>"
-					+ "<li>[MS2 options: -server=&lt;&gt; -bukkit -authserver=&lt;&gt;]</li>"
+					+ "<li>[MS2 options: -server=&lt;&gt; -bukkit, or -help for all options]</li>"
 					+ "<li>mc (this tells MS2 that the rest of the arguments are for Minecraft)</li>"
 					+ "<li>[Minecraft options (usually only for a few server mods)]</li>"
 				+ "</ul></li>"
