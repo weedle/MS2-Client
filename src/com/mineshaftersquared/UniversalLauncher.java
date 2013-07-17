@@ -120,7 +120,7 @@ public class UniversalLauncher implements Runnable {
 					.addGet("currentversion", MS2_VERSION.toString()).doGet(Proxy.NO_PROXY)).trim();
 			SimpleVersion latest = new SimpleVersion(result);
 			UniversalLauncher.log.info("Latest version: " + latest.toString());
-			this.eventBus.emit("latestversion", new EventBus.EventData(null, latest));
+			this.eventBus.emit("latestversion", new EventBus.EventData(latest));
 			if (MS2_VERSION.shouldUpdateTo(latest)) {
 				return "There is an update at ms2.creatifcubed.com. Latest version: " + latest.toString();
 			}

@@ -19,12 +19,19 @@ public abstract class SocksMessage {
 	
 	public String host;
 	public String user;
+	
+	public SocksMessage() {
+		this(0, null, 0, 0);
+	}
 
 	public SocksMessage(int command, InetAddress ip, int port, int version) {
 		this.command = command;
 		this.ip = ip;
 		this.port = port;
 		this.version = version;
+		
+		this.host = null;
+		this.user = null;
 	}
 
 	public abstract void read(InputStream paramInputStream) throws IOException;

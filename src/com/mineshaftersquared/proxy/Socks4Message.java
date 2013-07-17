@@ -29,6 +29,10 @@ public class Socks4Message extends SocksMessage {
 		this.version = version;
 		this.msgBytes = this.data();
 	}
+	
+	public Socks4Message(InputStream in) throws IOException {
+		this.read(in);
+	}
 
 	@Override
 	public void read(InputStream in) throws IOException {

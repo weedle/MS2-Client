@@ -51,9 +51,10 @@ public class EventBus {
 	public static class EventData extends EventObject {
 		
 		public final Object obj;
+		public static final Object NULL_SOURCE = new Object();
 		
 		public EventData(Object data) {
-			this(null, data);
+			this(NULL_SOURCE, data);
 		}
 		
 		public EventData(Object source, Object data) {

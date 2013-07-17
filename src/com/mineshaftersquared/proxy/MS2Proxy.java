@@ -73,9 +73,10 @@ public class MS2Proxy implements Runnable {
 						}
 					}).start();
 				} catch (SocketTimeoutException acceptable) {
-					//
+					IOUtils.closeQuietly(s);
 				} catch (IOException ex) {
 					ex.printStackTrace();
+					IOUtils.closeQuietly(s);
 				}
 			} finally {
 				IOUtils.closeQuietly(this.server);

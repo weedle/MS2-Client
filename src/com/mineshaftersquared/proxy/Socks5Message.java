@@ -62,6 +62,11 @@ public class Socks5Message extends SocksMessage {
 
 		this.data = this.data();
 	}
+	
+	public Socks5Message(InputStream in) throws IOException {
+		this.read(in);
+		this.doResolveIP = true;
+	}
 
 	@Override
 	public void read(InputStream in) throws IOException {
