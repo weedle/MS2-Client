@@ -60,7 +60,10 @@ public class MCVersion {
 		return this.versionId.hashCode();
 	}
 
-	
+	@Override
+	public String toString() {
+		return this.versionId;
+	}
 
 	public static enum MCVersionType {
 		RELEASE, SNAPSHOT, UNKNOWN;

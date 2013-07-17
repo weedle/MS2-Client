@@ -21,7 +21,7 @@ import com.mineshaftersquared.misc.MS2Utils;
 
 public class MCProfileManager {
 	private final File location;
-	public static final String PROFILES_JSON_NAME = "ms2-mc_profiles.json";
+	public static final String PROFILES_JSON_NAME = "ms2-launcher_profiles.json";
 	private final Set<MCProfile> profiles;
 	
 	public MCProfileManager(File location) {

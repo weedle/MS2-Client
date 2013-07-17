@@ -1,22 +1,36 @@
 package com.mineshaftersquared.gui.tabs;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang.ArrayUtils;
+
+import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.UniversalLauncher;
+import com.mineshaftersquared.misc.MS2Utils;
+import com.mineshaftersquared.models.MCVersion;
 
 public class ServerAdminsTab extends JPanel {
 	
@@ -71,13 +85,48 @@ public class ServerAdminsTab extends JPanel {
 		c.weighty = 1;
 		
 		JLabel downloadLabel = new JLabel("Download");
-		JComboBox downloadableVersions = new JComboBox();
+		final JComboBox downloadableVersions = new JComboBox();
 		JButton download = new JButton("Download");
 		JButton openLocalDir = new JButton("Open local folder");
 		JLabel serverLabel = new JLabel("Server");
 		JComboBox server = new JComboBox();
 		JButton launch = new JButton("Launch");
 		JButton refresh = new JButton("Refresh");
+		
+
+		final File local = MS2Utils.getLocalDir();
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				final MCVersion[] versions = ServerAdminsTab.this.app.versionsManager.getVersions();
+				ArrayUtils.reverse(versions);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						downloadableVersions.setModel(new DefaultComboBoxModel(versions));
+					}
+				});
+			}
+		}).start();
+		openLocalDir.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				try {
+					Desktop.getDesktop().open(local);
+				} catch (IOException ex) {
+					ex.printStackTrace();
+					JOptionPane.showMessageDialog(ServerAdminsTab.this, "Unable to open folder " + local.getAbsolutePath());
+				}
+			}
+		});
+		String[] serverJars = local.list(new FilenameFilter() {
+			@Override
+			public boolean accept(File file, String name) {
+				return name.endsWith(".jar") && !name.equals(SimpleUtils.getJarPath().getName());
+			}
+		});
+		server.setModel(new DefaultComboBoxModel(serverJars));
 		
 		c.gridx = 0;
 		c.gridy = 0;
