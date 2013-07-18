@@ -41,12 +41,7 @@ do
 	echo
 done
 
-if [ -d "SimpleAPI-Java" ];
-then
-	echo "SimpleAPI-Java local git repo already exists"
-else
-	git clone git@github.com:Raekye/SimpleAPI-Java.git
-fi
+git clone git@github.com:Raekye/SimpleAPI-Java.git
 if [ -f "simpleapi.jar" ];
 then
 	echo "simpleapi.jar already exists"
