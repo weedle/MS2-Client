@@ -40,13 +40,16 @@ public class MS2Proxy implements Runnable {
 		this.isInitializedLock = new Object();
 	}
 	
-	public void startAsync() {
+	public Thread startAsync() {
 		try {
 			this.initialize();
-			new Thread(this).start();
+			Thread t = new Thread(this);
+			t.start();
+			return t;
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+		return null;
 	}
 	
 	@Override
@@ -57,8 +60,8 @@ public class MS2Proxy implements Runnable {
 			}
 			this.hasStarted = true;
 		}
-		while (true) {
-			try {
+		try {
+			while (true) {
 				Socket s = null;
 				try {
 					if (this.shouldStop) {
@@ -78,10 +81,11 @@ public class MS2Proxy implements Runnable {
 					ex.printStackTrace();
 					IOUtils.closeQuietly(s);
 				}
-			} finally {
-				IOUtils.closeQuietly(this.server);
 			}
+		} finally {
+			IOUtils.closeQuietly(this.server);
 		}
+		UniversalLauncher.log.info("MS2Proxy done");
 	}
 	
 	public void initialize() throws IOException {
@@ -105,7 +109,7 @@ public class MS2Proxy implements Runnable {
 	}
 	
 	public static interface Handler {
-		public abstract void handle(MS2Proxy ms2Proxy, Socket socket);
+		public void handle(MS2Proxy ms2Proxy, Socket socket);
 	}
 	
 	public static interface HandlerFactory {

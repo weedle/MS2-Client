@@ -15,8 +15,10 @@
 	</path>
 
 	<target name="clean" description="Clean build and dist dirs">
-		<delete dir="${build.dir}" />
-		<delete dir="${dist.dir}" />
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build.dir}" includes="**/*" defaultexcludes="no" />
+			<fileset dir="${dist.dir}" includes="**/*" defaultexcludes="no" />
+		</delete>
 	</target>
 
 	<target name="prepare" description="Initialize build and dist dirs">
@@ -24,8 +26,11 @@
 		<mkdir dir="${dist.dir}" />
 	</target>
 
-	<target name="compile" depends="clean, prepare" description="Compile sources">
-		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.7" source="1.7" includeantruntime="false"/>
+	<target name="compile" depends="prepare, clean" description="Compile sources">
+		<javac destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.7" source="1.7" includeantruntime="false">
+			<src path="${src.dir}" />
+			<exclude name="com/adrian/playground/**" />
+		</javac>
 	</target>
 	
 	<target name="jar" depends="compile, jar.existing" description="Compile and create Jar">
