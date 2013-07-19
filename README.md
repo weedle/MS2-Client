@@ -12,5 +12,4 @@ These go under a "libs" folder. There is a download script to set these up (`bas
 - [Apache Commons IO](http://commons.apache.org/proper/commons-io/)
 - [Apache Commons CLI](http://commons.apache.org/proper/commons-cli/)
 - [Apache Commons Configuration](http://commons.apache.org/proper/commons-configuration/)
-- [Apache Commons Collections](http://commons.apache.org/proper/commons-collections/)
 - [Apache Commons Logging](http://commons.apache.org/proper/commons-logging/)

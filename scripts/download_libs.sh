@@ -12,7 +12,7 @@ echo
 cd libs
 
 MIRROR=http://apache.sunsite.ualberta.ca
-LIBS=( "configuration-1.9" "cli-1.2" "collections-3.2.1" "io-2.4" "lang-2.6" "logging-1.1.3" )
+LIBS=( "configuration-1.9" "cli-1.2" "io-2.4" "lang-2.6" "logging-1.1.3" )
 
 for each in "${LIBS[@]}"
 do
