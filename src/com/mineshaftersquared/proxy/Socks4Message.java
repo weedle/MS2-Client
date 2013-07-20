@@ -13,8 +13,6 @@ import java.nio.charset.Charset;
  */
 public class Socks4Message extends SocksMessage {
 
-	private byte[] msgBytes;
-
 	public static final int SOCKS_VERSION = 4;
 	public static final int REQUEST_CONNECT = 1;
 	public static final int REQUEST_BIND = 2;
@@ -27,7 +25,6 @@ public class Socks4Message extends SocksMessage {
 		super(command, ip, port, version);
 		this.user = user;
 		this.version = version;
-		this.msgBytes = this.data();
 	}
 	
 	public Socks4Message(InputStream in) throws IOException {
@@ -60,13 +57,11 @@ public class Socks4Message extends SocksMessage {
 
 	@Override
 	public void write(OutputStream out) throws IOException {
-		if (this.msgBytes == null) {
-			this.msgBytes = this.data();
-		}
-		out.write(this.msgBytes);
+		out.write(this.data());
 	}
 	
-	private byte[] data() {
+	@Override
+	public byte[] data() {
 		byte[] data = new byte[this.user == null ? 8 : 9 + this.user.length()];
 
 		data[0] = (byte) this.version;

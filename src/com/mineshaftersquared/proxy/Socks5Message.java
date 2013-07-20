@@ -12,8 +12,7 @@ import java.nio.charset.Charset;
  * Credits to download13 of Mineshafter Modified by Adrian
  */
 public class Socks5Message extends SocksMessage {
-
-	private byte[] data;
+	
 	public int addressType;
 	public final boolean doResolveIP;
 
@@ -48,7 +47,6 @@ public class Socks5Message extends SocksMessage {
 		}
 
 		this.addressType = address.length == 4 ? 1 : 4;
-		this.data = this.data();
 	}
 
 	public Socks5Message(int command, String host, int port) {
@@ -59,8 +57,6 @@ public class Socks5Message extends SocksMessage {
 
 		this.addressType = 3;
 		byte[] address = host.getBytes(Charset.forName("utf-8"));
-
-		this.data = this.data();
 	}
 	
 	public Socks5Message(InputStream in) throws IOException {
@@ -70,7 +66,6 @@ public class Socks5Message extends SocksMessage {
 
 	@Override
 	public void read(InputStream in) throws IOException {
-		this.data = null;
 		this.ip = null;
 
 		DataInputStream dis = new DataInputStream(in);
@@ -98,19 +93,18 @@ public class Socks5Message extends SocksMessage {
 		this.host = InetAddress.getByAddress(buffer).getHostName();
 		this.port = dis.readUnsignedShort();
 
-		if (this.addressType != 3 && doResolveIP) {
+		if (this.addressType != 3 && this.doResolveIP) {
 			this.loadIPFromHost();
 		}
-		
-		this.data = this.data();
 	}
 
 	@Override
 	public void write(OutputStream out) throws IOException {
-		out.write(this.data);
+		out.write(this.data());
 	}
-	
-	private byte[] data() {
+
+	@Override
+	public byte[] data() {
 		byte[] data = null;
 		if (this.addressType == 3) {
 			byte[] address = host.getBytes(Charset.forName("utf-8"));

@@ -22,13 +22,21 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 	
 	public static final int SOCKET_TIMEOUT = 1000 * 60 * 5; // 5 minutes
 	public static final int BUFFER_SIZE = 1 << 16 - 1;
-
+	
+	private final Delegate delegate;
+	
+	public SocksProxyHandler(Delegate delegate) {
+		this.delegate = delegate;
+	}
+	
 	@Override
 	public void handle(MS2Proxy ms2Proxy, Socket socket) {
+		InputStream in = null;
+		OutputStream out = null;
 		try {
 			socket.setSoTimeout(SOCKET_TIMEOUT);
-			BufferedInputStream in = new BufferedInputStream(socket.getInputStream(), BUFFER_SIZE);
-			OutputStream out = socket.getOutputStream();
+			in = new BufferedInputStream(socket.getInputStream(), BUFFER_SIZE);
+			out = socket.getOutputStream();
 			
 			in.mark(BUFFER_SIZE);
 			int version = in.read();
@@ -42,18 +50,21 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 			} else if (version == 4) {
 				in.reset();
 			} else {
-				// TODO: ERROR
+				
 			}
-		} catch (SocketException ex) {
-			ex.printStackTrace();
+			SocksMessage msg = this.readMessage(in);
+			this.handleRequest(ms2Proxy, msg, in, out);
+			out.flush();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
 			IOUtils.closeQuietly(socket);
+			IOUtils.closeQuietly(in);
+			IOUtils.closeQuietly(out);
 		}
 	}
 	
-	private void handleRequest(SocksMessage msg, InputStream in, OutputStream out) throws IOException {
+	private void handleRequest(MS2Proxy ms2Proxy, SocksMessage msg, InputStream in, OutputStream out) throws IOException {
 		if (msg.ip == null) {
 			if (msg instanceof Socks5Message) {
 				msg.ip = InetAddress.getByName(msg.host);
@@ -63,7 +74,7 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 		}
 		switch (msg.command) {
 		case 1:
-			onConnect(msg, in, out);
+			onConnect(ms2Proxy, msg, in, out);
 			break;
 		case 2:
 			onBind(msg, in, out);
@@ -74,7 +85,7 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 		}
 	}
 	
-	private void onConnect(SocksMessage msg, InputStream in, OutputStream out) throws IOException {
+	private void onConnect(MS2Proxy proxy, SocksMessage msg, InputStream in, OutputStream out) throws IOException {
 		SocksMessage response = null;
 		if (msg instanceof Socks5Message) {
 			response = new Socks5Message(0, InetAddress.getLoopbackAddress(), 0);
@@ -83,7 +94,11 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 		}
 		response.write(out);
 		
-		// handler onConnect
+		if (!this.delegate.onConnect(proxy, msg, in, out)) {
+			Socket socket = new Socket(msg.ip, msg.port);
+			SimpleStreams.pipeStreamsConcurrently(in, out);
+			SimpleStreams.pipeStreams(socket.getInputStream(), out);
+		}
 	}
 	
 	private void onBind(SocksMessage msg, InputStream in, OutputStream out) throws IOException {
@@ -131,5 +146,9 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 			throw new IOException("Invalid SOCKS version: " + version);
 		}
 		return msg;
+	}
+	
+	public static interface Delegate {
+		public boolean onConnect(MS2Proxy proxy, SocksMessage msg, InputStream in, OutputStream out);
 	}
 }

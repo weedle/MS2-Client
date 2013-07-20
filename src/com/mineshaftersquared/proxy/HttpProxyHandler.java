@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.Proxy;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -40,20 +41,20 @@ public class HttpProxyHandler implements MS2Proxy.Handler {
 		}
 	}
 	
-	public void on(String method, String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
+	public boolean respondsTo(String method) {
+		return Arrays.asList("get", "post", "head", "connect").contains(method);
+	}
+	
+	public boolean on(String method, String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
 		switch (method.toLowerCase()) {
 		case "get":
-			this.onGet(url, headers, in, out, ms2Proxy);
-			break;
+			return this.onGet(url, headers, in, out, ms2Proxy);
 		case "post":
-			this.onPost(url, headers, in, out, ms2Proxy);
-			break;
+			return this.onPost(url, headers, in, out, ms2Proxy);
 		case "head":
-			this.onHead(url, headers, in, out, ms2Proxy);
-			break;
+			return this.onHead(url, headers, in, out, ms2Proxy);
 		case "connect":
-			this.onConnect(url, headers, in, out, ms2Proxy);
-			break;
+			return this.onConnect(url, headers, in, out, ms2Proxy);
 		default:
 			throw new IllegalArgumentException("Unknown method " + method);
 		}

@@ -36,6 +36,7 @@ public abstract class SocksMessage {
 
 	public abstract void read(InputStream paramInputStream) throws IOException;
 	public abstract void write(OutputStream paramOutputStream) throws IOException;
+	public abstract byte[] data();
 
 	public String debug() {
 		return "{Socks Message: {"

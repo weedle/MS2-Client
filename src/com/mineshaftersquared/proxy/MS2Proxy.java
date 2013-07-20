@@ -8,6 +8,8 @@ import java.net.SocketTimeoutException;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.mineshaftersquared.UniversalLauncher;
 
@@ -19,6 +21,7 @@ public class MS2Proxy implements Runnable {
 	public static Pattern SKIN_URL = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+?)\\.png");
 	public static Pattern CLOAK_URL = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftCloaks/(.+?)\\.png");
 	public static Pattern AUTH_URL = Pattern.compile("http://authserver\\.mojang\\.com/(.*)");
+	public static final Log log = LogFactory.getFactory().getInstance("[MS2Proxy]");
 	
 	public final String authserver;
 	private ServerSocket server;
