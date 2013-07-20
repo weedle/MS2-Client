@@ -1,6 +1,7 @@
 package com.mineshaftersquared.proxy;
 
 import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,13 +45,13 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 				int numMethods = in.read();
 				for (int i = 0; i < numMethods; i++) {
 					if (in.read() == 0) {
-						out.write(new byte[] { 5 });
+						out.write(new byte[] { 5, 0 });
 					}
 				}
 			} else if (version == 4) {
 				in.reset();
 			} else {
-				
+				// TODO: ERROR
 			}
 			SocksMessage msg = this.readMessage(in);
 			this.handleRequest(ms2Proxy, msg, in, out);
@@ -68,36 +69,41 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 		if (msg.ip == null) {
 			if (msg instanceof Socks5Message) {
 				msg.ip = InetAddress.getByName(msg.host);
+				System.out.println("Host was: " + msg.host);
+				System.out.println("IP was: " + msg.ip);
 			} else {
-				return; // TODO: look up
+				return;
 			}
 		}
 		switch (msg.command) {
-		case 1:
+		case Socks5Message.CMD_CONNECT:
 			onConnect(ms2Proxy, msg, in, out);
 			break;
-		case 2:
+		case Socks5Message.CMD_BIND:
 			onBind(msg, in, out);
 			break;
-		case 3:
-			// TODO: ERROR
-			break;
+		case Socks5Message.CMD_UDP_ASSOCIATE:
+			throw new UnsupportedOperationException("Unsupported SOCKs command UDP associate");
 		}
 	}
 	
 	private void onConnect(MS2Proxy proxy, SocksMessage msg, InputStream in, OutputStream out) throws IOException {
 		SocksMessage response = null;
 		if (msg instanceof Socks5Message) {
-			response = new Socks5Message(0, InetAddress.getLoopbackAddress(), 0);
+			response = new Socks5Message(Socks5Message.REPLY_SUCCESS, InetAddress.getLocalHost(), 0);
 		} else {
-			response = new Socks4Message(90, InetAddress.getLocalHost(), 0, null, 0);
+			response = new Socks4Message(Socks4Message.REPLY_OK, InetAddress.getLocalHost(), 0);
 		}
 		response.write(out);
 		
 		if (!this.delegate.onConnect(proxy, msg, in, out)) {
-			Socket socket = new Socket(msg.ip, msg.port);
-			SimpleStreams.pipeStreamsConcurrently(in, out);
-			SimpleStreams.pipeStreams(socket.getInputStream(), out);
+			Socket socket = new Socket(msg.ip, msg.port); // TODO: close
+			try {
+				SimpleStreams.pipeStreamsConcurrently(in, socket.getOutputStream());
+				SimpleStreams.pipeStreams(socket.getInputStream(), out);
+			} finally {
+				IOUtils.closeQuietly(socket);
+			}
 		}
 	}
 	
@@ -106,9 +112,9 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 		server.setSoTimeout(SOCKET_TIMEOUT);
 		SocksMessage response;
 		if (msg.version == 5) {
-			response = new Socks5Message(0, server.getInetAddress(), server.getLocalPort());
+			response = new Socks5Message(Socks5Message.REPLY_SUCCESS, server.getInetAddress(), server.getLocalPort());
 		} else {
-			response = new Socks4Message(90, server.getInetAddress(), server.getLocalPort(), null, 0);
+			response = new Socks4Message(Socks4Message.REPLY_OK, server.getInetAddress(), server.getLocalPort());
 		}
 		response.write(out);
 		Socket s = null;
@@ -127,6 +133,12 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 				IOUtils.closeQuietly(s);
 			}
 		}
+		if (msg.version == 5) {
+			response = new Socks5Message(s == null ? Socks5Message.REPLY_FAILURE : Socks5Message.REPLY_SUCCESS, s.getInetAddress(), s.getPort());
+		} else {
+			response = new Socks4Message(s == null ? Socks4Message.REPLY_REJECTED : Socks4Message.REPLY_OK, s.getInetAddress(), s.getPort());
+		}
+		response.write(out);
 		if (s != null) {
 			SimpleStreams.pipeStreamsConcurrently(in, s.getOutputStream());
 			SimpleStreams.pipeStreams(s.getInputStream(), out);

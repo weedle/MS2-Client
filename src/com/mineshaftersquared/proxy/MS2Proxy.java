@@ -23,7 +23,7 @@ public class MS2Proxy implements Runnable {
 	public static Pattern AUTH_URL = Pattern.compile("http://authserver\\.mojang\\.com/(.*)");
 	public static final Log log = LogFactory.getFactory().getInstance("[MS2Proxy]");
 	
-	public final String authserver;
+	public final RoutesDataSource routes;
 	private ServerSocket server;
 	private HandlerFactory handlerFactory;
 	private volatile boolean shouldStop;
@@ -32,8 +32,8 @@ public class MS2Proxy implements Runnable {
 	private boolean isInitialized;
 	private final Object isInitializedLock;
 	
-	public MS2Proxy(String authserver, HandlerFactory handlerFactory) {
-		this.authserver = authserver;
+	public MS2Proxy(RoutesDataSource routes, HandlerFactory handlerFactory) {
+		this.routes = routes;
 		this.server = null;
 		this.handlerFactory = handlerFactory;
 		this.shouldStop = false;
@@ -43,16 +43,27 @@ public class MS2Proxy implements Runnable {
 		this.isInitializedLock = new Object();
 	}
 	
-	public Thread startAsync() {
+	public Thread async() {
 		try {
 			this.initialize();
-			Thread t = new Thread(this);
-			t.start();
-			return t;
+			return new Thread(this);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 		return null;
+	}
+	
+	public Thread startAsync() {
+		return this.startAsync(true);
+	}
+	
+	public Thread startAsync(boolean daemon) {
+		Thread t = this.async();
+		if (t != null) {
+			t.setDaemon(daemon);
+			t.start();
+		}
+		return t;
 	}
 	
 	@Override
@@ -117,5 +128,71 @@ public class MS2Proxy implements Runnable {
 	
 	public static interface HandlerFactory {
 		public Handler createHandler();
+	}
+	
+	public static interface RoutesDataSource {
+		public String getSkinURL();
+		public String getCloakURL();
+		// authenticate.js
+		public String getAuthenticateURL();
+		public String getRefreshURL();
+		public String getInvalidateURL();
+		// game.js
+		public String getVersionURL();
+		public String getLoginURL();
+		// launcher.js
+		public String getLauncherVersionURL();
+	}
+	
+	public static class MS2RoutesDataSource implements RoutesDataSource {
+		public final String baseURL;
+		
+		/**
+		 * Default is http://api.mineshaftersquared.com
+		 * @param baseURL
+		 */
+		public MS2RoutesDataSource(String baseURL) {
+			this.baseURL = baseURL;
+		}
+		@Override
+		public String getSkinURL() {
+			return this.baseURL + "/skin";
+		}
+
+		@Override
+		public String getCloakURL() {
+			return this.baseURL + "/cloak";
+		}
+
+		@Override
+		public String getAuthenticateURL() {
+			return this.baseURL + "/authenticate";
+		}
+
+		@Override
+		public String getRefreshURL() {
+			return this.baseURL + "/refresh";
+		}
+
+		@Override
+		public String getInvalidateURL() {
+			return this.baseURL + "/invalidate";
+		}
+
+		@Override
+		public String getVersionURL() {
+			return this.baseURL + "/version";
+		}
+
+		@Override
+		public String getLoginURL() {
+			return this.baseURL + "/login";
+		}
+
+		@Override
+		public String getLauncherVersionURL() {
+			return this.baseURL + "/launcher/version";
+		}
+		
 	}
 }

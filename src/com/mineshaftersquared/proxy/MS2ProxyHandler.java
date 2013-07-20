@@ -12,15 +12,13 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mineshaftersquared.UniversalLauncher;
-
 public class MS2ProxyHandler implements MS2Proxy.Handler, SocksProxyHandler.Delegate {
 	
-	private final HttpProxyHandler httpHandler;
+	private final MS2HttpProxyHandler httpHandler;
 	private final SocksProxyHandler socksHandler;
 	
 	public MS2ProxyHandler() {
-		this.httpHandler = new HttpProxyHandler();
+		this.httpHandler = new MS2HttpProxyHandler();
 		this.socksHandler = new SocksProxyHandler(this);
 	}
 	
@@ -58,9 +56,14 @@ public class MS2ProxyHandler implements MS2Proxy.Handler, SocksProxyHandler.Dele
 				}
 			}
 			String url = "http://" + headers.get("host") + path;
-			UniversalLauncher.log.info("Proxy - onConnect - " + url);
-			if (this.httpHandler.respondsTo(method)) {
-				return this.httpHandler.on(method, url, headers, in, out, ms2Proxy);
+			MS2Proxy.log.info("Proxy - onConnect - " + url);
+			if (this.httpHandler.respondsTo(method) && this.httpHandler.on(method, url, headers, in, out, ms2Proxy)) {
+				return true;
+			}
+			try {
+				in.reset();
+			} catch (IOException ex2) {
+				ex2.printStackTrace();
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();

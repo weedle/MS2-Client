@@ -1,4 +1,4 @@
-package com.mineshaftersquared.proxy;
+package com.mineshaftersquared.proxy.archive;
 
 import java.util.HashMap;
 import java.util.LinkedList;

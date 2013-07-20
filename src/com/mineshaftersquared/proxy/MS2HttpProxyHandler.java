@@ -23,12 +23,12 @@ import com.mineshaftersquared.UniversalLauncher;
  * Credits to download13 of Mineshafter
  * Modified by Adrian
  */
-public class HttpProxyHandler implements MS2Proxy.Handler {
+public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 	
 	private final Map<String, byte[]> skinCache;
 	private final Map<String, byte[]> cloakCache;
 	
-	public HttpProxyHandler() {
+	public MS2HttpProxyHandler() {
 		this.skinCache = new HashMap<String, byte[]>();
 		this.cloakCache = new HashMap<String, byte[]>();
 	}
@@ -69,8 +69,9 @@ public class HttpProxyHandler implements MS2Proxy.Handler {
 			UniversalLauncher.log.info("Proxy - skin - " + username);
 			byte[] data = this.skinCache.get(username);
 			if (data == null) {
-				String proxiedURL = ms2Proxy.authserver + "/mcapi/skin/" + username + ".png";
-				data = this.getRequest(proxiedURL);
+//				String proxiedURL = ms2Proxy.authserver + "/mcapi/skin/" + username + ".png";
+//				data = this.getRequest(proxiedURL);
+				data = new byte[0];
 			}
 			this.skinCache.put(username, data);
 			this.sendResponse(out, "image/png", data);
@@ -80,8 +81,9 @@ public class HttpProxyHandler implements MS2Proxy.Handler {
 			UniversalLauncher.log.info("Proxy - cloak - " + username);
 			byte[] data = this.cloakCache.get(username);
 			if (data == null) {
-				String proxiedURL = ms2Proxy.authserver + "/mcapi/cloak/" + username + ".png";
-				data = this.getRequest(proxiedURL);
+//				String proxiedURL = ms2Proxy.authserver + "/mcapi/cloak/" + username + ".png";
+//				data = this.getRequest(proxiedURL);
+				data = new byte[0];
 			}
 			this.cloakCache.put(username, data);
 			this.sendResponse(out, "image/png", data);
@@ -104,7 +106,7 @@ public class HttpProxyHandler implements MS2Proxy.Handler {
 				InputStreamReader reader = new InputStreamReader(in, Charset.forName("utf-8"));
 				reader.read(body);
 				String postedJSON = new String(body);
-				String response = this.authServerEndpoint(endpoint, postedJSON);
+				String response = this.authServerAction(endpoint, postedJSON, ms2Proxy);
 				this.sendResponse(out, "application/json", response.getBytes(Charset.forName("utf-8")));
 			} catch (IOException ex) {
 				ex.printStackTrace();
@@ -148,19 +150,29 @@ public class HttpProxyHandler implements MS2Proxy.Handler {
 		return new SimpleHTTPRequest(url).addPost(postdata).doPost(Proxy.NO_PROXY);
 	}
 	
-	private String authServerEndpoint(String endpoint, String postedJSON) {
-		UniversalLauncher.log.info("Proxy - auth - endpoint: " + endpoint + ", postedJSON - " + postedJSON);
+	private String authServerAction(String action, String postedJSON, MS2Proxy ms2Proxy) {
+		UniversalLauncher.log.info("Proxy - auth - endpoint: " + action + ", postedJSON - " + postedJSON);
 		Gson gson = new Gson();
 		MCYggdrasilRequest data = gson.fromJson(postedJSON, MCYggdrasilRequest.class);
 		
-		if (endpoint.equalsIgnoreCase("authenticate")) {
-			//
-		} else if (endpoint.equalsIgnoreCase("refresh")) {
-			//
-		} else if (endpoint.equalsIgnoreCase("invalidate")) {
-			//
+		SimpleHTTPRequest request;
+		if (action.equalsIgnoreCase("authenticate")) {
+			request = new SimpleHTTPRequest(ms2Proxy.routes.getAuthenticateURL());
+			request.addPost("username", data.username);
+			request.addPost("password", data.password);
+			request.addPost("clientToken", data.clientToken);
+		} else if (action.equalsIgnoreCase("refresh")) {
+			request = new SimpleHTTPRequest(ms2Proxy.routes.getRefreshURL());
+			request.addPost("clientToken", data.clientToken);
+			request.addPost("accessToken", data.accessToken);
+		} else if (action.equalsIgnoreCase("invalidate")) {
+			request = new SimpleHTTPRequest(ms2Proxy.routes.getInvalidateURL());
+			request.addPost("clientToken", data.clientToken);
+			request.addPost("accessToken", data.accessToken);
+		} else {
+			throw new IllegalArgumentException("Unknown endpoint " + action);
 		}
 		
-		return ""; // TODO: ERROR
+		return new String(request.doPost(Proxy.NO_PROXY), Charset.forName("utf-8"));
 	}
 }
