@@ -170,7 +170,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			request.addPost("clientToken", data.clientToken);
 			request.addPost("accessToken", data.accessToken);
 		} else {
-			throw new IllegalArgumentException("Unknown endpoint " + action);
+			throw new IllegalArgumentException("Unknown action " + action);
 		}
 		
 		return new String(request.doPost(Proxy.NO_PROXY), Charset.forName("utf-8"));

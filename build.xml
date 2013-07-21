@@ -7,6 +7,7 @@
 	<property name="resources.dir" location="resources" />
 	<property name="dist.jarname" value="mineshaftersquared.jar" />
 	<property name="manifest.mainclass" value="com.mineshaftersquared.MS2Entry" />
+	<property name="libs.alljars" value="alllibs.jar" />
 	
 	<path id="build.classpath">
 		<fileset dir="${libs.dir}">
@@ -37,13 +38,20 @@
 	</target>
 
 	<target name="jar.existing" description="Jar existing class files">
+		<jar destfile="${dist.dir}/${libs.alljars}">
+			<zipgroupfileset dir="${libs.dir}" includes="*.jar" />
+		</jar>
 		<jar destfile="${dist.dir}/${dist.jarname}" basedir="${build.dir}" filesetmanifest="skip">
 			<manifest>
 				<attribute name="Main-Class" value="${manifest.mainclass}" />
+
 			</manifest>
 			<zipfileset dir="${resources.dir}" includes="ms2.png" fullpath="com/mineshaftersquared/resources/ms2.png" />
-			<zipgroupfileset dir="${libs.dir}" includes="*.jar" />
+			<zipfileset src="${dist.dir}/${libs.alljars}">
+				<include name="**/*.class" />
+			</zipfileset>
 		</jar>
+		<delete file="${dist.dir}/${libs.alljars}" />
 	</target>
 	
 	<target name="package" depends="jar, package.existing">
