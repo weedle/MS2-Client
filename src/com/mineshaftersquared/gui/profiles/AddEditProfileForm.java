@@ -1,4 +1,4 @@
-package com.mineshaftersquared.gui.misc;
+package com.mineshaftersquared.gui.profiles;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -21,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -32,6 +35,8 @@ import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.gui.tabs.ProfilesTab;
 import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.models.MCProfile;
+import com.mineshaftersquared.models.MCVersion;
+import com.mineshaftersquared.models.MCVersionManager;
 
 public class AddEditProfileForm extends JFrame {
 
@@ -47,7 +52,7 @@ public class AddEditProfileForm extends JFrame {
 	private final JTextField gameDir;
 	private final JButton gameDirOpen;
 	private final JLabel versionLabel;
-	private final JComboBox<String> version;
+	private final JComboBox<MCVersion> version;
 	private final JLabel javaArgsLabel;
 	private final JTextArea javaArgs;
 
@@ -74,7 +79,7 @@ public class AddEditProfileForm extends JFrame {
 		this.gameDir = new JTextField(gameDirVal);
 		this.gameDirOpen = new JButton("Find");
 		this.versionLabel = new JLabel("Version");
-		this.version = new JComboBox<String>();
+		this.version = new JComboBox<MCVersion>();
 		this.javaArgsLabel = new JLabel("<html>Java Args<br />(separate with newline)</html>");
 		this.javaArgs = new JTextArea(profile == null ? "" : StringUtils.join(profile.getJavaArgs(), System.getProperty("line.separator")), 4, 32);
 
@@ -118,6 +123,7 @@ public class AddEditProfileForm extends JFrame {
 		this.profileName.getDocument().addDocumentListener(formChangedDocumentListener);
 		this.isLocal.addChangeListener(formChangedChangeListener);
 		this.updateIsLocalField();
+		this.refreshVersions(false);
 		this.gameDir.getDocument().addDocumentListener(formChangedDocumentListener);
 		this.gameDirOpen.addActionListener(new ActionListener() {
 			@Override
@@ -231,7 +237,8 @@ public class AddEditProfileForm extends JFrame {
 	}
 	
 	private MCProfile liveProfile() {
-		return new MCProfile(this.profileName.getText().trim(), this.version.getSelectedIndex() == 0 ? null : ((String) this.version.getSelectedItem()), new File(this.gameDir.getText()), this.javaArgs.getText().split(System.getProperty("line.separator")), this.isLocal.isSelected());
+		MCVersion version = (MCVersion) this.version.getSelectedItem();
+		return new MCProfile(this.profileName.getText().trim(), version == null ? null : version.versionId, new File(this.gameDir.getText()), this.javaArgs.getText().split(System.getProperty("line.separator")), this.isLocal.isSelected());
 	}
 
 	private void formChanged() {
@@ -251,5 +258,20 @@ public class AddEditProfileForm extends JFrame {
 	
 	private void updateIsLocalField() {
 		this.isLocalLabel.setText(this.isLocal.isSelected() ? "Profile will be installed and only available locally (good for USBs)" : "Profile will be installed in the default location and available globally");
+	}
+	
+	private void refreshVersions(final boolean force) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				final MCVersion[] versions = AddEditProfileForm.this.app.versionsManager.getVersions(MCVersionManager.VERSIONS_LIST_URL, force);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						AddEditProfileForm.this.version.setModel(new DefaultComboBoxModel<MCVersion>(versions));
+					}
+				});
+			}
+		}).start();
 	}
 }

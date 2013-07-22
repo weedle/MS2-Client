@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
+import com.creatifcubed.simpleapi.SimpleUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -23,6 +25,11 @@ public class MCProfileManager {
 	private final File location;
 	public static final String PROFILES_JSON_NAME = "ms2-launcher_profiles.json";
 	private final Set<MCProfile> profiles;
+	public static final Gson gson = new GsonBuilder()
+		.setPrettyPrinting()
+		.registerTypeAdapter(File.class, new GsonFileSerializer())
+		.registerTypeAdapter(File.class, new GsonFileDeserializer())
+		.create();
 	
 	public MCProfileManager(File location) {
 		this.location = location;
@@ -56,11 +63,6 @@ public class MCProfileManager {
 	}
 	
 	public synchronized boolean saveProfiles() throws IOException {
-		Gson gson = new GsonBuilder()
-				.setPrettyPrinting()
-				.registerTypeAdapter(File.class, new GsonFileSerializer())
-				.registerTypeAdapter(File.class, new GsonFileDeserializer())
-				.create();
 		Set<MCProfile> locals = new HashSet<MCProfile>();
 		Set<MCProfile> globals = new HashSet<MCProfile>();
 		for (MCProfile each : this.profiles) {
@@ -87,7 +89,7 @@ public class MCProfileManager {
 	
 	private Set<MCProfile> refresh(File json) {
 		try {
-			Set<MCProfile> profiles = new Gson().fromJson(new FileReader(json), new TypeToken<Set<MCProfile>>(){}.getType());
+			Set<MCProfile> profiles = gson.fromJson(new FileReader(json), new TypeToken<Set<MCProfile>>(){}.getType());
 			if (profiles != null) {
 				return profiles;
 			}

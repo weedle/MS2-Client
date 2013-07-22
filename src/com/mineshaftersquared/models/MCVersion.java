@@ -1,5 +1,7 @@
 package com.mineshaftersquared.models;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,12 +41,23 @@ public class MCVersion {
 		List<MCLibrary> libs = new LinkedList<MCLibrary>();
 		MCVersionDetails details = this.getDetails();
 		for (int i = 0; i < details.libraries.length; i++) {
+			System.out.println(details.libraries[i].getRestrictedOperatingSystems());
 			if (details.libraries[i].getRestrictedOperatingSystems().contains(os)) {
 				continue;
 			}
 			libs.add(details.libraries[i]);
 		}
 		return libs.toArray(new MCLibrary[libs.size()]);
+	}
+	
+	public List<File> getClassPath(SimpleOS os, File root) {
+		MCLibrary[] libs = this.getLibrariesForOS(os);
+		List<File> files = new LinkedList<File>();
+		for (MCLibrary each : libs) {
+			files.add(new File(root, "libraries/" + each.getArtifactName(os)));
+		}
+		files.add(new File(root, "versions/" + this.versionId + ".jar"));
+		return files;
 	}
 
 	@Override

@@ -73,8 +73,12 @@ public class MCDownloader {
 			SimpleUtils.filePutContents(infoFile,
 					this.app.versionsManager.getMCVersionData(version.versionId, MCVersionManager.VERSION_INFO_URL_TEMPLATE, false));
 			this.out.println("Done downloading config file. Downloading jar...");
-			SimpleUtils.downloadFile(new URL(String.format(JAR_URL_TEMPLATE, version.versionId)), new File(parent,
-					version.versionId + ".jar").getCanonicalPath(), 1 << 24);
+			File jar = new File(parent, version.versionId + ".jar");
+			if (jar.exists() && jar.length() > 0) {
+				this.out.println("Jar already exists, skipping");
+			} else {
+				SimpleUtils.downloadFile(new URL(String.format(JAR_URL_TEMPLATE, version.versionId)), jar.getCanonicalPath(), 1 << 24);
+			}
 			this.out.println("Done downloading version specific files.");
 			return true;
 		} catch (IOException ex) {

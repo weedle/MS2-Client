@@ -61,18 +61,6 @@ public class LocalMCVersion extends MCVersion {
 		return installations.toArray(new LocalMCVersion[installations.size()]);
 	}
 	
-	public File[] getClassPath(SimpleOS os, File root) {
-		MCLibrary[] libs = this.getLibrariesForOS(os);
-		List<File> files = new LinkedList<File>();
-		for (int i = 0; i < libs.length; i++) {
-			if (libs[i].getNatives().get(os) == null) {
-				files.add(new File(root, "libraries/" + libs[i].getArtifactName(os)));
-			}
-		}
-		files.add(new File(root, "versions/" + this.name + "/" + this.versionId + ".jar"));
-		return files.toArray(new File[files.size()]);
-	}
-	
 	@Override
 	public MCVersionDetails getDetails() {
 		return this.getDetailsFromFile();

@@ -18,7 +18,7 @@ import javax.swing.table.AbstractTableModel;
 import org.apache.commons.lang.StringUtils;
 
 import com.mineshaftersquared.UniversalLauncher;
-import com.mineshaftersquared.gui.misc.AddEditProfileForm;
+import com.mineshaftersquared.gui.profiles.AddEditProfileForm;
 import com.mineshaftersquared.models.MCProfile;
 
 public class ProfilesTab extends JPanel {

@@ -23,18 +23,21 @@ import javax.swing.SwingUtilities;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.models.MCProfile;
+import com.mineshaftersquared.models.MCVersion;
 
 public class SidePanel extends JPanel {
 	
 	private final UniversalLauncher app;
-	private MCProfile[] profiles;
+	private MCProfile[] profilesSource;
+	private JComboBox<MCProfile> profile;
 	
 	public SidePanel(UniversalLauncher app) {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.app = app;
 		
-		this.profiles = null;
+		this.profilesSource = null;
 		this.refreshProfiles();
+		this.profile = null;
 		
 		this.add(this.createProfileMenu());
 		this.add(this.createStatusMenu());
@@ -44,7 +47,7 @@ public class SidePanel extends JPanel {
 	
 	private void refreshProfiles() {
 		this.app.profilesManager.refreshProfiles();
-		this.profiles = this.app.profilesManager.profilesAsArray();
+		this.profilesSource = this.app.profilesManager.profilesAsArray();
 	}
 	
 	private JPanel createProfileMenu() {
@@ -54,14 +57,16 @@ public class SidePanel extends JPanel {
 		c.insets = new Insets(5, 5, 5, 5);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		
-		final JComboBox<MCProfile> profiles = new JComboBox<MCProfile>(new DefaultComboBoxModel<MCProfile>(this.profiles));
+		final JComboBox<MCProfile> profiles = new JComboBox<MCProfile>(new DefaultComboBoxModel<MCProfile>(this.profilesSource));
 		JButton refresh = new JButton("Refresh");
+		
+		this.profile = profiles;
 		
 		refresh.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				SidePanel.this.refreshProfiles();
-				profiles.setModel(new DefaultComboBoxModel<MCProfile>(SidePanel.this.profiles));
+				profiles.setModel(new DefaultComboBoxModel<MCProfile>(SidePanel.this.profilesSource));
 			}
 		});
 		
@@ -89,6 +94,16 @@ public class SidePanel extends JPanel {
 		JCheckBox rememberme = new JCheckBox("Remember me?");
 		JButton login = new JButton("Login");
 		JButton launch = new JButton("Play Offline");
+		
+		launch.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				MCProfile profile = (MCProfile) SidePanel.this.profile.getSelectedItem();
+				if (profile != null) {
+					SidePanel.this.app.launcher.launch(profile);
+				}
+			}
+		});
 		
 		c.gridx = 0;
 		c.gridy = 0;

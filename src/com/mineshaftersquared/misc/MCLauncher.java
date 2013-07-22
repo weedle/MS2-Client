@@ -35,13 +35,13 @@ public class MCLauncher {
 		this.app = app;
 	}
 
-	private void ensureDependencies(MCProfile profile, MCVersion version, final MCDownloader downloader) {
+	private void ensureDependencies(final MCProfile profile, final MCVersion version, final MCDownloader downloader) {
 		SimpleSwingWaiter waiter = new SimpleSwingWaiter("Downloading Minecraft", this.app.mainWindow());
 		OutputStream out = waiter.stdout();
 		waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
 			@Override
 			protected Void doInBackground() throws Exception {
-
+				downloader.downloadVersion(version, profile.getGameDir(), version.versionId);
 				return null;
 			}
 		};
@@ -51,7 +51,8 @@ public class MCLauncher {
 
 	public void launch(MCProfile profile) {
 		final MCDownloader downloader = new MCDownloader(this.app);
-		this.ensureDependencies(profile, this.app.versionsManager.find(profile.getVersionId()), downloader);
+		MCVersion version = this.app.versionsManager.find(profile.getVersionId());
+		this.ensureDependencies(profile, version, downloader);
 		
 		MCOneSixAuth.Response authResponse = this.app.authResponse();
 		if (authResponse == null) {
@@ -72,7 +73,7 @@ public class MCLauncher {
 		try {
 			map.put("game_directory", gameDir.getCanonicalPath());
 			map.put("game_assets", new File(root, "assets").getCanonicalPath());
-			MCVersionDetails details = version.getDetailsFromFile();
+			MCVersionDetails details = version.getDetails();
 			String[] mcArgs = details.minecraftArguments;
 			for (int i = 0; i < mcArgs.length; i++) {
 				String replacement = map.get(mcArgs[i].substring("${".length(), mcArgs[i].length() - "}".length()));
@@ -99,7 +100,10 @@ public class MCLauncher {
 			}
 			args.add("-Djava.library.path=" + natives.getCanonicalPath());
 			args.add("-cp");
-			args.add(this.buildClassPath(ArrayUtils.addAll(version.getClassPath(SimpleOS.getOS(), root), new File[] {SimpleUtils.getJarPath(UniversalLauncher.class)})));
+			List<File> paths = version.getClassPath(SimpleOS.getOS(), root);
+			paths.add(SimpleUtils.getJarPath(UniversalLauncher.class));
+			
+			args.add(this.buildClassPath(paths.toArray(new File[paths.size()])));
 			
 			
 			args.add(details.mainClass);
