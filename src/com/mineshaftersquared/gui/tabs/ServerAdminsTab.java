@@ -1,7 +1,6 @@
 package com.mineshaftersquared.gui.tabs;
 
 import java.awt.Desktop;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -16,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -27,7 +25,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.io.FileUtils;
@@ -37,8 +34,8 @@ import org.apache.commons.lang.StringUtils;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
 import com.mineshaftersquared.UniversalLauncher;
-import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.misc.JavaProcessOutputRedirector;
+import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.models.MCVersion;
 
 public class ServerAdminsTab extends JPanel {
@@ -105,7 +102,7 @@ public class ServerAdminsTab extends JPanel {
 		JButton downloadBukkit = new JButton("Download Bukkit");
 		JButton openLocalDir = new JButton("Open local folder");
 		JLabel serverLabel = new JLabel("Server");
-		final JComboBox server = new JComboBox();
+		final JComboBox<String> server = new JComboBox<String>();
 		final JCheckBox isBukkit = new JCheckBox("Is Bukkit?");
 		JButton launch = new JButton("Launch");
 		JButton refresh = new JButton("Refresh");
@@ -277,14 +274,14 @@ public class ServerAdminsTab extends JPanel {
 		return wrapper;
 	}
 	
-	private void refreshLocalServerJars(File local, JComboBox server) {
+	private void refreshLocalServerJars(File local, JComboBox<String> server) {
 		String[] serverJars = local.list(new FilenameFilter() {
 			@Override
 			public boolean accept(File file, String name) {
 				return name.endsWith(".jar") && !name.equals(SimpleUtils.getJarPath().getName());
 			}
 		});
-		server.setModel(new DefaultComboBoxModel(serverJars));
+		server.setModel(new DefaultComboBoxModel<String>(serverJars));
 	}
 	
 	private String[] javaArgs() {

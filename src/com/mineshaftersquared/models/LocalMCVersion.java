@@ -1,7 +1,6 @@
 package com.mineshaftersquared.models;
 
 import java.io.File;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 

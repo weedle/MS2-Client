@@ -9,25 +9,20 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
@@ -38,7 +33,6 @@ import com.creatifcubed.simpleapi.SimpleAggregateOutputStream;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.mineshaftersquared.misc.ExtendedGnuParser;
-import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.proxy.MS2Proxy;
 import com.mineshaftersquared.proxy.MS2ProxyHandlerFactory;
 

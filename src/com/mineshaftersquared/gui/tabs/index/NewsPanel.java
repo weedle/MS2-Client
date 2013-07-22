@@ -2,15 +2,12 @@ package com.mineshaftersquared.gui.tabs.index;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.net.URL;
 import java.util.EventObject;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextPane;
 
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.WebsitePanel;

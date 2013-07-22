@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
-import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -23,9 +22,11 @@ import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.mineshaftersquared.gui.MS2LauncherWindow;
 import com.mineshaftersquared.misc.EventBus;
+import com.mineshaftersquared.misc.MCLauncher;
 import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.models.MCProfileManager;
 import com.mineshaftersquared.models.MCVersionManager;
+import com.mineshaftersquared.models.MCOneSixAuth;
 
 public class UniversalLauncher implements Runnable {
 	
@@ -33,6 +34,8 @@ public class UniversalLauncher implements Runnable {
 	public final MCProfileManager profilesManager;
 	public final MCVersionManager versionsManager;
 	public final EventBus eventBus;
+	public final MCLauncher launcher;
+	public final MCOneSixAuth auth;
 
 	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0");
 	public static final String POLLING_SERVER = "http://ms2.creatifcubed.com/polling_scripts/";
@@ -44,6 +47,7 @@ public class UniversalLauncher implements Runnable {
 	public static final SimpleGUIConsole console = new SimpleGUIConsole();
 	
 	private MS2LauncherWindow mainWindow;
+	private MCOneSixAuth.Response authResponse;
 
 	static {
 		console.init();
@@ -55,6 +59,9 @@ public class UniversalLauncher implements Runnable {
 		this.profilesManager = new MCProfileManager(MS2Utils.getLocalDir());
 		this.versionsManager = new MCVersionManager();
 		this.eventBus = new EventBus();
+		this.launcher = new MCLauncher(this);
+		this.auth = new MCOneSixAuth(this);
+		this.authResponse = null;
 		
 		// Initialize resources
 		File resources = new File(MS2_RESOURCES_DIR);
@@ -80,7 +87,11 @@ public class UniversalLauncher implements Runnable {
 	public MS2LauncherWindow mainWindow() {
 		return this.mainWindow;
 	}
-
+	
+	public MCOneSixAuth.Response authResponse() {
+		return this.authResponse;
+	}
+	
 	@Override
 	public void run() {
 		
