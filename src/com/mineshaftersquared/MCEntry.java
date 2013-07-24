@@ -108,7 +108,7 @@ public class MCEntry extends JFrame implements Runnable {
 		
 		// Start launcher
 		UniversalLauncher.log.info("Starting launcher...");
-		if (this.startLauncher()) {
+		if (!this.startLauncher()) {
 			UniversalLauncher.log.info("Unable to start Minecraft Launcher");
 			return;
 		}
@@ -191,10 +191,10 @@ public class MCEntry extends JFrame implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		Thread t = Thread.currentThread();
 		File mcDir = MS2Utils.getDefaultMCDir();
 		mcDir.mkdirs();
 		new MCEntry(mcDir).run();
+		UniversalLauncher.log.info("Here");
 	}
 	
 	public static boolean downloadMCLauncher(File file, String md5) {

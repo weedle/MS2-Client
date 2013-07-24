@@ -9,6 +9,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -37,6 +38,25 @@ public class MS2Utils {
 		default:
 			return new File(userHome, "minecraft");
 		}
+	}
+	
+	public static Process launchGame(File local, String authserver) {
+		try {
+			ProcessBuilder pb = new ProcessBuilder();
+			pb.directory(local);
+			List<String> args = new LinkedList<String>();
+			
+			args.add("java");
+			args.add("-jar");
+			args.add(SimpleUtils.getJarPath(UniversalLauncher.class).getCanonicalPath());
+			args.add("-game");
+			pb.command(args);
+			Process p = pb.start();
+			return p;
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static Process launchServer(File local, String server, String authserver, boolean isBukkit, String[] javaArgs, String[] mcArgs) {

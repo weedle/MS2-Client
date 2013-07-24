@@ -1,5 +1,7 @@
 package com.mineshaftersquared;
 
+import java.io.File;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -36,6 +38,10 @@ public class MS2Entry {
 		CommandLineParser cmdParser = new ExtendedGnuParser();
 		CommandLine cmd = cmdParser.parse(cmdOptions, args);
 		
+//		if (args[0].equals("a")) {
+//			SimpleEntry.main(args);
+//			return;
+//		}
 		if (cmd.hasOption("server")) {
 			ServerEntry.main(args);
 		}  else if (cmd.hasOption("game")) {
@@ -49,7 +55,11 @@ public class MS2Entry {
 				showHelp();
 			}
 		} else {
-			UniversalLauncher.main(args);
+			if (new File(UniversalLauncher.MC_START_AUTOMATICALLY).exists()) {
+				MCEntry.main(args);
+			} else {
+				UniversalLauncher.main(args);
+			}
 		}
 	}
 	

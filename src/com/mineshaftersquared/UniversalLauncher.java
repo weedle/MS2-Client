@@ -39,6 +39,7 @@ public class UniversalLauncher implements Runnable {
 	public static final String DEFAULT_AUTH_SERVER = "http://mineshaftersquared.com";
 	public static final String MS2_RESOURCES_DIR = "ms2-resources";
 	public static final String MS2_SETTINGS_NAME = "settings.xml";
+	public static final String MC_START_AUTOMATICALLY = "ms2-start_automatically.txt";
 	
 	public static final Log log = LogFactory.getFactory().getInstance("[MS2]");
 	public static final SimpleGUIConsole console = new SimpleGUIConsole();
