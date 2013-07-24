@@ -16,12 +16,14 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.io.IOUtils;
 
+import com.mineshaftersquared.misc.MiddlemanInputStream;
+
 public class Downloadable {
 	private final URL url;
 	private final File target;
 	private final boolean forceDownload;
 	private final Proxy proxy;
-	private final ProgressContainer monitor;
+	private final Status status;
 	private int numAttempts;
 	private long expectedSize;
 
@@ -30,11 +32,11 @@ public class Downloadable {
 		this.url = remoteFile;
 		this.target = localFile;
 		this.forceDownload = forceDownload;
-		this.monitor = new ProgressContainer();
+		this.status = new Status();
 	}
 
-	public ProgressContainer getMonitor() {
-		return this.monitor;
+	public Status getStats() {
+		return this.status;
 	}
 
 	public long getExpectedSize() {
@@ -68,12 +70,13 @@ public class Downloadable {
 			}
 			if (status / 100 == 2) {
 				if (this.expectedSize == 0L) {
-					this.monitor.setTotal(connection.getContentLength());
+					this.status.total = connection.getContentLength();
 				} else {
-					this.monitor.setTotal(this.expectedSize);
+					this.status.total = this.expectedSize;
 				}
 
-				InputStream inputStream = new MonitoringInputStream(connection.getInputStream(), this.monitor);
+				MiddlemanInputStream inputStream = new MiddlemanInputStream(connection.getInputStream());
+				inputStream.addListener(this.status);
 				FileOutputStream outputStream = new FileOutputStream(this.target);
 				String md5 = copyAndDigest(inputStream, outputStream);
 				String etag = getEtag(connection);
@@ -191,5 +194,21 @@ public class Downloadable {
 		}
 
 		return etag;
+	}
+	
+	public class Status implements MiddlemanInputStream.Listener {
+		public long total;
+		public long current;
+		
+		public Status() {
+			this.total = 0;
+			this.current = 0;
+		}
+
+		@Override
+		public void onChange(long bytes) {
+			this.current += bytes;
+		}
+		
 	}
 }

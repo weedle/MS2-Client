@@ -3,13 +3,18 @@ package com.mineshaftersquared.models.version;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.creatifcubed.simpleapi.SimpleOS;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.bind.DateTypeAdapter;
+import com.mineshaftersquared.misc.LowerCaseEnumTypeAdapterFactory;
 
 public abstract class VersionList {
 	protected final Gson gson;
@@ -158,7 +163,7 @@ public abstract class VersionList {
 	}
 
 	public String serializeVersionList() {
-		RawVersionList list = new RawVersionList(null);
+		RawVersionList list = new RawVersionList();
 
 		for (ReleaseType type : ReleaseType.values()) {
 			Version latest = this.getLatestVersion(type);
@@ -189,7 +194,7 @@ public abstract class VersionList {
 		return this.gson.toJson(version);
 	}
 
-	public abstract boolean hasAllFiles(CompleteVersion paramCompleteVersion, OperatingSystem paramOperatingSystem);
+	public abstract boolean hasAllFiles(CompleteVersion paramCompleteVersion, SimpleOS paramOperatingSystem);
 
 	protected abstract String getUrl(String paramString) throws IOException;
 

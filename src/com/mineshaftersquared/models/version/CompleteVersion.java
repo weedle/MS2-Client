@@ -2,6 +2,7 @@ package com.mineshaftersquared.models.version;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.creatifcubed.simpleapi.SimpleOS;
+import com.mineshaftersquared.models.updater.Downloadable;
 
 public class CompleteVersion implements Version {
 	private String id;

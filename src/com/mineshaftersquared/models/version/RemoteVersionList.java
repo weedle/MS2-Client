@@ -1,6 +1,11 @@
 package com.mineshaftersquared.models.version;
 
 import java.io.IOException;
+import java.net.Proxy;
+import java.net.URL;
+
+import com.creatifcubed.simpleapi.SimpleHTTPRequest;
+import com.creatifcubed.simpleapi.SimpleOS;
 
 public class RemoteVersionList extends VersionList {
 	private final Proxy proxy;
@@ -9,13 +14,13 @@ public class RemoteVersionList extends VersionList {
 		this.proxy = proxy;
 	}
 
-	public boolean hasAllFiles(CompleteVersion version, OperatingSystem os) {
+	public boolean hasAllFiles(CompleteVersion version, SimpleOS os) {
 		return true;
 	}
 
 	@Override
 	protected String getUrl(String uri) throws IOException {
-		return Http.performGet(new URL("https://s3.amazonaws.com/Minecraft.Download/" + uri), this.proxy);
+		return new String(new SimpleHTTPRequest("https://s3.amazonaws.com/Minecraft.Download/" + uri).doGet(this.proxy));
 	}
 
 	public Proxy getProxy() {
