@@ -6,6 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -22,14 +24,13 @@ import javax.swing.SwingUtilities;
 
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.UniversalLauncher;
-import com.mineshaftersquared.models.MCProfile;
-import com.mineshaftersquared.models.MCVersion;
+import com.mineshaftersquared.models.profile.Profile;
 
 public class SidePanel extends JPanel {
 	
 	private final UniversalLauncher app;
-	private MCProfile[] profilesSource;
-	private JComboBox<MCProfile> profile;
+	private Profile[] profilesSource;
+	private JComboBox<Profile> profile;
 	
 	public SidePanel(UniversalLauncher app) {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -46,8 +47,18 @@ public class SidePanel extends JPanel {
 	}
 	
 	private void refreshProfiles() {
-		this.app.profilesManager.refreshProfiles();
-		this.profilesSource = this.app.profilesManager.profilesAsArray();
+		try {
+			this.app.profilesManager.loadProfiles();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		Map<String, Profile> profilesMap = this.app.profilesManager.getProfiles();
+		this.profilesSource = new Profile[profilesMap.size()];
+		int i = 0;
+		for (String key : profilesMap.keySet()) {
+			this.profilesSource[i] = profilesMap.get(key);
+			i++;
+		}
 	}
 	
 	private JPanel createProfileMenu() {
@@ -57,7 +68,7 @@ public class SidePanel extends JPanel {
 		c.insets = new Insets(5, 5, 5, 5);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		
-		final JComboBox<MCProfile> profiles = new JComboBox<MCProfile>(new DefaultComboBoxModel<MCProfile>(this.profilesSource));
+		final JComboBox<Profile> profiles = new JComboBox<Profile>(new DefaultComboBoxModel<Profile>(this.profilesSource));
 		JButton refresh = new JButton("Refresh");
 		
 		this.profile = profiles;
@@ -66,7 +77,7 @@ public class SidePanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				SidePanel.this.refreshProfiles();
-				profiles.setModel(new DefaultComboBoxModel<MCProfile>(SidePanel.this.profilesSource));
+				profiles.setModel(new DefaultComboBoxModel<Profile>(SidePanel.this.profilesSource));
 			}
 		});
 		
@@ -98,7 +109,7 @@ public class SidePanel extends JPanel {
 		launch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				MCProfile profile = (MCProfile) SidePanel.this.profile.getSelectedItem();
+				Profile profile = (Profile) SidePanel.this.profile.getSelectedItem();
 				if (profile != null) {
 					SidePanel.this.app.launcher.launch(profile);
 				}

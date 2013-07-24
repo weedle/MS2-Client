@@ -28,9 +28,6 @@ public class Profile {
 	private Boolean useHopperCrashService;
 	private LauncherVisibilityRule launcherVisibilityOnGameClose;
 
-	@Deprecated
-	private Map<String, String> authentication;
-
 	public Profile() {
 	}
 
@@ -144,15 +141,10 @@ public class Profile {
 	public void setLauncherVisibilityOnGameClose(LauncherVisibilityRule launcherVisibilityOnGameClose) {
 		this.launcherVisibilityOnGameClose = launcherVisibilityOnGameClose;
 	}
-
-	@Deprecated
-	public Map<String, String> getAuthentication() {
-		return this.authentication;
-	}
-
-	@Deprecated
-	public void setAuthentication(Map<String, String> authentication) {
-		this.authentication = authentication;
+	
+	@Override
+	public String toString() {
+		return this.name;
 	}
 
 	public static class Resolution {

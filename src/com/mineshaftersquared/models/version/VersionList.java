@@ -13,7 +13,7 @@ import java.util.Map;
 import com.creatifcubed.simpleapi.SimpleOS;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.internal.bind.DateTypeAdapter;
+import com.mineshaftersquared.misc.DateTypeAdapter;
 import com.mineshaftersquared.misc.LowerCaseEnumTypeAdapterFactory;
 
 public abstract class VersionList {
@@ -91,8 +91,8 @@ public abstract class VersionList {
 
 	public void refreshVersions() throws IOException {
 		this.clearCache();
-
-		RawVersionList versionList = (RawVersionList) this.gson.fromJson(this.getUrl("versions/versions.json"),
+		String data = this.getUrl("versions/versions.json");
+		RawVersionList versionList = (RawVersionList) this.gson.fromJson(data,
 				RawVersionList.class);
 
 		for (Version version : versionList.getVersions()) {

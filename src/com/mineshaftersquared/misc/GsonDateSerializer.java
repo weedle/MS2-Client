@@ -1,8 +1,8 @@
 package com.mineshaftersquared.misc;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Date;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -13,23 +13,19 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-public class GsonFileSerializer implements JsonSerializer<File>, JsonDeserializer<File> {
+public class GsonDateSerializer implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
 	@Override
-	public JsonElement serialize(File file, Type type, JsonSerializationContext context) {
-		try {
-			return new JsonPrimitive(file.getCanonicalPath());
-		} catch (IOException ex) {
-			return JsonNull.INSTANCE;
-		}
+	public JsonElement serialize(Date file, Type type, JsonSerializationContext context) {
+		return new JsonPrimitive(false);
 	}
 	
 	@Override
-	public File deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+	public Date deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
 		if (json.isJsonNull()) {
 			return null;
 		}
-		return new File(json.getAsJsonPrimitive().getAsString());
+		return null;
 	}
 
 }

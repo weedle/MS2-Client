@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,11 +22,11 @@ import com.creatifcubed.simpleapi.SimpleUtils;
 import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
 import com.creatifcubed.simpleapi.SimpleOS;
 import com.mineshaftersquared.UniversalLauncher;
-import com.mineshaftersquared.models.LocalMCVersion;
 import com.mineshaftersquared.models.MCOneSixAuth;
-import com.mineshaftersquared.models.MCProfile;
-import com.mineshaftersquared.models.MCVersion;
-import com.mineshaftersquared.models.MCVersion.MCVersionDetails;
+import com.mineshaftersquared.models.profile.Profile;
+import com.mineshaftersquared.models.version.CompleteVersion;
+import com.mineshaftersquared.models.version.ReleaseType;
+import com.mineshaftersquared.models.version.Version;
 
 public class MCLauncher {
 
@@ -35,13 +36,13 @@ public class MCLauncher {
 		this.app = app;
 	}
 
-	private void ensureDependencies(final MCProfile profile, final MCVersion version, final MCDownloader downloader) {
+	private void ensureDependencies(final Profile profile, final Version version, final MCDownloader downloader) {
 		SimpleSwingWaiter waiter = new SimpleSwingWaiter("Downloading Minecraft", this.app.mainWindow());
 		OutputStream out = waiter.stdout();
 		waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
 			@Override
 			protected Void doInBackground() throws Exception {
-				downloader.downloadVersion(version, profile.getGameDir(), version.versionId);
+				downloader.downloadVersion(version, profile.getGameDir());
 				return null;
 			}
 		};
@@ -49,10 +50,22 @@ public class MCLauncher {
 		downloader.aggregate.removeListener(out);
 	}
 
-	public void launch(MCProfile profile) {
+	public void launch(Profile profile) {
 		final MCDownloader downloader = new MCDownloader(this.app);
-		MCVersion version = this.app.versionsManager.find(profile.getVersionId());
-		this.ensureDependencies(profile, version, downloader);
+		String lastId = profile.getLastVersionId();
+		if (lastId == null) {
+			lastId = this.app.versionManager.localVersionList.getLatestVersion(ReleaseType.RELEASE).getId();
+		}
+		Version v = this.app.versionManager.localVersionList.getVersion(profile.getLastVersionId());
+		this.ensureDependencies(profile, v, downloader);
+		CompleteVersion version = null;
+		try {
+			version = this.app.versionManager.localVersionList.getCompleteVersion(v);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(this.app.mainWindow(), "Unable to launch. Please see debug console");
+			return;
+		}
 		
 		MCOneSixAuth.Response authResponse = this.app.authResponse();
 		if (authResponse == null) {
@@ -66,15 +79,14 @@ public class MCLauncher {
 		map.put("auth_session", authResponse.accessToken == null ? this.randomAuthToken() : authResponse.accessToken);
 
 		map.put("profile_name", "default");
-		map.put("version_name", version.versionId);
+		map.put("version_name", version.getId());
 
 		File root = profile.getGameDir();
-		File gameDir = new File(new File(root, "versions"), version.versionId);
+		File gameDir = new File(new File(root, "versions"), version.getId());
 		try {
 			map.put("game_directory", gameDir.getCanonicalPath());
 			map.put("game_assets", new File(root, "assets").getCanonicalPath());
-			MCVersionDetails details = version.getDetails();
-			String[] mcArgs = details.minecraftArguments;
+			String[] mcArgs = version.getMinecraftArguments().split(" ");
 			for (int i = 0; i < mcArgs.length; i++) {
 				String replacement = map.get(mcArgs[i].substring("${".length(), mcArgs[i].length() - "}".length()));
 				if (replacement != null) {
@@ -82,7 +94,7 @@ public class MCLauncher {
 				}
 			}
 
-			File natives = downloader.unpackNatives(version, profile.getGameDir(), version.versionId);
+			File natives = downloader.unpackNatives(version, profile.getGameDir());
 			if (natives == null) {
 				throw new IOException("Error unpacking natives");
 			}
@@ -100,13 +112,13 @@ public class MCLauncher {
 			}
 			args.add("-Djava.library.path=" + natives.getCanonicalPath());
 			args.add("-cp");
-			List<File> paths = version.getClassPath(SimpleOS.getOS(), root);
+			Collection<File> paths = version.getClassPath(SimpleOS.getOS(), root);
 			paths.add(SimpleUtils.getJarPath(UniversalLauncher.class));
 			
 			args.add(this.buildClassPath(paths.toArray(new File[paths.size()])));
 			
 			
-			args.add(details.mainClass);
+			args.add(version.getMainClass());
 			args.addAll(Arrays.asList(mcArgs));
 			UniversalLauncher.log.info("Launching args:" + args);
 			ProcessBuilder pb = new ProcessBuilder(args);

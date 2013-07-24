@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,11 +20,11 @@ import org.apache.commons.lang.StringUtils;
 
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.gui.profiles.AddEditProfileForm;
-import com.mineshaftersquared.models.MCProfile;
+import com.mineshaftersquared.models.profile.Profile;
 
 public class ProfilesTab extends JPanel {
 	private final UniversalLauncher app;
-	private MCProfile[] profiles;
+	private Profile[] profiles;
 	private JTable table;
 	private ProfilesTableModel tableModel;
 	
@@ -41,8 +42,18 @@ public class ProfilesTab extends JPanel {
 	}
 	
 	public void refreshProfiles() {
-		this.app.profilesManager.refreshProfiles();
-		this.profiles = this.app.profilesManager.profilesAsArray();
+		try {
+			this.app.profilesManager.loadProfiles();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		Map<String, Profile> profilesMap = this.app.profilesManager.getProfiles();
+		this.profiles = new Profile[profilesMap.size()];
+		int i = 0;
+		for (String key : profilesMap.keySet()) {
+			this.profiles[i] = profilesMap.get(key);
+			i++;
+		}
 		this.tableModel.fireTableDataChanged();
 	}
 	
@@ -76,7 +87,7 @@ public class ProfilesTab extends JPanel {
 		edit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				MCProfile profile = ProfilesTab.this.selectedProfile();
+				Profile profile = ProfilesTab.this.selectedProfile();
 				if (profile == null) {
 					return;
 				}
@@ -89,14 +100,14 @@ public class ProfilesTab extends JPanel {
 		delete.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				MCProfile profile = ProfilesTab.this.selectedProfile();
+				Profile profile = ProfilesTab.this.selectedProfile();
 				if (profile == null) {
 					return;
 				}
-				if (!ProfilesTab.this.app.profilesManager.deleteProfile(profile)) {
-					JOptionPane.showMessageDialog(ProfilesTab.this.app.mainWindow(), "Unknown error deleting profile. Please contact the developer");
-				}
 				try {
+					if (!ProfilesTab.this.app.profilesManager.deleteProfile(profile)) {
+						JOptionPane.showMessageDialog(ProfilesTab.this.app.mainWindow(), "Unknown error deleting profile. Please contact the developer");
+					}
 					if (!ProfilesTab.this.app.profilesManager.saveProfiles()) {
 						JOptionPane.showMessageDialog(ProfilesTab.this.app.mainWindow(), "Unknown error saving profiles. Please contact the developer");
 					}
@@ -122,7 +133,7 @@ public class ProfilesTab extends JPanel {
 		return panel;
 	}
 	
-	private MCProfile selectedProfile() {
+	private Profile selectedProfile() {
 		int selectedIndex = this.table.getSelectedRow();
 		if (selectedIndex == -1) {
 			return null;
@@ -132,7 +143,7 @@ public class ProfilesTab extends JPanel {
 	
 	private class ProfilesTableModel extends AbstractTableModel {
 		
-		private final String[] COLUMNS = new String[] {"Name", "Version", "Game Dir", "Java Args", "Is Local"};
+		private final String[] COLUMNS = new String[] {"Name", "Version", "Game Dir", "Java Args"};
 		
 		@Override
 		public String getColumnName(int index) {
@@ -151,18 +162,16 @@ public class ProfilesTab extends JPanel {
 
 		@Override
 		public Object getValueAt(int row, int col) {
-			MCProfile profile = ProfilesTab.this.profiles[row];
+			Profile profile = ProfilesTab.this.profiles[row];
 			switch (col) {
 			case 0:
 				return profile.getName();
 			case 1:
-				return profile.getVersionId();
+				return profile.getLastVersionId();
 			case 2:
-				return profile.getGameDir().toString();
+				return profile.getGameDir();
 			case 3:
-				return StringUtils.join(profile.getJavaArgs(), " ");
-			case 4:
-				return profile.getIsLocal();
+				return profile.getJavaArgs();
 			}
 			return "Unknown column";
 		}

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
+import java.util.UUID;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -24,19 +25,18 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mineshaftersquared.gui.MS2LauncherWindow;
 import com.mineshaftersquared.misc.EventBus;
-import com.mineshaftersquared.misc.GsonFileDeserializer;
 import com.mineshaftersquared.misc.GsonFileSerializer;
 import com.mineshaftersquared.misc.MCLauncher;
 import com.mineshaftersquared.misc.MS2Utils;
-import com.mineshaftersquared.models.MCProfileManager;
-import com.mineshaftersquared.models.MCVersionManager;
 import com.mineshaftersquared.models.MCOneSixAuth;
+import com.mineshaftersquared.models.profile.ProfileManager;
+import com.mineshaftersquared.models.version.VersionManager;
 
 public class UniversalLauncher implements Runnable {
 	
 	public final FileConfiguration prefs;
-	public final MCProfileManager profilesManager;
-	public final MCVersionManager versionsManager;
+	public final ProfileManager profilesManager;
+	public final VersionManager versionManager;
 	public final EventBus eventBus;
 	public final MCLauncher launcher;
 	public final MCOneSixAuth auth;
@@ -60,8 +60,8 @@ public class UniversalLauncher implements Runnable {
 	}
 
 	public UniversalLauncher() throws ConfigurationException, IOException {
-		this.profilesManager = new MCProfileManager(MS2Utils.getLocalDir());
-		this.versionsManager = new MCVersionManager();
+		this.profilesManager = new ProfileManager(this, MS2Utils.getDefaultMCDir());
+		this.versionManager = new VersionManager(MS2Utils.getDefaultMCDir());
 		this.eventBus = new EventBus();
 		this.launcher = new MCLauncher(this);
 		this.auth = new MCOneSixAuth(this);
@@ -94,6 +94,14 @@ public class UniversalLauncher implements Runnable {
 	
 	public MCOneSixAuth.Response authResponse() {
 		return this.authResponse;
+	}
+	
+	public void setClientToken(UUID token) {
+		
+	}
+	
+	public UUID getClientToken() {
+		return null;
 	}
 	
 	@Override

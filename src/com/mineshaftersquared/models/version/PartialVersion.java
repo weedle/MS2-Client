@@ -78,7 +78,7 @@ public class PartialVersion implements Version {
 
 	@Override
 	public String toString() {
-		return "PartialVersion{id='" + this.id + '\'' + ", updateTime=" + this.time + ", releaseTime="
-				+ this.releaseTime + ", type=" + this.type + '}';
+		return this.id;
+		//return "PartialVersion{id='" + this.id + '\'' + ", updateTime=" + this.time + ", releaseTime=" + this.releaseTime + ", type=" + this.type + '}';
 	}
 }

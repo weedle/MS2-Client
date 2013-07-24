@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxModel;
@@ -34,29 +36,27 @@ import org.apache.commons.lang.StringUtils;
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.gui.tabs.ProfilesTab;
 import com.mineshaftersquared.misc.MS2Utils;
-import com.mineshaftersquared.models.MCProfile;
-import com.mineshaftersquared.models.MCVersion;
-import com.mineshaftersquared.models.MCVersionManager;
+import com.mineshaftersquared.models.profile.Profile;
+import com.mineshaftersquared.models.version.ReleaseType;
+import com.mineshaftersquared.models.version.Version;
 
 public class AddEditProfileForm extends JFrame {
 
 	private final UniversalLauncher app;
-	private final MCProfile profile;
+	private final Profile profile;
 	private final ProfilesTab profilesTab;
 
 	private final JLabel profileNameLabel;
 	private final JTextField profileName;
-	private final JCheckBox isLocal;
-	private final JLabel isLocalLabel;
-	private final JCheckBox gameDirEnabled;
+	private final JLabel gameDirEnabled;
 	private final JTextField gameDir;
 	private final JButton gameDirOpen;
 	private final JLabel versionLabel;
-	private final JComboBox<MCVersion> version;
+	private final JComboBox<Version> version;
 	private final JLabel javaArgsLabel;
 	private final JTextArea javaArgs;
 
-	public AddEditProfileForm(UniversalLauncher app, ProfilesTab profilesTab, MCProfile profile) {
+	public AddEditProfileForm(UniversalLauncher app, ProfilesTab profilesTab, Profile profile) {
 		this.app = app;
 		this.profilesTab = profilesTab;
 		this.profile = profile;
@@ -65,9 +65,7 @@ public class AddEditProfileForm extends JFrame {
 
 		this.profileNameLabel = new JLabel("Profile Name");
 		this.profileName = new JTextField(profile == null ? "" : profile.getName());
-		this.isLocal = new JCheckBox("Is Local", profile == null ? false : profile.getIsLocal());
-		this.isLocalLabel = new JLabel();
-		this.gameDirEnabled = new JCheckBox("Game Directory");
+		this.gameDirEnabled = new JLabel("Game Directory");
 		String gameDirVal = null;
 		try {
 			System.out.println("Path:");
@@ -79,9 +77,9 @@ public class AddEditProfileForm extends JFrame {
 		this.gameDir = new JTextField(gameDirVal);
 		this.gameDirOpen = new JButton("Find");
 		this.versionLabel = new JLabel("Version");
-		this.version = new JComboBox<MCVersion>();
+		this.version = new JComboBox<Version>();
 		this.javaArgsLabel = new JLabel("<html>Java Args<br />(separate with newline)</html>");
-		this.javaArgs = new JTextArea(profile == null ? "" : StringUtils.join(profile.getJavaArgs(), System.getProperty("line.separator")), 4, 32);
+		this.javaArgs = new JTextArea(profile == null ? "" : profile.getJavaArgs(), 4, 32);
 
 		panel.add(this.createProfilePanel(), BorderLayout.CENTER);
 		panel.add(this.createActionsPanel(), BorderLayout.SOUTH);
@@ -121,8 +119,6 @@ public class AddEditProfileForm extends JFrame {
 			}
 		};
 		this.profileName.getDocument().addDocumentListener(formChangedDocumentListener);
-		this.isLocal.addChangeListener(formChangedChangeListener);
-		this.updateIsLocalField();
 		this.refreshVersions(false);
 		this.gameDir.getDocument().addDocumentListener(formChangedDocumentListener);
 		this.gameDirOpen.addActionListener(new ActionListener() {
@@ -147,8 +143,6 @@ public class AddEditProfileForm extends JFrame {
 		c.fill = GridBagConstraints.NONE;
 		panel.add(this.profileNameLabel, c);
 		c.gridy++;
-		panel.add(this.isLocal, c);
-		c.gridy++;
 		panel.add(this.gameDirEnabled, c);
 		c.gridy++;
 		panel.add(this.versionLabel, c);
@@ -160,8 +154,6 @@ public class AddEditProfileForm extends JFrame {
 		c.weightx = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		panel.add(this.profileName, c);
-		c.gridy++;
-		panel.add(this.isLocalLabel, c);
 		c.gridy++;
 		panel.add(this.gameDir, c);
 		c.gridx = 2;
@@ -212,20 +204,20 @@ public class AddEditProfileForm extends JFrame {
 	}
 
 	private String[] saveProfile() {
-		MCProfile profile = this.liveProfile();
+		Profile profile = this.liveProfile();
 		String[] errors = this.app.profilesManager.validateProfile(profile);
 		if (errors.length > 0) {
 			return errors;
 		}
-		if (this.profile != null) {
-			if (!this.app.profilesManager.deleteProfile(this.profile)) {
-				return new String[] { "Unknown error deleting old profile. Please contact the developer" };
-			}
-		}
-		if (!this.app.profilesManager.addProfile(profile)) {
-			return new String[] { "Unknown error adding profile. Please contact the developer" };
-		}
 		try {
+			if (this.profile != null) {
+				if (!this.app.profilesManager.deleteProfile(this.profile)) {
+					return new String[] { "Unknown error deleting old profile. Please contact the developer" };
+				}
+			}
+			if (!this.app.profilesManager.addProfile(profile)) {
+				return new String[] { "Unknown error adding profile. Please contact the developer" };
+			}
 			if (!this.app.profilesManager.saveProfiles()) {
 				return new String[] { "Unknown error saving profiles. Please contact the developer" };
 			}
@@ -236,13 +228,18 @@ public class AddEditProfileForm extends JFrame {
 		return new String[0];
 	}
 	
-	private MCProfile liveProfile() {
-		MCVersion version = (MCVersion) this.version.getSelectedItem();
-		return new MCProfile(this.profileName.getText().trim(), version == null ? null : version.versionId, new File(this.gameDir.getText()), this.javaArgs.getText().split(System.getProperty("line.separator")), this.isLocal.isSelected());
+	private Profile liveProfile() {
+		Version version = (Version) this.version.getSelectedItem();
+		Profile profile = new Profile(this.profileName.getText().trim().toLowerCase());
+		profile.setGameDir(new File(this.gameDir.getText()));
+		profile.setAllowedReleaseTypes(EnumSet.<ReleaseType>of(ReleaseType.RELEASE, ReleaseType.SNAPSHOT));
+		profile.setJavaArgs(this.javaArgs.getText());
+		profile.setLastVersionId(version.getId());
+		return profile;
 	}
 
 	private void formChanged() {
-		this.updateIsLocalField();
+		return;
 	}
 
 	private String formatErrors(String[] errors) {
@@ -256,19 +253,16 @@ public class AddEditProfileForm extends JFrame {
 		return bin + "</html></ul>";
 	}
 	
-	private void updateIsLocalField() {
-		this.isLocalLabel.setText(this.isLocal.isSelected() ? "Profile will be installed and only available locally (good for USBs)" : "Profile will be installed in the default location and available globally");
-	}
-	
 	private void refreshVersions(final boolean force) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				final MCVersion[] versions = AddEditProfileForm.this.app.versionsManager.getVersions(MCVersionManager.VERSIONS_LIST_URL, force);
+				Collection<Version> versionsList = AddEditProfileForm.this.app.versionManager.remoteVersionList.getVersions();
+				final Version[] versions = versionsList.toArray(new Version[versionsList.size()]);
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						AddEditProfileForm.this.version.setModel(new DefaultComboBoxModel<MCVersion>(versions));
+						AddEditProfileForm.this.version.setModel(new DefaultComboBoxModel<Version>(versions));
 					}
 				});
 			}
