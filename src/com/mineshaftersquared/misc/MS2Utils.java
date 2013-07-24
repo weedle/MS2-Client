@@ -2,9 +2,17 @@ package com.mineshaftersquared.misc;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.creatifcubed.simpleapi.SimpleOS;
 import com.creatifcubed.simpleapi.SimpleUtils;
@@ -53,6 +61,26 @@ public class MS2Utils {
 			return p;
 		} catch (IOException ex){ 
 			ex.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static String getMD5(InputStream in) {
+		DigestInputStream dis = null;
+		try {
+			MessageDigest md5 = MessageDigest.getInstance("MD5");
+			dis = new DigestInputStream(in, md5);
+			
+			byte[] buffer = new byte[1024 * 8];
+			while (dis.read(buffer) != -1);
+			
+			return StringUtils.leftPad(new BigInteger(1, md5.digest()).toString(16), 32, '0');
+		} catch (NoSuchAlgorithmException ex) {
+			ex.printStackTrace();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			IOUtils.closeQuietly(dis);
 		}
 		return null;
 	}

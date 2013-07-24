@@ -22,6 +22,7 @@ public class MS2Entry {
 		addOption(bukkitOption);
 		addOption(authserverOption);
 		addOption("update", false, "Update the launcher");
+		addOption("game", false, "Start the Minecraft launcher directly");
 		addOption(mcSeparatorOption);
 	}};
 	
@@ -37,6 +38,8 @@ public class MS2Entry {
 		
 		if (cmd.hasOption("server")) {
 			ServerEntry.main(args);
+		}  else if (cmd.hasOption("game")) {
+			MCEntry.main(args);
 		} else if (cmd.hasOption("help")) {
 			showHelp();
 		} else if (args.length > 0) {
