@@ -25,6 +25,7 @@ public class MS2Entry {
 		addOption(authserverOption);
 		addOption("update", false, "Update the launcher");
 		addOption("game", false, "Start the Minecraft launcher directly");
+		addOption("gui", false, "Start the GUI (ignores " + UniversalLauncher.MC_START_AUTOMATICALLY + ")");
 		addOption(mcSeparatorOption);
 	}};
 	
@@ -38,10 +39,6 @@ public class MS2Entry {
 		CommandLineParser cmdParser = new ExtendedGnuParser();
 		CommandLine cmd = cmdParser.parse(cmdOptions, args);
 		
-//		if (args[0].equals("a")) {
-//			SimpleEntry.main(args);
-//			return;
-//		}
 		if (cmd.hasOption("server")) {
 			ServerEntry.main(args);
 		}  else if (cmd.hasOption("game")) {
@@ -56,6 +53,7 @@ public class MS2Entry {
 			}
 		} else {
 			if (new File(UniversalLauncher.MC_START_AUTOMATICALLY).exists()) {
+				// TODO: check updates
 				MCEntry.main(args);
 			} else {
 				UniversalLauncher.main(args);

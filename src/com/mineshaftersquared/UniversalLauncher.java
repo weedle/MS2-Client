@@ -24,14 +24,12 @@ import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.mineshaftersquared.gui.MS2LauncherWindow;
 import com.mineshaftersquared.misc.EventBus;
 import com.mineshaftersquared.misc.MS2Utils;
-import com.mineshaftersquared.models.MCOneSixAuth;
 import com.mineshaftersquared.models.MCVersionManager;
 
 public class UniversalLauncher implements Runnable {
 	
 	public final FileConfiguration prefs;
 	public final EventBus eventBus;
-	public final MCOneSixAuth auth;
 	public final MCVersionManager mcVersionManager;
 
 	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0");
@@ -45,7 +43,6 @@ public class UniversalLauncher implements Runnable {
 	public static final SimpleGUIConsole console = new SimpleGUIConsole();
 	
 	private MS2LauncherWindow mainWindow;
-	private MCOneSixAuth.Response authResponse;
 
 	static {
 		console.init();
@@ -55,8 +52,6 @@ public class UniversalLauncher implements Runnable {
 
 	public UniversalLauncher() throws ConfigurationException, IOException {
 		this.eventBus = new EventBus();
-		this.auth = new MCOneSixAuth(this);
-		this.authResponse = null;
 		this.mcVersionManager = new MCVersionManager();
 		
 		// Initialize resources
@@ -82,10 +77,6 @@ public class UniversalLauncher implements Runnable {
 	
 	public MS2LauncherWindow mainWindow() {
 		return this.mainWindow;
-	}
-	
-	public MCOneSixAuth.Response authResponse() {
-		return this.authResponse;
 	}
 	
 	public void setClientToken(UUID token) {

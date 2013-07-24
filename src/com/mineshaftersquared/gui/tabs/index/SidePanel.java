@@ -100,23 +100,22 @@ public class SidePanel extends JPanel {
 		c.insets = new Insets(5, 5, 5, 5);
 		c.ipadx = 10;
 		
-		final JCheckBox startAutomatically = new JCheckBox("Start Automatically");
+		final File startAutomaticallyFlag = new File(UniversalLauncher.MC_START_AUTOMATICALLY);
+		final JCheckBox startAutomatically = new JCheckBox("Start Automatically", startAutomaticallyFlag.exists());
 		JButton launch = new JButton("Launch");
-		JLabel info = new JLabel("<html>Checking 'start automatically'<br />will create a file '" + UniversalLauncher.MC_START_AUTOMATICALLY + "'."
-				+ "<br />Delete this file to disable auto-launching.<br /></html>");
+		JLabel info = new JLabel("<html>Checking 'start automatically'<br />will create a file '" + UniversalLauncher.MC_START_AUTOMATICALLY
+				+ "<br />Delete this file to disable auto-launching<br /></html>");
 		startAutomatically.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent event) {
-				File f = new File(UniversalLauncher.MC_START_AUTOMATICALLY);
-				
 				if (startAutomatically.isSelected()) {
 					try {
-						FileUtils.write(f, "Delete this file to start the regular launcher", Charset.forName("utf-8"));
+						FileUtils.write(startAutomaticallyFlag, "Delete this file to disable automatically starting the Minecraft launcher", Charset.forName("utf-8"));
 					} catch (IOException ex) {
 						ex.printStackTrace();
 					}
 				} else {
-					f.delete();
+					startAutomaticallyFlag.delete();
 				}
 			}
 		});
