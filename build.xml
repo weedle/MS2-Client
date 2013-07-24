@@ -96,4 +96,10 @@
 
 	<target name="main" depends="package" description="Build and package">
 	</target>
+	
+	<target name="downloadlibs" description="Download libs (calls scripts/download_libs.sh)">
+		<exec executable="bash">
+			<arg value="scripts/download_libs.sh" />
+		</exec>
+	</target>
 </project>
