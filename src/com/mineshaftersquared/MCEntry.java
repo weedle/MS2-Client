@@ -56,7 +56,7 @@ public class MCEntry extends JFrame implements Runnable {
 		this.mcDir = mcDir;
 		this.launcherJar  = new File(mcDir, "launcher.jar");
 		this.packedLauncherJar = new File(mcDir, "launcher.pack.lzma");
-		this.packedLauncherJarNew = new File(mcDir, "launcher.pack.lzma,new");
+		this.packedLauncherJarNew = new File(mcDir, "launcher.pack.lzma.new");
 		this.patchedLauncherJar = new File(mcDir, "ms2-launcher.jar");
 	}
 	
@@ -79,6 +79,7 @@ public class MCEntry extends JFrame implements Runnable {
 				IOUtils.closeQuietly(fis);
 			}
 		}
+		UniversalLauncher.log.info("launcher.pack.lzma MD5 is " + md5);
 		if (!downloadMCLauncher(this.packedLauncherJarNew, md5)) {
 			UniversalLauncher.log.info("Unable to download Minecraft launcher");
 			return;
@@ -86,25 +87,30 @@ public class MCEntry extends JFrame implements Runnable {
 		
 		// Prepare resources
 		UniversalLauncher.log.info("Preparing resources...");
-		this.packedLauncherJar.delete();
-		this.packedLauncherJarNew.renameTo(packedLauncherJar);
+		if (this.packedLauncherJarNew.exists()) {
+			this.packedLauncherJar.delete();
+			this.packedLauncherJarNew.renameTo(packedLauncherJar);
+		}
 		
 		// Unpack launcher
 		UniversalLauncher.log.info("Unpacking launcher...");
 		if (!this.unpackLauncher()) {
 			UniversalLauncher.log.info("Unable to unpack Minecraft launcher");
+			return;
 		}
 		
 		// Patch launcher
 		UniversalLauncher.log.info("Patching launcher...");
 		if (!this.patchLauncher()) {
 			UniversalLauncher.log.info("Unable to patch Minecraft launcher");
+			return;
 		}
 		
 		// Start launcher
 		UniversalLauncher.log.info("Starting launcher...");
 		if (this.startLauncher()) {
 			UniversalLauncher.log.info("Unable to start Minecraft Launcher");
+			return;
 		}
 	}
 	
@@ -132,11 +138,11 @@ public class MCEntry extends JFrame implements Runnable {
 				decoder.Code(in, out, outSize);
 				
 				Pack200.newUnpacker().unpack(unpacked, jos);
-				unpacked.delete();
 			} finally {
 				IOUtils.closeQuietly(in);
 				IOUtils.closeQuietly(out);
 				IOUtils.closeQuietly(jos);
+				unpacked.delete();
 			}
 			return true;
 		} catch (IOException ex) {
@@ -147,7 +153,7 @@ public class MCEntry extends JFrame implements Runnable {
 	
 	public boolean patchLauncher() {
 		Map<String, InputStream> replacements = new HashMap<String, InputStream>();
-		replacements.put("META-INF/.?\\.(?:DSA|RSA|SF)", null);
+		replacements.put("META-INF/.*\\.(?:DSA|RSA|SF)", null);
 		replacements.put("META-INF/MANIFEST\\.MF", new ByteArrayInputStream("Manifest-Version: 1.0\n".getBytes(Charset.forName("utf-8"))));
 		replacements.put("net/minecraft/launcher/Http\\.class", SimpleResources.loadAsStream("net/minecraft/launcher/Http.class"));
 		replacements.put("net/minecraft/launcher/updater/download/Downloadable\\.class", SimpleResources.loadAsStream("net/minecraft/launcher/updater/download/Downloadable.class"));
@@ -166,7 +172,7 @@ public class MCEntry extends JFrame implements Runnable {
 		
 		try {
 			ClassLoader cl = new URLClassLoader(new URL[] { this.patchedLauncherJar.toURI().toURL() });
-			Class<?> clazz = cl.loadClass("net.minecraft.launcher.launcher");
+			Class<?> clazz = cl.loadClass("net.minecraft.launcher.Launcher");
 			Constructor<?> ctor = clazz.getConstructor(new Class[] { JFrame.class, File.class, Proxy.class, PasswordAuthentication.class, String[].class, Integer.class });
 			
 			ctor.newInstance(this, this.mcDir, proxy, null, new String[0], MC_BOOTSTRAP_VERSION);
@@ -209,8 +215,12 @@ public class MCEntry extends JFrame implements Runnable {
 				} finally {
 					IOUtils.closeQuietly(fos);
 				}
+				return true;
 			}
-			return true;
+			if (code == 304) {
+				return true;
+			}
+			UniversalLauncher.log.info("HTTP status code was " + code);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
