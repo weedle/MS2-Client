@@ -134,8 +134,8 @@ public class ServerAdminsTab extends JPanel {
 					waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
 						@Override
 						protected Void doInBackground() throws Exception {
-							String serverDownload = String.format(SERVER_DOWNLOAD_TEMPLATE, version.versionId);
-							String serverName = String.format(String.format(SERVER_NAME_TEMPLATE, version.versionId));
+							String serverDownload = String.format(SERVER_DOWNLOAD_TEMPLATE, version.id);
+							String serverName = String.format(String.format(SERVER_NAME_TEMPLATE, version.id));
 							FileUtils.copyURLToFile(new URL(serverDownload), new File(local, serverName));
 							waiter.stdout().println("Download from " + serverDownload + " to " + serverName + " ...");
 							return null;

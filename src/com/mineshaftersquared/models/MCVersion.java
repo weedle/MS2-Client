@@ -7,102 +7,10 @@ import java.util.List;
 import com.creatifcubed.simpleapi.SimpleOS;
 
 public class MCVersion {
-	public final String versionId;
-	public final Date releaseTime;
-	public final MCVersionType type;
-	private MCVersionDetails details;
-	public final MCVersionManager manager;
-
-	public MCVersion(String versionId, Date releaseTime, MCVersionType type, MCVersionManager manager) {
-		this.versionId = versionId;
-		this.releaseTime = releaseTime;
-		this.type = type;
-		this.details = null;
-		this.manager = manager;
-	}
-
-	public MCVersionDetails getDetails() {
-		return getDetails(MCVersionManager.VERSION_INFO_URL_TEMPLATE, false);
-	}
-	public MCVersionDetails getDetails(String url, boolean flush) {
-		if (this.details == null || flush) {
-			this.details = fetchDetails(url, flush);
-		}
-		return this.details;
-	}
-	private MCVersionDetails fetchDetails(String url, boolean flush) {
-		String data = this.manager.getMCVersionData(this.versionId, url, flush);
-		return this.manager.detailsFromData(data);
-	}
-
-	public MCLibrary[] getLibrariesForOS(SimpleOS os) {
-		List<MCLibrary> libs = new LinkedList<MCLibrary>();
-		MCVersionDetails details = this.getDetails();
-		for (int i = 0; i < details.libraries.length; i++) {
-			if (details.libraries[i].getRestrictedOperatingSystems().contains(os)) {
-				continue;
-			}
-			libs.add(details.libraries[i]);
-		}
-		return libs.toArray(new MCLibrary[libs.size()]);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o instanceof MCVersion) {
-			return this.versionId.equals(((MCVersion) o).versionId);
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return this.versionId.hashCode();
-	}
-
-	@Override
-	public String toString() {
-		return this.versionId;
-	}
-
-	public static enum MCVersionType {
-		RELEASE, SNAPSHOT, UNKNOWN;
-
-		public static MCVersionType fromString(String str) {
-			if (str.equals("release")) {
-				return RELEASE;
-			} else if (str.equals("snapshot")) {
-				return SNAPSHOT;
-			}
-			return UNKNOWN;
-		}
-
-		@Override
-		public String toString() {
-			switch (this) {
-			case RELEASE:
-				return "Release";
-			case SNAPSHOT:
-				return "Snapshot";
-			case UNKNOWN:
-				return "Unknown";
-			}
-			return null;
-		}
-	}
-
-	public static class MCVersionDetails {
-		public final MCLibrary[] libraries;
-		public final String[] processArguments;
-		public final String[] minecraftArguments;
-		public final String mainClass;
-
-		public MCVersionDetails(MCLibrary[] libraries, String[] processArguments, String[] minecraftArguments, String mainClass) {
-			this.libraries = libraries;
-			this.processArguments = processArguments;
-			this.minecraftArguments = minecraftArguments;
-			this.mainClass = mainClass;
-		}
+	public final String id;
+	
+	public MCVersion(String id) {
+		this.id = id;
 	}
 }
 /*
