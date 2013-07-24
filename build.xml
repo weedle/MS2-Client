@@ -15,8 +15,12 @@
 			<include name="*.jar" />
 		</fileset>
 	</path>
+	
+	<path id="resources.classpath">
+		<fileset file="${libs.dir}/${mc.jar}" />
+	</path>
 
-	<target name="clean" description="Clean build and dist dirs">
+	<target name="clean" depends="prepare" description="Clean build and dist dirs">
 		<delete includeEmptyDirs="true">
 			<fileset dir="${build.dir}" includes="**/*" defaultexcludes="no" />
 			<fileset dir="${dist.dir}" includes="**/*" defaultexcludes="no" />
@@ -28,17 +32,36 @@
 		<mkdir dir="${dist.dir}" />
 	</target>
 
-	<target name="compile" depends="prepare, clean" description="Compile sources">
-		<javac destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.7" source="1.7" includeantruntime="false">
+	<target name="compile" depends="prepare, clean" description="Compile launcher sources">
+		<javac destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.6" source="1.6" includeantruntime="false">
 			<src path="${src.dir}" />
 			<exclude name="com/adrian/playground/**" />
+			<exclude name="net/minecraft/**" />
 		</javac>
+	</target>
+	
+	<target name="compile.resources" depends="prepare, clean" description="Compile resources (MC patches)">
+		<javac destdir="${build.dir}" classpathref="resources.classpath" encoding="utf-8" target="1.6" source="1.6" includeantruntime="false">
+			<src path="${src.dir}" />
+			<include name="net/minecraft/**" />
+		</javac>
+	</target>
+	
+	<target name="package.resources" depends="compile.resources" description="Package resources (MC patches)">
+		<delete>
+			<fileset dir="${resources.dir}" includes="*.class" />
+		</delete>
+		<copy todir="${resources.dir}" flatten="true" includeemptydirs="false">
+			<fileset dir="${build.dir}">
+				<include name="net/minecraft/**" />
+			</fileset>
+		</copy>
 	</target>
 	
 	<target name="jar" depends="compile, jar.existing" description="Compile and create Jar">
 	</target>
 
-	<target name="jar.existing" description="Jar existing class files">
+	<target name="jar.existing" description="Jar existing class files (e.g. to be used with IDEs with autobuild)">
 		<jar destfile="${dist.dir}/${libs.alljars}">
 			<zipgroupfileset dir="${libs.dir}" includes="*.jar" excludes="${mc.jar}" />
 		</jar>
@@ -47,6 +70,9 @@
 				<attribute name="Main-Class" value="${manifest.mainclass}" />
 			</manifest>
 			<zipfileset dir="${resources.dir}" includes="ms2.png" fullpath="com/mineshaftersquared/resources/ms2.png" />
+			<zipfileset dir="${resources.dir}" includes="Util.class" fullpath="com/mineshaftersquared/resources/Util.class" />
+			<zipfileset dir="${resources.dir}" includes="Http.class" fullpath="com/mineshaftersquared/resources/Http.class" />
+			<zipfileset dir="${resources.dir}" includes="Downloadable.class" fullpath="com/mineshaftersquared/resources/Downloadable.class" />
 			<zipfileset src="${dist.dir}/${libs.alljars}">
 				<include name="**/*.class" />
 			</zipfileset>
@@ -57,12 +83,15 @@
 	<target name="package" depends="jar, package.existing">
 	</target>
 	
-	<target name="package.existing" description="Package an existing Jar">
+	<target name="package.existing" description="Package an existing Jar for distribution">
 		<copy todir="${dist.dir}">
 			<fileset dir="${resources.dir}">
 				<include name="ms2-run-*.*" />
 			</fileset>
 		</copy>
+	</target>
+	
+	<target name="all" depends="package.resources, package" description="Everything">
 	</target>
 
 	<target name="main" depends="package" description="Build and package">

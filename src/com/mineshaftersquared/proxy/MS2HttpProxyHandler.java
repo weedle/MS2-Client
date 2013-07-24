@@ -46,16 +46,16 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 	}
 	
 	public boolean on(String method, String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
-		switch (method.toLowerCase()) {
-		case "get":
+		method = method.toLowerCase();
+		if (method.equals("get")) {
 			return this.onGet(url, headers, in, out, ms2Proxy);
-		case "post":
+		} else if (method.equals("post")) {
 			return this.onPost(url, headers, in, out, ms2Proxy);
-		case "head":
+		} else if (method.equals("head")) {
 			return this.onHead(url, headers, in, out, ms2Proxy);
-		case "connect":
+		} else if (method.equals("connect")) {
 			return this.onConnect(url, headers, in, out, ms2Proxy);
-		default:
+		} else {
 			throw new IllegalArgumentException("Unknown method " + method);
 		}
 	}

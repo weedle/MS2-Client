@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import org.apache.commons.io.IOUtils;
+
 public class JavaProcessOutputRedirector implements Runnable {
 	public final Process process;
 	public final String format;
@@ -39,10 +41,11 @@ public class JavaProcessOutputRedirector implements Runnable {
 	}
 
 	private void pipeStreams(InputStream in, OutputStream out) throws IOException {
-		try (
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			PrintStream ps = new PrintStream(out); // stream is flushed when closed
-		) {
+		BufferedReader br = null;
+		PrintStream ps = null;
+		try {
+			br = new BufferedReader(new InputStreamReader(in));
+			ps = new PrintStream(out);
 			while (true) {
 				String line = br.readLine();
 				if (line == null) {
@@ -50,6 +53,9 @@ public class JavaProcessOutputRedirector implements Runnable {
 				}
 				ps.println(String.format(this.format, line));
 			}
+		} finally {
+			IOUtils.closeQuietly(br);
+			IOUtils.closeQuietly(ps);
 		}
 	}
 }

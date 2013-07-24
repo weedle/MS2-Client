@@ -155,12 +155,12 @@ public class MCEntry extends JFrame implements Runnable {
 		Map<String, InputStream> replacements = new HashMap<String, InputStream>();
 		replacements.put("META-INF/.*\\.(?:DSA|RSA|SF)", null);
 		replacements.put("META-INF/MANIFEST\\.MF", new ByteArrayInputStream("Manifest-Version: 1.0\n".getBytes(Charset.forName("utf-8"))));
-		replacements.put("net/minecraft/launcher/Http\\.class", SimpleResources.loadAsStream("net/minecraft/launcher/Http.class"));
-		replacements.put("net/minecraft/launcher/updater/download/Downloadable\\.class", SimpleResources.loadAsStream("net/minecraft/launcher/updater/download/Downloadable.class"));
-		replacements.put("net/minecraft/hopper/Util\\.class", SimpleResources.loadAsStream("net/minecraft/hopper/Util.class"));
-//		replacements.put("net/minecraft/launcher/Http\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Http.class"));
-//		replacements.put("net/minecraft/launcher/updater/download/Downloadable\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Downloadable.class"));
-//		replacements.put("net/minecraft/hopper/Util\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Util.class"));
+//		replacements.put("net/minecraft/launcher/Http\\.class", SimpleResources.loadAsStream("net/minecraft/launcher/Http.class"));
+//		replacements.put("net/minecraft/launcher/updater/download/Downloadable\\.class", SimpleResources.loadAsStream("net/minecraft/launcher/updater/download/Downloadable.class"));
+//		replacements.put("net/minecraft/hopper/Util\\.class", SimpleResources.loadAsStream("net/minecraft/hopper/Util.class"));
+		replacements.put("net/minecraft/launcher/Http\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Http.class"));
+		replacements.put("net/minecraft/launcher/updater/download/Downloadable\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Downloadable.class"));
+		replacements.put("net/minecraft/hopper/Util\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Util.class"));
 		return JarUtils.patchJar(this.launcherJar, this.patchedLauncherJar, replacements);
 	}
 	
