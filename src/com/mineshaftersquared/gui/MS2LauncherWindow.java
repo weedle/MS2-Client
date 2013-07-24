@@ -8,7 +8,6 @@ import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.gui.tabs.AboutTab;
 import com.mineshaftersquared.gui.tabs.DebugTab;
 import com.mineshaftersquared.gui.tabs.IndexTab;
-import com.mineshaftersquared.gui.tabs.ProfilesTab;
 import com.mineshaftersquared.gui.tabs.ServerAdminsTab;
 
 public class MS2LauncherWindow extends JFrame {
@@ -29,7 +28,6 @@ public class MS2LauncherWindow extends JFrame {
 		
 		JTabbedPane tabbedPane = new JTabbedPane() {{
 			add("Index", new IndexTab(MS2LauncherWindow.this.app));
-			add("Profiles", new ProfilesTab(MS2LauncherWindow.this.app));
 			add("Server Admins", new ServerAdminsTab(MS2LauncherWindow.this.app));
 			add("About", new AboutTab());
 			add("Debug", new DebugTab());

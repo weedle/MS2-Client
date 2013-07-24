@@ -171,11 +171,13 @@ public class MCEntry extends JFrame implements Runnable {
 		Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(InetAddress.getLoopbackAddress(), ms2Proxy.getProxyPort()));
 		
 		try {
+			@SuppressWarnings("resource")
 			ClassLoader cl = new URLClassLoader(new URL[] { this.patchedLauncherJar.toURI().toURL() });
 			Class<?> clazz = cl.loadClass("net.minecraft.launcher.Launcher");
 			Constructor<?> ctor = clazz.getConstructor(new Class[] { JFrame.class, File.class, Proxy.class, PasswordAuthentication.class, String[].class, Integer.class });
 			
-			ctor.newInstance(this, this.mcDir, proxy, null, new String[0], MC_BOOTSTRAP_VERSION);
+			UniversalLauncher.log.info("Launching... ");
+			ctor.newInstance(new Object[] { this, this.mcDir, proxy, null, new String[0], MC_BOOTSTRAP_VERSION });
 			
 			this.setSize(DEFAULT_DIMENSIONS);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -189,7 +191,10 @@ public class MCEntry extends JFrame implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		new MCEntry(MS2Utils.getDefaultMCDir()).run();
+		Thread t = Thread.currentThread();
+		File mcDir = MS2Utils.getDefaultMCDir();
+		mcDir.mkdirs();
+		new MCEntry(mcDir).run();
 	}
 	
 	public static boolean downloadMCLauncher(File file, String md5) {
@@ -218,6 +223,7 @@ public class MCEntry extends JFrame implements Runnable {
 				return true;
 			}
 			if (code == 304) {
+				UniversalLauncher.log.info("Server MD5 matched local MD5 (no update needed)");
 				return true;
 			}
 			UniversalLauncher.log.info("HTTP status code was " + code);

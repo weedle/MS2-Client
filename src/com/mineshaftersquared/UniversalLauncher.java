@@ -21,27 +21,18 @@ import com.creatifcubed.simpleapi.SimpleAggregateOutputStream;
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mineshaftersquared.gui.MS2LauncherWindow;
 import com.mineshaftersquared.misc.EventBus;
-import com.mineshaftersquared.misc.GsonFileSerializer;
-import com.mineshaftersquared.misc.MCLauncher;
 import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.models.MCOneSixAuth;
-import com.mineshaftersquared.models.profile.ProfileManager;
-import com.mineshaftersquared.models.version.LocalVersionList;
-import com.mineshaftersquared.models.version.RemoteVersionList;
-import com.mineshaftersquared.models.version.VersionManager;
+import com.mineshaftersquared.models.MCVersionManager;
 
 public class UniversalLauncher implements Runnable {
 	
 	public final FileConfiguration prefs;
-	public final ProfileManager profilesManager;
-	public final VersionManager versionManager;
 	public final EventBus eventBus;
-	public final MCLauncher launcher;
 	public final MCOneSixAuth auth;
+	public final MCVersionManager mcVersionManager;
 
 	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0");
 	public static final String POLLING_SERVER = "http://ms2.creatifcubed.com/polling_scripts/";
@@ -62,14 +53,10 @@ public class UniversalLauncher implements Runnable {
 	}
 
 	public UniversalLauncher() throws ConfigurationException, IOException {
-		this.profilesManager = new ProfileManager(this, MS2Utils.getDefaultMCDir());
-		this.versionManager = new VersionManager(new LocalVersionList(MS2Utils.getDefaultMCDir()), new RemoteVersionList(Proxy.NO_PROXY));
 		this.eventBus = new EventBus();
-		this.launcher = new MCLauncher(this);
 		this.auth = new MCOneSixAuth(this);
 		this.authResponse = null;
-		
-		this.versionManager.refreshVersions();
+		this.mcVersionManager = new MCVersionManager();
 		
 		// Initialize resources
 		File resources = new File(MS2_RESOURCES_DIR);

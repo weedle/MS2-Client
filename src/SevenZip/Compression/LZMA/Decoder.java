@@ -1,9 +1,9 @@
 package SevenZip.Compression.LZMA;
 
-import SevenZip.Compression.RangeCoder.BitTreeDecoder;
-import SevenZip.Compression.LZMA.Base;
-import SevenZip.Compression.LZ.OutWindow;
 import java.io.IOException;
+
+import SevenZip.Compression.LZ.OutWindow;
+import SevenZip.Compression.RangeCoder.BitTreeDecoder;
 
 public class Decoder
 {

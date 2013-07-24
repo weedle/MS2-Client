@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,7 +37,7 @@ import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.misc.JavaProcessOutputRedirector;
 import com.mineshaftersquared.misc.MS2Utils;
-import com.mineshaftersquared.models.version.Version;
+import com.mineshaftersquared.models.MCVersion;
 
 public class ServerAdminsTab extends JPanel {
 	
@@ -99,7 +98,7 @@ public class ServerAdminsTab extends JPanel {
 		c.weighty = 1;
 		
 		JLabel downloadLabel = new JLabel("Download");
-		final JComboBox<Version> downloadableVersions = new JComboBox<Version>();
+		final JComboBox<MCVersion> downloadableVersions = new JComboBox<MCVersion>();
 		JButton download = new JButton("Download");
 		JButton downloadBukkit = new JButton("Download Bukkit");
 		JButton openLocalDir = new JButton("Open local folder");
@@ -114,18 +113,12 @@ public class ServerAdminsTab extends JPanel {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					ServerAdminsTab.this.app.versionManager.remoteVersionList.refreshVersions();
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-				Collection<Version> versionsList = ServerAdminsTab.this.app.versionManager.remoteVersionList.getVersions();
-				final Version[] versions = versionsList.toArray(new Version[versionsList.size()]);
+				final MCVersion[] versions = ServerAdminsTab.this.app.mcVersionManager.getVersions();
 				ArrayUtils.reverse(versions);
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						downloadableVersions.setModel(new DefaultComboBoxModel<Version>(versions));
+						downloadableVersions.setModel(new DefaultComboBoxModel<MCVersion>(versions));
 					}
 				});
 			}
@@ -135,14 +128,14 @@ public class ServerAdminsTab extends JPanel {
 		download.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				final Version version = (Version) downloadableVersions.getSelectedItem();
+				final MCVersion version = (MCVersion) downloadableVersions.getSelectedItem();
 				if (version != null) {
 					final SimpleSwingWaiter waiter = new SimpleSwingWaiter("Downloading Server", ServerAdminsTab.this.app.mainWindow());
 					waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
 						@Override
 						protected Void doInBackground() throws Exception {
-							String serverDownload = String.format(SERVER_DOWNLOAD_TEMPLATE, version.getId());
-							String serverName = String.format(String.format(SERVER_NAME_TEMPLATE, version.getId()));
+							String serverDownload = String.format(SERVER_DOWNLOAD_TEMPLATE, version.versionId);
+							String serverName = String.format(String.format(SERVER_NAME_TEMPLATE, version.versionId));
 							FileUtils.copyURLToFile(new URL(serverDownload), new File(local, serverName));
 							waiter.stdout().println("Download from " + serverDownload + " to " + serverName + " ...");
 							return null;

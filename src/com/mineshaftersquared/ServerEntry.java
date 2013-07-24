@@ -27,8 +27,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 
-import sun.applet.Main;
-
 import com.creatifcubed.simpleapi.SimpleAggregateOutputStream;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
@@ -110,7 +108,7 @@ public class ServerEntry {
 			String mainClassName = null;
 			JarFile jar = new JarFile(server);
 			Class<?> clazz = null;
-			URLClassLoader cl = new URLClassLoader(new URL[] { new File(server).toURI().toURL() }, Main.class.getClassLoader());
+			URLClassLoader cl = new URLClassLoader(new URL[] { new File(server).toURI().toURL() });
 			try {
 				attributes = jar.getManifest().getMainAttributes();
 				mainClassName = attributes.getValue("Main-Class");
