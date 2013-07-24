@@ -30,6 +30,8 @@ import com.mineshaftersquared.misc.MCLauncher;
 import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.models.MCOneSixAuth;
 import com.mineshaftersquared.models.profile.ProfileManager;
+import com.mineshaftersquared.models.version.LocalVersionList;
+import com.mineshaftersquared.models.version.RemoteVersionList;
 import com.mineshaftersquared.models.version.VersionManager;
 
 public class UniversalLauncher implements Runnable {
@@ -61,11 +63,13 @@ public class UniversalLauncher implements Runnable {
 
 	public UniversalLauncher() throws ConfigurationException, IOException {
 		this.profilesManager = new ProfileManager(this, MS2Utils.getDefaultMCDir());
-		this.versionManager = new VersionManager(MS2Utils.getDefaultMCDir());
+		this.versionManager = new VersionManager(new LocalVersionList(MS2Utils.getDefaultMCDir()), new RemoteVersionList(Proxy.NO_PROXY));
 		this.eventBus = new EventBus();
 		this.launcher = new MCLauncher(this);
 		this.auth = new MCOneSixAuth(this);
 		this.authResponse = null;
+		
+		this.versionManager.refreshVersions();
 		
 		// Initialize resources
 		File resources = new File(MS2_RESOURCES_DIR);

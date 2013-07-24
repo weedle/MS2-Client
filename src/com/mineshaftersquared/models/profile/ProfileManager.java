@@ -34,7 +34,7 @@ public class ProfileManager {
 	private String selectedProfile;
 
 	public ProfileManager(UniversalLauncher app, File base) {
-		this.profileFile = new File(base, "launcher_profiles.json");
+		this.profileFile = new File(base, "ms2-launcher_profiles.json");
 
 		this.app = app;
 		GsonBuilder builder = new GsonBuilder();

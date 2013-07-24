@@ -33,6 +33,7 @@ import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.gui.tabs.ProfilesTab;
 import com.mineshaftersquared.misc.MS2Utils;
@@ -258,7 +259,7 @@ public class AddEditProfileForm extends JFrame {
 			@Override
 			public void run() {
 				Collection<Version> versionsList = AddEditProfileForm.this.app.versionManager.remoteVersionList.getVersions();
-				final Version[] versions = versionsList.toArray(new Version[versionsList.size()]);
+				final Version[] versions = SimpleUtils.reverseArray(versionsList.toArray(new Version[versionsList.size()]));
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {

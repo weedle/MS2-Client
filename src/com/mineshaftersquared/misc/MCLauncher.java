@@ -27,6 +27,7 @@ import com.mineshaftersquared.models.profile.Profile;
 import com.mineshaftersquared.models.version.CompleteVersion;
 import com.mineshaftersquared.models.version.ReleaseType;
 import com.mineshaftersquared.models.version.Version;
+import com.mineshaftersquared.models.version.VersionSyncInfo;
 
 public class MCLauncher {
 
@@ -53,13 +54,18 @@ public class MCLauncher {
 	public void launch(Profile profile) {
 		final MCDownloader downloader = new MCDownloader(this.app);
 		String lastId = profile.getLastVersionId();
+		VersionSyncInfo syncinfo = null;
 		if (lastId == null) {
-			lastId = this.app.versionManager.localVersionList.getLatestVersion(ReleaseType.RELEASE).getId();
+			syncinfo = this.app.versionManager.getVersions(profile.getVersionFilter()).get(0);
+		} else {
+			syncinfo = this.app.versionManager.getVersionSyncInfo(lastId);
 		}
-		Version v = this.app.versionManager.localVersionList.getVersion(profile.getLastVersionId());
-		this.ensureDependencies(profile, v, downloader);
+		Version v = null;
 		CompleteVersion version = null;
 		try {
+			v = this.app.versionManager.getLatestCompleteVersion(syncinfo);
+			this.ensureDependencies(profile, v, downloader);
+
 			version = this.app.versionManager.localVersionList.getCompleteVersion(v);
 		} catch (IOException ex) {
 			ex.printStackTrace();
