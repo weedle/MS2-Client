@@ -1,6 +1,10 @@
 package com.mineshaftersquared;
 
 import java.io.File;
+import java.net.Proxy;
+
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -8,6 +12,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.creatifcubed.simpleapi.SimpleHTTPRequest;
+import com.creatifcubed.simpleapi.SimpleVersion;
 import com.mineshaftersquared.misc.ExtendedGnuParser;
 
 public class MS2Entry {
@@ -54,7 +60,19 @@ public class MS2Entry {
 			showHelp();
 		} else {
 			if (new File(UniversalLauncher.MC_START_AUTOMATICALLY).exists()) {
-				// TODO: check updates
+				String result = new String(new SimpleHTTPRequest(UniversalLauncher.POLLING_SERVER + "latestversion.php")
+					.addGet("currentversion", UniversalLauncher.MS2_VERSION.toString()).doGet(Proxy.NO_PROXY)).trim();
+				SimpleVersion latest = new SimpleVersion(result);
+				UniversalLauncher.log.info("Latest version: " + latest.toString());
+				if (latest.shouldUpdateTo(UniversalLauncher.MS2_VERSION)) {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							JOptionPane.showMessageDialog(null, "There is an update at ms2.creatifcubed.com");
+						}
+					});
+					return;
+				}
 				MCEntry.main(args);
 			} else {
 				UniversalLauncher.main(args);

@@ -12,6 +12,11 @@ public class MCVersion {
 	public MCVersion(String id) {
 		this.id = id;
 	}
+	
+	@Override
+	public String toString() {
+		return this.id;
+	}
 }
 /*
 {

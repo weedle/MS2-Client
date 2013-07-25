@@ -21,6 +21,7 @@ import com.creatifcubed.simpleapi.SimpleAggregateOutputStream;
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
+import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.mineshaftersquared.gui.MS2LauncherWindow;
 import com.mineshaftersquared.misc.EventBus;
 import com.mineshaftersquared.misc.MS2Utils;
@@ -83,10 +84,6 @@ public class UniversalLauncher implements Runnable {
 		
 	}
 	
-	public UUID getClientToken() {
-		return null;
-	}
-	
 	@Override
 	public void run() {
 		
@@ -100,6 +97,8 @@ public class UniversalLauncher implements Runnable {
 				UniversalLauncher.this.mainWindow.pack();
 				UniversalLauncher.this.mainWindow.setLocationRelativeTo(null);
 				UniversalLauncher.this.mainWindow.setVisible(true);
+				
+				SimpleSwingUtils.setIcon(UniversalLauncher.this.mainWindow, "com/mineshaftersquared/resources/ms2.png");
 				
 				new Thread(new Runnable() {
 					@Override
@@ -120,7 +119,7 @@ public class UniversalLauncher implements Runnable {
 		});
 	}
 
-	private String versionUpdates() {
+	public String versionUpdates() {
 		try {
 			String result = new String(new SimpleHTTPRequest(POLLING_SERVER + "latestversion.php")
 					.addGet("currentversion", MS2_VERSION.toString()).doGet(Proxy.NO_PROXY)).trim();

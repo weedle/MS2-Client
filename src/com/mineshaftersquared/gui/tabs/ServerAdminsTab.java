@@ -166,6 +166,9 @@ public class ServerAdminsTab extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				String serverStr = (String) server.getSelectedItem();
+				if (serverStr == null) {
+					return;
+				}
 				String authserver = ServerAdminsTab.this.app.prefs.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER);
 				boolean isBukkitBool = isBukkit.isSelected();
 				String[] javaArgs = ServerAdminsTab.this.javaArgs();

@@ -65,7 +65,7 @@
 		<jar destfile="${dist.dir}/${libs.alljars}">
 			<zipgroupfileset dir="${libs.dir}" includes="*.jar" excludes="${mc.jar}" />
 		</jar>
-		<jar destfile="${dist.dir}/${dist.jarname}" basedir="${build.dir}" filesetmanifest="skip">
+		<jar destfile="${dist.dir}/${dist.jarname}" basedir="${build.dir}" filesetmanifest="skip" excludes="net/minecraft/**">
 			<manifest>
 				<attribute name="Main-Class" value="${manifest.mainclass}" />
 			</manifest>
@@ -91,7 +91,13 @@
 		</copy>
 	</target>
 	
-	<target name="all" depends="package.resources, package" description="Everything">
+	<target name="package.dist" depends="package" description="Package for distribution">
+		<zip basedir="${dist.dir}" destfile="${dist.dir}/ms2-${v}.zip" />
+		<mkdir dir="${dist.dir}/${v}" />
+		<copy file="${dist.dir}/${dist.jarname}" tofile="${dist.dir}/${v}/${dist.jarname}" />
+	</target>
+	
+	<target name="all" depends="package.resources, package.dist" description="Everything">
 	</target>
 
 	<target name="main" depends="package" description="Build and package">
