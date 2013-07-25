@@ -12,6 +12,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 
 import com.creatifcubed.simpleapi.SimpleUtils;
+import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
 import com.mineshaftersquared.misc.ExtendedGnuParser;
 
 public class MS2LauncherUpdate {
@@ -69,13 +70,22 @@ public class MS2LauncherUpdate {
 	}
 	
 	public static void step0() throws IOException {
-		File self = SimpleUtils.getJarPath(UniversalLauncher.class);
-		File update = new File(NEW_JAR_NAME);
+		final File self = SimpleUtils.getJarPath(UniversalLauncher.class);
+		final File update = new File(NEW_JAR_NAME);
 		
-		FileUtils.copyURLToFile(new URL(UniversalLauncher.POLLING_SERVER + "latestdownload.php?jar=yes"), update);
-		
-		ProcessBuilder pb = new ProcessBuilder("java", "-jar", update.getCanonicalPath(), "-update=1", "-arg=" + self.getName());
-		pb.start();
+		SimpleSwingWaiter waiter = new SimpleSwingWaiter("Downloading new launcher Jar");
+		waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
+			
+			@Override
+			protected Void doInBackground() throws Exception {
+				FileUtils.copyURLToFile(new URL(UniversalLauncher.POLLING_SERVER + "latestdownload.php?jar=yes"), update);
+
+				ProcessBuilder pb = new ProcessBuilder("java", "-jar", update.getCanonicalPath(), "-update=1", "-arg=" + self.getName());
+				pb.start();
+				return null;
+			}
+		};
+		waiter.run();
 	}
 	
 	public static void step1(String oldJar) throws IOException {

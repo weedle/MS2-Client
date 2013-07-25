@@ -2,15 +2,19 @@ package com.mineshaftersquared.gui.tabs.index;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.EventObject;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.creatifcubed.simpleapi.swing.WebsitePanel;
+import com.mineshaftersquared.MS2LauncherUpdate;
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.misc.EventBus;
 import com.mineshaftersquared.misc.EventBus.EventData;
@@ -57,6 +61,18 @@ public class NewsPanel extends JPanel {
 					if (eventData.obj instanceof SimpleVersion) {
 						latestVersion.setText("Latest Version: " + eventData.obj.toString());
 					}
+				}
+			}
+		});
+		update.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				try {
+					MS2LauncherUpdate.main(new String[] { "-update" });
+					System.exit(0);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					JOptionPane.showMessageDialog(NewsPanel.this, "Unable to start update. Please see debug console");
 				}
 			}
 		});
