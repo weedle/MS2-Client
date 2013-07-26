@@ -103,8 +103,8 @@ public class SidePanel extends JPanel {
 		final File startAutomaticallyFlag = new File(UniversalLauncher.MC_START_AUTOMATICALLY);
 		final JCheckBox startAutomatically = new JCheckBox("Start Automatically", startAutomaticallyFlag.exists());
 		JButton launch = new JButton("Start MC Launcher");
-		JLabel info = new JLabel("<html>Checking 'start automatically'<br />will create a file '" + UniversalLauncher.MC_START_AUTOMATICALLY + "'"
-				+ "<br />Delete this file to disable auto-launching<br /></html>");
+		JLabel info = new JLabel("<html>Checking 'start automatically' will create a file<br />'" + UniversalLauncher.MC_START_AUTOMATICALLY + "'"
+				+ ". Delete this file<br />to disable auto-launching</html>");
 		startAutomatically.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent event) {
@@ -134,13 +134,10 @@ public class SidePanel extends JPanel {
 		
 		c.gridx = 0;
 		c.gridy= 0;
-		c.gridwidth = 1;
-		panel.add(startAutomatically, c);
-		c.gridx = 1;
 		panel.add(launch, c);
-		c.gridx = 0;
-		c.gridy = 1;
-		c.gridwidth = 2;
+		c.gridy++;
+		panel.add(startAutomatically, c);
+		c.gridy++;
 		panel.add(info, c);
 		
 		return panel;

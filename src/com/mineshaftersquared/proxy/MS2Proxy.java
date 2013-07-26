@@ -21,6 +21,8 @@ public class MS2Proxy implements Runnable {
 	public static Pattern SKIN_URL = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+?)\\.png");
 	public static Pattern CLOAK_URL = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftCloaks/(.+?)\\.png");
 	public static Pattern AUTH_URL = Pattern.compile("http://authserver\\.mojang\\.com/(.*)");
+	public static Pattern CHECKSERVER_URL = Pattern.compile("http://session.minecraft.net/game/checkserver.jsp(.*)");
+	public static Pattern JOINSERVER_URL = Pattern.compile("http://session.minecraft.net/game/joinserver.jsp(.*)");
 	public static final Log log = LogFactory.getFactory().getInstance("[MS2Proxy]");
 	
 	public final RoutesDataSource routes;

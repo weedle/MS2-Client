@@ -6,6 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -73,7 +76,7 @@ public class ServerAdminsTab extends JPanel {
 			"<html><ul>"
 				+ "<li>Put server Jars in the same folder as this launcher</li>"
 				+ "<li>You can start the server by command line:<ul>"
-					+ "<li>java [java options, such as -Xmx2G for 2GB of RAM] -jar [mineshaftersquared.jar]</li>"
+					+ "<li>java [java options, such as -Xms2G -Xmx2G for 2GB of RAM] -jar [mineshaftersquared.jar]</li>"
 					+ "<li>[MS2 options: -server=&lt;&gt; -bukkit, or -help for all options]</li>"
 					+ "<li>-mc (this tells MS2 that the rest of the arguments are for Minecraft)</li>"
 					+ "<li>[Minecraft options (usually only for a few server mods)]</li>"
@@ -104,26 +107,15 @@ public class ServerAdminsTab extends JPanel {
 		JButton openLocalDir = new JButton("Open local folder");
 		JLabel serverLabel = new JLabel("Server");
 		final JComboBox<String> server = new JComboBox<String>();
-		final JCheckBox isBukkit = new JCheckBox("Is Bukkit?");
+		final JCheckBox isBukkit = new JCheckBox("Is Bukkit?", this.app.prefs.getBoolean("server.isbukkit", false));
 		JButton launch = new JButton("Launch");
 		JButton refresh = new JButton("Refresh");
 		
 
 		final File local = MS2Utils.getLocalDir();
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				final MCVersion[] versions = ServerAdminsTab.this.app.mcVersionManager.getVersions();
-				ArrayUtils.reverse(versions);
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						downloadableVersions.setModel(new DefaultComboBoxModel<MCVersion>(versions));
-					}
-				});
-			}
-		}).start();
+		this.refreshRemoteVersions(downloadableVersions);
 		this.refreshLocalServerJars(local, server);
+		this.loadLastServer(server);
 		
 		download.addActionListener(new ActionListener() {
 			@Override
@@ -145,6 +137,12 @@ public class ServerAdminsTab extends JPanel {
 				}
 			}
 		});
+		server.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent event) {
+				ServerAdminsTab.this.app.prefs.setProperty("server.lastjar", (String) server.getSelectedItem());
+			}
+		});
 		downloadBukkit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -160,6 +158,12 @@ public class ServerAdminsTab extends JPanel {
 					ex.printStackTrace();
 					JOptionPane.showMessageDialog(ServerAdminsTab.this, "Unable to open folder " + local.getAbsolutePath());
 				}
+			}
+		});
+		isBukkit.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent event) {
+				ServerAdminsTab.this.app.prefs.setProperty("server.isbukkit", isBukkit.isSelected());
 			}
 		});
 		launch.addActionListener(new ActionListener() {
@@ -185,6 +189,8 @@ public class ServerAdminsTab extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				ServerAdminsTab.this.refreshLocalServerJars(local, server);
+				ServerAdminsTab.this.refreshRemoteVersions(downloadableVersions);
+				ServerAdminsTab.this.loadLastServer(server);
 			}
 		});
 		
@@ -278,6 +284,11 @@ public class ServerAdminsTab extends JPanel {
 		return wrapper;
 	}
 	
+	private void loadLastServer(JComboBox<String> server) {
+		String lastServer = this.app.prefs.getString("server.lastjar", null);
+		server.setSelectedItem(lastServer);
+	}
+	
 	private void refreshLocalServerJars(File local, JComboBox<String> server) {
 		String[] serverJars = local.list(new FilenameFilter() {
 			@Override
@@ -288,22 +299,39 @@ public class ServerAdminsTab extends JPanel {
 		server.setModel(new DefaultComboBoxModel<String>(serverJars));
 	}
 	
+	private void refreshRemoteVersions(final JComboBox<MCVersion> downloads) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				ServerAdminsTab.this.app.mcVersionManager.refreshVersions();
+				final MCVersion[] versions = ServerAdminsTab.this.app.mcVersionManager.getVersions();
+				ArrayUtils.reverse(versions);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						downloads.setModel(new DefaultComboBoxModel<MCVersion>(versions));
+					}
+				});
+			}
+		}).start();
+	}
+	
 	private String[] javaArgs() {
-		return this.filterEmpty(this.javaArgs.getText().split(System.getProperty("line.separator")));
+		return this.filterEmpty(this.javaArgs.getText().split("\n"));
 	}
 	
 	private String[] mcArgs() {
-		return this.filterEmpty(this.mcArgs.getText().split(System.getProperty("line.separator")));
+		return this.filterEmpty(this.mcArgs.getText().split("\n"));
 	}
 	
 	private String[] filterEmpty(String[] arr) {
-		List<String> list = new ArrayList<String>(Arrays.asList(arr));
-		Iterator<String> it = list.iterator();
-		while (it.hasNext()) {
-			if (it.next().isEmpty()) {
-				it.remove();
+		List<String> list = new LinkedList<String>();
+		for (String each : arr) {
+			each = each.trim();
+			if (!each.isEmpty()) {
+				list.add(each);
 			}
-		};
+		}
 		return list.toArray(new String[list.size()]);
 	}
 }

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -24,6 +25,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.io.IOUtils;
 
@@ -31,6 +33,7 @@ import SevenZip.Compression.LZMA.Decoder;
 
 import com.creatifcubed.simpleapi.SimpleResources;
 import com.creatifcubed.simpleapi.SimpleStreams;
+import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
 import com.mineshaftersquared.misc.JarUtils;
 import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.proxy.MS2Proxy;
@@ -197,39 +200,55 @@ public class MCEntry extends JFrame implements Runnable {
 		UniversalLauncher.log.info("Here");
 	}
 	
-	public static boolean downloadMCLauncher(File file, String md5) {
-		try {
-			UniversalLauncher.log.info("Downloading Minecraft launcher...");
-			URL url = new URL("http://s3.amazonaws.com/Minecraft.Download/launcher/launcher.pack.lzma");
-			HttpURLConnection con = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
-			
-			con.setUseCaches(false);
-			con.setDefaultUseCaches(false);
-			con.setRequestProperty("Cache-Control", "no-store,max-age=0,no-cache");
-			con.setRequestProperty("Expires", "0");
-			con.setRequestProperty("Pragma", "no-cache");
-			if (md5 != null) {
-				con.setRequestProperty("If-None-Match", md5.toLowerCase());
-			}
-			int code = con.getResponseCode();
-			if (code / 100 == 2) {
-				FileOutputStream fos = null;
+	public static boolean downloadMCLauncher(final File file, final String md5) {
+		UniversalLauncher.log.info("Downloading Minecraft launcher...");
+		final boolean[] rt = new boolean[1];
+		rt[0] = false;
+		SimpleSwingWaiter waiter = new SimpleSwingWaiter("Downloading Minecraft Launcher");
+		waiter.worker = new SimpleSwingWaiter.Worker(waiter) {
+			@Override
+			protected Void doInBackground() throws Exception {
 				try {
-					fos = new FileOutputStream(file);
-					SimpleStreams.pipeStreams(con.getInputStream(), fos);
-				} finally {
-					IOUtils.closeQuietly(fos);
+					URL url = new URL("http://s3.amazonaws.com/Minecraft.Download/launcher/launcher.pack.lzma");
+					HttpURLConnection con = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+					
+					con.setUseCaches(false);
+					con.setDefaultUseCaches(false);
+					con.setRequestProperty("Cache-Control", "no-store,max-age=0,no-cache");
+					con.setRequestProperty("Expires", "0");
+					con.setRequestProperty("Pragma", "no-cache");
+					if (md5 != null) {
+						con.setRequestProperty("If-None-Match", md5.toLowerCase());
+					}
+					int code = con.getResponseCode();
+					if (code / 100 == 2) {
+						FileOutputStream fos = null;
+						try {
+							fos = new FileOutputStream(file);
+							SimpleStreams.pipeStreams(con.getInputStream(), fos);
+						} finally {
+							IOUtils.closeQuietly(fos);
+						}
+						rt[0] = true;
+					}
+					if (code == 304) {
+						UniversalLauncher.log.info("Server MD5 matched local MD5 (no update needed)");
+						rt[0] = true;
+					}
+					UniversalLauncher.log.info("HTTP status code was " + code);
+				} catch (IOException ex) {
+					ex.printStackTrace();
 				}
-				return true;
+				return null;
 			}
-			if (code == 304) {
-				UniversalLauncher.log.info("Server MD5 matched local MD5 (no update needed)");
-				return true;
-			}
-			UniversalLauncher.log.info("HTTP status code was " + code);
-		} catch (IOException ex) {
+		};
+		try {
+			SwingUtilities.invokeAndWait(waiter);
+		} catch (InterruptedException ex) {
+			ex.printStackTrace();
+		} catch (InvocationTargetException ex) {
 			ex.printStackTrace();
 		}
-		return false;
+		return rt[0];
 	}
 }

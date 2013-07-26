@@ -49,6 +49,12 @@ public class MCVersionManager {
 			return this.cachedVersions;
 		}
 	}
+	
+	public void refreshVersions() {
+		synchronized (this.lock) {
+			this.cachedVersions = null;
+		}
+	}
 
 	private MCVersion[] fetchVersionsFromURL(String url) {
 		try {
