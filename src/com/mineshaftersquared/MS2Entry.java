@@ -3,6 +3,7 @@ package com.mineshaftersquared;
 import java.io.File;
 import java.net.Proxy;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -15,6 +16,7 @@ import org.apache.commons.cli.Options;
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.mineshaftersquared.misc.ExtendedGnuParser;
+import com.mineshaftersquared.misc.UpdateMessage;
 
 public class MS2Entry {
 	
@@ -54,27 +56,18 @@ public class MS2Entry {
 			showHelp();
 		} else {
 			if (new File(UniversalLauncher.MC_START_AUTOMATICALLY).exists()) {
-				String message = null;
-				try {
-					String result = new String(new SimpleHTTPRequest(UniversalLauncher.POLLING_SERVER + "latestversion.php")
-						.addGet("currentversion", UniversalLauncher.MS2_VERSION.toString()).doGet(Proxy.NO_PROXY)).trim();
-					SimpleVersion latest = new SimpleVersion(result);
-					UniversalLauncher.log.info("Latest version: " + latest.toString());
-					if (latest.shouldUpdateTo(UniversalLauncher.MS2_VERSION)) {
-						message = "There is an update at ms2.creatifcubed.com";
-					}
-				} catch (Exception ex) {
-					ex.printStackTrace();
-					message = "Error checking updates. Please check manually at ms2.creatifcubed.com";
-				}
-				if (message != null) {
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							JOptionPane.showMessageDialog(null, "");
+				final UniversalLauncher app = new UniversalLauncher();
+				final String msg = app.versionUpdates();
+				final UpdateMessage[] updatesMessages = app.updatesMessages();
+				final JFrame frame = null;
+				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						if (app.showUpdatesMessages(frame, msg, updatesMessages)) {
+							System.exit(0);
 						}
-					});
-				}
+					}
+				});
 				MCEntry.main(args);
 			} else {
 				UniversalLauncher.main(args);
