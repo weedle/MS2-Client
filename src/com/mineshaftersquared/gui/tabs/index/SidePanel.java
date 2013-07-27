@@ -1,5 +1,6 @@
 package com.mineshaftersquared.gui.tabs.index;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -10,6 +11,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.Proxy;
 import java.nio.charset.Charset;
 import java.util.Date;
 
@@ -27,6 +29,7 @@ import javax.swing.event.ChangeListener;
 
 import org.apache.commons.io.FileUtils;
 
+import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleUtils;
 import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.gui.tabs.ServerAdminsTab;
@@ -43,6 +46,7 @@ public class SidePanel extends JPanel {
 		
 		this.add(this.createStatusMenu());
 		this.add(this.createLaunchMenu());
+		this.add(this.createUpdatesMessagesPanel());
 		this.add(new Box.Filler(new Dimension(0, 0), new Dimension(0, Integer.MAX_VALUE), new Dimension(0, Integer.MAX_VALUE)));
 	}
 	
@@ -139,6 +143,30 @@ public class SidePanel extends JPanel {
 		panel.add(startAutomatically, c);
 		c.gridy++;
 		panel.add(info, c);
+		
+		return panel;
+	}
+	
+	private JPanel createUpdatesMessagesPanel() {
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setBorder(BorderFactory.createTitledBorder("Bulletin"));
+		
+		final JLabel label = new JLabel("Loading...");
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				final String message = new String(new SimpleHTTPRequest(UniversalLauncher.POLLING_SERVER + "updates_messages.php").doGet(Proxy.NO_PROXY), Charset.forName("utf-8"));
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						label.setText(message);
+					}
+				});
+			}
+		}).start();
+		
+		panel.add(label, BorderLayout.CENTER);
 		
 		return panel;
 	}

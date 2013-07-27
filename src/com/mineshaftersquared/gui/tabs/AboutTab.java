@@ -8,6 +8,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 
+import com.creatifcubed.simpleapi.swing.SimpleHyperlinkListener;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.mineshaftersquared.UniversalLauncher;
 
@@ -27,7 +28,7 @@ public class AboutTab extends JPanel {
 		browser.setMargin(null);
 		browser.setContentType("text/html");
 
-		browser.addHyperlinkListener(SimpleSwingUtils.createHyperlinkListenerOpen("Unable to open link %s"));
+		browser.addHyperlinkListener(new SimpleHyperlinkListener("Unable to open link %s"));
 
 		browser.setText("<html><body><h1>Loading about info...</h1></body></html>");
 
