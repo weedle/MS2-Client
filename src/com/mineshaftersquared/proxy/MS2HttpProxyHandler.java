@@ -171,28 +171,34 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 		UniversalLauncher.log.info("Proxy - auth - action: " + action + ", postedJSON - " + postedJSON);
 		Gson gson = new Gson();
 		MCYggdrasilRequest data = gson.fromJson(postedJSON, MCYggdrasilRequest.class);
-		
-		SimpleHTTPRequest request;
+
+        /**
+         * The 3 return statements here make the difference between online and offline
+         * authentication.  A few if statements and a flag can give users the option
+         * to pick between the two.  Lets leave this in here for now but turn it to
+         * online mode by default.
+         */
+        SimpleHTTPRequest request;
 		if (action.equalsIgnoreCase("authenticate")) {
 			request = new SimpleHTTPRequest(ms2Proxy.routes.getAuthenticateURL());
 			request.addPost("username", data.username);
 			request.addPost("password", data.password);
 			request.addPost("clientToken", data.clientToken);
-			return this.yggdrasilOffline.authenticate(data);
+			//return this.yggdrasilOffline.authenticate(data);
 		} else if (action.equalsIgnoreCase("refresh")) {
 			request = new SimpleHTTPRequest(ms2Proxy.routes.getRefreshURL());
 			request.addPost("clientToken", data.clientToken);
 			request.addPost("accessToken", data.accessToken);
-			return this.yggdrasilOffline.refresh(data);
+			//return this.yggdrasilOffline.refresh(data);
 		} else if (action.equalsIgnoreCase("invalidate")) {
 			request = new SimpleHTTPRequest(ms2Proxy.routes.getInvalidateURL());
 			request.addPost("clientToken", data.clientToken);
 			request.addPost("accessToken", data.accessToken);
-			return this.yggdrasilOffline.invalidate(data);
+			//return this.yggdrasilOffline.invalidate(data);
 		} else {
 			throw new IllegalArgumentException("Unknown action " + action);
 		}
 		
-		//return new String(request.doPost(Proxy.NO_PROXY), Charset.forName("utf-8"));
+		return new String(request.doPost(Proxy.NO_PROXY), Charset.forName("utf-8"));
 	}
 }
