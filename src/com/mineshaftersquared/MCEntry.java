@@ -168,7 +168,7 @@ public class MCEntry extends JFrame implements Runnable {
 	}
 	
 	public boolean startLauncher() {
-		MS2Proxy ms2Proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource("http://mineshaftersquared.com"), new MS2ProxyHandlerFactory());
+		MS2Proxy ms2Proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource("http://api.mineshaftersquared.com"), new MS2ProxyHandlerFactory());
 		Thread t = ms2Proxy.startAsync();
 		
 		Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(InetAddress.getLoopbackAddress(), ms2Proxy.getProxyPort()));

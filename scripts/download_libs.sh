@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if [ ! -d "libs" ];
 then
 	echo "Run this from the project root"
@@ -23,7 +22,7 @@ do
 	then
 		echo "$file already exists (skipping)"
 	else
-		curl -O $MIRROR//commons/${arr[0]}/binaries/$file
+		wget $MIRROR//commons/${arr[0]}/binaries/$file
 	fi
 	if [ -d $name ];
 	then
@@ -41,7 +40,7 @@ do
 	echo
 done
 
-git clone git@github.com:Raekye/SimpleAPI-Java.git
+git clone https://github.com/Raekye/SimpleAPI-Java.git
 if [ -f "simpleapi.jar" ];
 then
 	echo "simpleapi.jar already exists"
@@ -57,7 +56,7 @@ if [ -d "google-gson-2.2.4" ];
 then
 	echo "Google GSON download already exists"
 else
-	curl -O "https://google-gson.googlecode.com/files/google-gson-2.2.4-release.zip"
+	wget --no-check-certificate "https://google-gson.googlecode.com/files/google-gson-2.2.4-release.zip"
 	unzip "google-gson-2.2.4-release.zip"
 fi
 if [ -f "gson-2.2.4.jar" ];
