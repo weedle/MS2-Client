@@ -3,6 +3,10 @@
 /libs/
 /src/com/adrian/playground/
 /resources/*.jar
+/out/
+*.iml
+/ms2-resources/
+.idea/
 
 Thumbs.db
 .DS_STORE
