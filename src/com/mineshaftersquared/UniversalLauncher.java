@@ -48,7 +48,7 @@ public class UniversalLauncher implements Runnable {
 
 	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0-epsilon");
 	public static final String POLLING_SERVER = "http://ms2.creatifcubed.com/polling_scripts/";
-	public static final String DEFAULT_AUTH_SERVER = "http://mineshaftersquared.com";
+	public static final String DEFAULT_AUTH_SERVER = "http://api.mineshaftersquared.com";
 	public static final String MS2_RESOURCES_DIR = "ms2-resources";
 	public static final String MS2_SETTINGS_NAME = "settings.xml";
 	public static final String MC_START_AUTOMATICALLY = "ms2-start_automatically.txt";
