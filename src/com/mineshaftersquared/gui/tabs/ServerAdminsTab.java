@@ -130,6 +130,9 @@ public class ServerAdminsTab extends JPanel {
 							String serverName = String.format(String.format(SERVER_NAME_TEMPLATE, version.id));
 							FileUtils.copyURLToFile(new URL(serverDownload), new File(local, serverName));
 							waiter.stdout().println("Download from " + serverDownload + " to " + serverName + " ...");
+
+                            // auto refresh local jar list
+                            ServerAdminsTab.this.refreshLocalServerJars(local, server);
 							return null;
 						}
 					};
