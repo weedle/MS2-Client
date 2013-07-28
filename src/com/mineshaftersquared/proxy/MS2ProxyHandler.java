@@ -12,6 +12,8 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mineshaftersquared.misc.MS2Utils;
+
 public class MS2ProxyHandler implements MS2Proxy.Handler, SocksProxyHandler.Delegate {
 	
 	private final MS2HttpProxyHandler httpHandler;
@@ -30,7 +32,7 @@ public class MS2ProxyHandler implements MS2Proxy.Handler, SocksProxyHandler.Dele
 	public boolean onConnect(MS2Proxy ms2Proxy, SocksMessage msg, InputStream in, OutputStream out) {
 		in.mark(65535);
 		// Can't use buffered reader/input stream reader because it reads ahead
-		String firstLine = readUntil(in, "\n");
+		String firstLine = MS2Utils.readUntil(in, "\n");
 		String[] request = firstLine.split(" ");
 		if (request.length != 3) {
 			try {
@@ -45,7 +47,7 @@ public class MS2ProxyHandler implements MS2Proxy.Handler, SocksProxyHandler.Dele
 		
 		Map<String, String> headers = new HashMap<String, String>();
 		while (true) {
-			String line = readUntil(in, "\n").trim();
+			String line = MS2Utils.readUntil(in, "\n").trim();
 			if (line.isEmpty()) {
 				break;
 			}
@@ -65,35 +67,5 @@ public class MS2ProxyHandler implements MS2Proxy.Handler, SocksProxyHandler.Dele
 			ex.printStackTrace();
 		}
 		return false;
-	}
-	
-	public static String readUntil(InputStream in, String endSequence) {
-		return readUntil(in, endSequence.getBytes(Charset.forName("utf-8")));
-	}
-	
-	public static String readUntil(InputStream in, byte[] endSequence) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			int i = 0;
-			while (true) {
-				byte b = 0;
-				try {
-					b = (byte) in.read();
-				} catch (EOFException ex) {
-					ex.printStackTrace();
-					break;
-				}
-				out.write(b);
-				if (b == endSequence[i]) {
-					i++;
-					if (i == endSequence.length) {
-						break;
-					}
-				}
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		return new String(out.toByteArray(), Charset.forName("utf-8"));
 	}
 }

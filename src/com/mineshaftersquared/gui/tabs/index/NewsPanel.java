@@ -45,7 +45,8 @@ public class NewsPanel extends JPanel {
 		//return new WebsitePanel("http://mineshaftersquared.tumblr.com/mobile");
 JPanel panel = new JPanel(new BorderLayout());
 		
-		JPanel websitePanel = new SimpleWebsitePanel("http://mineshaftersquared.tumblr.com/mobile");
+		//JPanel websitePanel = new SimpleWebsitePanel("http://mineshaftersquared.tumblr.com/");
+		JPanel websitePanel = new SimpleWebsitePanel("http://creatifcubed.com/tmp/index.html");
 		JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5)); // 5 is default
 		JLabel currentVersion = new JLabel(String.format("Current Version: %s", UniversalLauncher.MS2_VERSION.toString()));
 		final JLabel latestVersion = new JLabel("Latest Version: Loading...");

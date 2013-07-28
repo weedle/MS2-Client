@@ -1,9 +1,12 @@
 package com.mineshaftersquared.misc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -103,5 +106,35 @@ public class MS2Utils {
 			IOUtils.closeQuietly(dis);
 		}
 		return null;
+	}
+	
+	public static String readUntil(InputStream in, String endSequence) {
+		return readUntil(in, endSequence.getBytes(Charset.forName("utf-8")));
+	}
+	
+	public static String readUntil(InputStream in, byte[] endSequence) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try {
+			int i = 0;
+			while (true) {
+				byte b = 0;
+				try {
+					b = (byte) in.read();
+				} catch (EOFException ex) {
+					ex.printStackTrace();
+					break;
+				}
+				out.write(b);
+				if (b == endSequence[i]) {
+					i++;
+					if (i == endSequence.length) {
+						break;
+					}
+				}
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return new String(out.toByteArray(), Charset.forName("utf-8"));
 	}
 }

@@ -28,9 +28,11 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 
 import com.creatifcubed.simpleapi.SimpleAggregateOutputStream;
+import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.mineshaftersquared.misc.ExtendedGnuParser;
+import com.mineshaftersquared.proxy.MS2HttpProxyHandlerFactory;
 import com.mineshaftersquared.proxy.MS2Proxy;
 import com.mineshaftersquared.proxy.MS2ProxyHandlerFactory;
 
@@ -65,12 +67,14 @@ public class ServerEntry {
 			}
 		}
 
-		MS2Proxy proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource(authserver), new MS2ProxyHandlerFactory());
+		MS2Proxy proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource(authserver), new MS2HttpProxyHandlerFactory());
 		proxy.startAsync();
 
 		System.setProperty("http.proxyHost", InetAddress.getLoopbackAddress().getHostAddress());
 		System.setProperty("http.proxyPort", "" + proxy.getProxyPort());
 		
+		String str = new String(new SimpleHTTPRequest("http://ms2.creatifcubed.com").doGet());
+		System.out.println("Got: " + str);
 		if (isBukkit) {
 			final SimpleGUIConsole console = new SimpleGUIConsole();
 			console.init();
