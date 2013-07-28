@@ -128,8 +128,9 @@ public class ServerAdminsTab extends JPanel {
 						protected Void doInBackground() throws Exception {
 							String serverDownload = String.format(SERVER_DOWNLOAD_TEMPLATE, version.id);
 							String serverName = String.format(String.format(SERVER_NAME_TEMPLATE, version.id));
-							FileUtils.copyURLToFile(new URL(serverDownload), new File(local, serverName));
-							waiter.stdout().println("Download from " + serverDownload + " to " + serverName + " ...");
+                            waiter.stdout().println("Downloading from " + serverDownload + " to " + serverName + " ...");
+
+                            FileUtils.copyURLToFile(new URL(serverDownload), new File(local, serverName));
 
                             // auto refresh local jar list
                             ServerAdminsTab.this.refreshLocalServerJars(local, server);
@@ -140,18 +141,21 @@ public class ServerAdminsTab extends JPanel {
 				}
 			}
 		});
+
 		server.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent event) {
 				ServerAdminsTab.this.app.prefs.setProperty("server.lastjar", (String) server.getSelectedItem());
 			}
 		});
+
 		downloadBukkit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				SimpleUtils.openLink("http://dl.bukkit.org/downloads/craftbukkit/");
 			}
 		});
+
 		openLocalDir.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -163,12 +167,14 @@ public class ServerAdminsTab extends JPanel {
 				}
 			}
 		});
+
 		isBukkit.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent event) {
 				ServerAdminsTab.this.app.prefs.setProperty("server.isbukkit", isBukkit.isSelected());
 			}
 		});
+
 		launch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -188,6 +194,7 @@ public class ServerAdminsTab extends JPanel {
 				}
 			}
 		});
+
 		refresh.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
