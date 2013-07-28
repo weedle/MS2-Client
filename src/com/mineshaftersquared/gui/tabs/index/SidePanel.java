@@ -104,7 +104,7 @@ public class SidePanel extends JPanel {
 		c.insets = new Insets(5, 5, 5, 5);
 		c.ipadx = 10;
 		
-		final File startAutomaticallyFlag = new File(UniversalLauncher.MC_START_AUTOMATICALLY);
+		final File startAutomaticallyFlag = new File(MS2Utils.getMS2Dir(), UniversalLauncher.MC_START_AUTOMATICALLY);
 		final JCheckBox startAutomatically = new JCheckBox("Start Automatically", startAutomaticallyFlag.exists());
 		JButton launch = new JButton("Start MC Launcher");
 		JLabel info = new JLabel("<html>Checking 'start automatically' will create a file<br />'" + UniversalLauncher.MC_START_AUTOMATICALLY + "'"

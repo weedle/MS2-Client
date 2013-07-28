@@ -46,10 +46,10 @@ public class UniversalLauncher implements Runnable {
 	public final MCVersionManager mcVersionManager;
 	public final XMLConfiguration seenMessages;
 
-	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0-epsilon");
+	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0");
 	public static final String POLLING_SERVER = "http://ms2.creatifcubed.com/polling_scripts/";
 	public static final String DEFAULT_AUTH_SERVER = "http://api.mineshaftersquared.com";
-	public static final String MS2_RESOURCES_DIR = "ms2-resources";
+	//public static final String MS2_RESOURCES_DIR = "ms2-resources";
 	public static final String MS2_SETTINGS_NAME = "settings.xml";
 	public static final String MC_START_AUTOMATICALLY = "ms2-start_automatically.txt";
 	public static final String MS2_SEEN_MESSAGES = "messages-dont_show.xml";
@@ -70,10 +70,8 @@ public class UniversalLauncher implements Runnable {
 		this.mcVersionManager = new MCVersionManager();
 		
 		// Initialize resources
-		File resources = new File(MS2_RESOURCES_DIR);
+		File resources = MS2Utils.getMS2Dir();
 		resources.mkdirs();
-		File defaultResources = new File(MS2Utils.getDefaultMCDir(), MS2_RESOURCES_DIR);
-		defaultResources.mkdirs();
 		this.prefs = new XMLConfiguration(new File(resources, MS2_SETTINGS_NAME));
 		this.prefs.setAutoSave(true);
 		

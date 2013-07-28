@@ -28,19 +28,42 @@ public class MS2Utils {
 		return new File(System.getProperty("user.dir"));
 	}
 	
-	public static File getDefaultMCDir() {
+	public static File getMS2Dir() {
+		return new File(getAppDataDir(), "mineshafter_squared");
+	}
+	
+	public static File getAppDataDir() {
 		String userHome = System.getProperty("user.home", ".");
 		switch (SimpleOS.getOS()) {
 		case MAC:
-			return new File(userHome, "Library/Application Support/minecraft");
+			return new File(userHome, "Library/Application Support");
 		case UNIX:
-			return new File(userHome, ".minecraft");
+			return new File(userHome);
 		case WINDOWS:
 			String appdata = System.getenv("APPDATA");
-			return new File(appdata == null ? userHome : appdata, ".minecraft");
+			return new File(appdata == null ? userHome : appdata);
 		default:
-			return new File(userHome, "minecraft");
+			return new File(userHome);
 		}
+	}
+	
+	public static File getDefaultMCDir() {
+		String mcDir = null;
+		switch (SimpleOS.getOS()) {
+		case MAC:
+			mcDir = "minecraft";
+			break;
+		case UNIX:
+			mcDir = ".minecraft";
+			break;
+		case WINDOWS:
+			mcDir = ".minecraft";
+			break;
+		default:
+			mcDir = "minceraft";
+			break;
+		}
+		return new File(getAppDataDir(), mcDir);
 	}
 	
 	public static Process launchGame(File local, String authserver) {
