@@ -21,7 +21,7 @@ import com.mineshaftersquared.misc.UpdateMessage;
 public class MS2Entry {
 	
 	public static final Option serverOption = new Option("server", true, "Server jar to start");
-	public static final Option bukkitOption = new Option("bukkit", false, "server: Use this flag for Bukkit and derivatives");
+	public static final Option bukkitOption = new Option("bukkit", false, "server: Use this flag for Bukkit and derivatives if you want a GUI console");
 	public static final Option authserverOption = new Option("authserver", true, "server: Domain to poll for authentication, skins, etc. Defaults to " + UniversalLauncher.DEFAULT_AUTH_SERVER);
 	public static final Option mcSeparatorOption = new Option("mc", false, "Everything after this is an argument for Minecraft");
 	
@@ -32,7 +32,7 @@ public class MS2Entry {
 		addOption(bukkitOption);
 		addOption(authserverOption);
 		addOption("game", false, "Start the Minecraft launcher directly");
-		addOption("gui", false, "Start the GUI (ignores " + UniversalLauncher.MC_START_AUTOMATICALLY + ")");
+		addOption("gui", false, "Start the MS2 launcher (ignores " + UniversalLauncher.MC_START_AUTOMATICALLY + ")");
 		addOption(mcSeparatorOption);
 	}};
 	
