@@ -73,8 +73,9 @@ public class ServerEntry {
 		System.setProperty("http.proxyHost", InetAddress.getLoopbackAddress().getHostAddress());
 		System.setProperty("http.proxyPort", "" + proxy.getProxyPort());
 		
-		String str = new String(new SimpleHTTPRequest("http://ms2.creatifcubed.com").doGet());
-		System.out.println("Got: " + str);
+//		System.out.println(new String(new SimpleHTTPRequest("http://ms2.creatifcubed.com/polling_scripts/test.php?a=b").doGet()));
+//		if (true) return;
+		
 		if (isBukkit) {
 			final SimpleGUIConsole console = new SimpleGUIConsole();
 			console.init();

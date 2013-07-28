@@ -34,19 +34,19 @@ import com.mineshaftersquared.misc.MS2Utils;
  * TODO: closing resources...
  */
 public class MS2HttpProxyHandler implements MS2Proxy.Handler {
-	
+
 	private final Map<String, byte[]> skinCache;
 	private final Map<String, byte[]> cloakCache;
-	
+
 	private final MCYggdrasilOffline yggdrasilOffline;
 	private static final String[] BLACKLISTED_HEADERS = new String[]{"Connection", "Proxy-Connection", "Transfer-Encoding"};
-	
+
 	public MS2HttpProxyHandler() {
 		this.skinCache = new HashMap<String, byte[]>();
 		this.cloakCache = new HashMap<String, byte[]>();
 		this.yggdrasilOffline = new MCYggdrasilOffline(new File(MS2Utils.getDefaultMCDir(), "launcher_profiles.json"));
 	}
-	
+
 	public void handle(MS2Proxy ms2Proxy, Socket socket) {
 		DataInputStream dis = null;
 		DataOutputStream dos = null;
@@ -55,11 +55,11 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			dos = new DataOutputStream(socket.getOutputStream());
 
 			String[] requestLine = MS2Utils.readUntil(dis, "\n").split(" ");
+
 			String method = requestLine[0].trim().toLowerCase();
 			String path = requestLine[1].trim();
-			
+
 			Map<String, String> headers = new HashMap<String, String>();
-			List<String> forbiddenHeaders = Arrays.asList(BLACKLISTED_HEADERS);
 			while (true) {
 				String line = MS2Utils.readUntil(dis, "\n").trim().toLowerCase();
 				if (line.isEmpty()) {
@@ -69,14 +69,12 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 				if (keyValue.length >= 2) {
 					String key = keyValue[0].trim();
 					String val = keyValue[1].trim();
-					if (!forbiddenHeaders.contains(key)) {
-						headers.put(key, val);
-					}
+					headers.put(key, val);
 				}
 			}
-			
+
 			String url = path;
-			MS2Proxy.log.info("Proxy - onHttp - " + url);
+			MS2Proxy.log.info("Proxy - onHttp - " + Arrays.asList(requestLine));
 			if (this.respondsTo(method)) {
 				if (!this.on(method, url, headers, dis, dos, ms2Proxy)) {
 					this.noProxy(method, url, headers, dis, dos);
@@ -92,11 +90,11 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			IOUtils.closeQuietly(dos);
 		}
 	}
-	
+
 	public boolean respondsTo(String method) {
 		return Arrays.asList("get", "post", "head", "connect").contains(method);
 	}
-	
+
 	public boolean on(String method, String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
 		method = method.toLowerCase();
 		if (method.equals("get")) {
@@ -152,10 +150,10 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 		UniversalLauncher.log.info("Proxy - post - " + url);
 		int contentLength = Integer.parseInt(headers.get("content-length"));
 		Matcher authServerMatcher = MS2Proxy.AUTH_URL.matcher(url);
-		
+
 		if (authServerMatcher.matches()) {
 			UniversalLauncher.log.info("Proxy - auth");
-			
+
 			String action = authServerMatcher.group(1);
 			try {
 				char[] body = new char[contentLength];
@@ -185,7 +183,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 	public boolean onConnect(String url, Map<String, String> headers, InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
 		return false;
 	}
-	
+
 	private void sendResponse(OutputStream out, String contentType, byte[] data) {
 		OutputStreamWriter writer = null;
 		try {
@@ -205,19 +203,19 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			IOUtils.closeQuietly(writer);
 		}
 	}
-	
+
 	private String authServerAction(String action, String postedJSON, MS2Proxy ms2Proxy) {
 		UniversalLauncher.log.info("Proxy - auth - action: " + action + ", postedJSON - " + postedJSON);
 		Gson gson = new Gson();
 		MCYggdrasilRequest data = gson.fromJson(postedJSON, MCYggdrasilRequest.class);
 
-        /**
-         * The 3 return statements here make the difference between online and offline
-         * authentication.  A few if statements and a flag can give users the option
-         * to pick between the two.  Lets leave this in here for now but turn it to
-         * online mode by default.
-         */
-        SimpleHTTPRequest request;
+		/**
+		 * The 3 return statements here make the difference between online and offline
+		 * authentication.  A few if statements and a flag can give users the option
+		 * to pick between the two.  Lets leave this in here for now but turn it to
+		 * online mode by default.
+		 */
+		SimpleHTTPRequest request;
 		if (action.equalsIgnoreCase("authenticate")) {
 			request = new SimpleHTTPRequest(ms2Proxy.routes.getAuthenticateURL());
 			request.addPost("username", data.username);
@@ -237,10 +235,10 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 		} else {
 			throw new IllegalArgumentException("Unknown action " + action);
 		}
-		
+
 		return new String(request.doPost(Proxy.NO_PROXY), Charset.forName("utf-8"));
 	}
-	
+
 	public void noProxy(String method, String url, Map<String, String> headers, DataInputStream in, DataOutputStream out) throws IOException {
 		URL urlObject = new URL(url);
 		MS2Proxy.log.info("Piping for " + urlObject.toString());
@@ -265,25 +263,34 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 				DataOutputStream os = new DataOutputStream(con.getOutputStream());
 				os.write(postdata);
 			}
-			
+
 			int responseCode = con.getResponseCode();
 			String res = "HTTP/1.0 " + responseCode + " " + con.getResponseMessage() + "\r\n";
 			res += "Connection: close\r\nProxy-Connection: close\r\n";
 
 			Map<String, List<String>> headerFields = con.getHeaderFields();
-			
+
 			for(String key : headerFields.keySet()) {
 				if (key == null) {
 					continue;
 				}
 
-				List<String> vals = headerFields.get(key);
-				for(String each : vals) {
-					res += key + ": " + each + "\r\n";
+				boolean skip = false;
+				for (String each : BLACKLISTED_HEADERS) {
+					if (key.equalsIgnoreCase(each)) {
+						skip = true;
+						break;
+					}
+				}
+				if (!skip) {
+					List<String> vals = headerFields.get(key);
+					for(String each : vals) {
+						res += key + ": " + each + "\r\n";
+					}
 				}
 			}
 			res += "\r\n";
-			
+
 			int size = -1;
 			if (responseCode / 100 != 5) {
 				out.writeBytes(res);
@@ -291,20 +298,16 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			}
 			
 			out.write(res.getBytes(Charset.forName("utf-8")));
-			
+
 			MS2Proxy.log.info("Piping finished, data size: " + size);
 		} else if (method.equals("connect")) {
 			int port = urlObject.getPort();
 			if (port == -1) {
 				port = 80;
 			}
-			Socket socket = new Socket(urlObject.getHost(), port);
-			try {
-				SimpleStreams.pipeStreamsConcurrently(socket.getInputStream(), out);
-				SimpleStreams.pipeStreamsConcurrently(in, socket.getOutputStream());
-			} finally {
-				socket.close();
-			}
+			Socket socket = new Socket(urlObject.getHost(), port); // TODO: close
+			SimpleStreams.pipeStreamsConcurrently(socket.getInputStream(), out);
+			SimpleStreams.pipeStreamsConcurrently(in, socket.getOutputStream());
 		} else if (method.equals("head")) {
 			HttpURLConnection con = (HttpURLConnection) urlObject.openConnection(Proxy.NO_PROXY);
 			con.setRequestMethod("HEAD");
@@ -315,8 +318,8 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 			String res = "HTTP/1.0 " + con.getResponseCode() + " " + con.getResponseMessage() + "\r\n";
 			res += "Proxy-Connection: close\r\n";
-			
 			Map<String, List<String>> headerFields = con.getHeaderFields();
+
 			for (String key : headerFields.keySet()) {
 				if (key == null) {
 					continue;
@@ -327,12 +330,10 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 				}
 			}
 			res += "\r\n";
-			
+
 			out.write(res.getBytes(Charset.forName("utf-8")));
 		} else {
 			throw new IllegalArgumentException("Unknown method " + method);
 		}
-		
-		this.sendResponse(out, null, null);
 	}
 }
