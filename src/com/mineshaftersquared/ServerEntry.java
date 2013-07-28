@@ -6,9 +6,12 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -66,15 +69,6 @@ public class ServerEntry {
 				}
 			}
 		}
-
-		MS2Proxy proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource(authserver), new MS2HttpProxyHandlerFactory());
-		proxy.startAsync();
-
-		System.setProperty("http.proxyHost", InetAddress.getLoopbackAddress().getHostAddress());
-		System.setProperty("http.proxyPort", "" + proxy.getProxyPort());
-		
-//		System.out.println(new String(new SimpleHTTPRequest("http://ms2.creatifcubed.com/polling_scripts/test.php?a=b").doGet()));
-//		if (true) return;
 		
 		if (isBukkit) {
 			final SimpleGUIConsole console = new SimpleGUIConsole();
@@ -104,10 +98,20 @@ public class ServerEntry {
 			});
 			mcArgs.add("--nojline");
 		}
-		launchServer(server, mcArgs.toArray(new String[mcArgs.size()]));
+		launchServer(server, authserver, mcArgs.toArray(new String[mcArgs.size()]));
 	}
 	
-	private static void launchServer(String server, String[] mcArgs) {
+	private static void launchServer(String server, String authserver, String[] mcArgs) {
+		MS2Proxy ms2Proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource(authserver), new MS2HttpProxyHandlerFactory());
+		ms2Proxy.startAsync();
+
+		System.setProperty("http.proxyHost", InetAddress.getLoopbackAddress().getHostAddress());
+		System.setProperty("http.proxyPort", "" + ms2Proxy.getProxyPort());
+		
+//		System.out.println(new String(new SimpleHTTPRequest("http://ms2.creatifcubed.com/polling_scripts/test.php?a=b").doGet()));
+//		if (true) return;
+		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(InetAddress.getLoopbackAddress(), ms2Proxy.getProxyPort()));
+		
 		try {
 			Attributes attributes = null;
 			String mainClassName = null;
@@ -121,9 +125,35 @@ public class ServerEntry {
 				IOUtils.closeQuietly(jar);
 			}
 			clazz = cl.loadClass(mainClassName);
+			
 			UniversalLauncher.log.info("Starting class " + mainClassName + " ... Passing args " + Arrays.asList(mcArgs) + " ...");
 			Method main = clazz.getDeclaredMethod("main", new Class[] { String[].class });
 			main.invoke(clazz, new Object[] { mcArgs });
+			
+			boolean foundProxy = false;
+			outerloop:
+			for (Field each : clazz.getDeclaredFields()) {
+				UniversalLauncher.log.info("Found class field " + each.getName() + ", is type " + each.getType().getName());
+				if (clazz.isAssignableFrom(each.getType())) {
+					each.setAccessible(true);
+					Object instance = each.get(clazz);
+					System.out.println("Found instance");
+					for (Field property : each.getType().getDeclaredFields()) {
+						UniversalLauncher.log.info("Found object field " + property.getName() + ", is type " + property.getType().getName());
+						if (Proxy.class.isAssignableFrom(property.getType())) {
+							property.setAccessible(true);
+							property.set(instance, proxy);
+							foundProxy = true;
+							break outerloop;
+						}
+					}
+				}
+			}
+			if (foundProxy) {
+				UniversalLauncher.log.info("Found proxy field");
+			} else {
+				UniversalLauncher.log.info("Unable to find proxy!");
+			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} catch (ClassNotFoundException ex) {
