@@ -133,9 +133,10 @@ public class MS2Proxy implements Runnable {
     }
 
     public static interface RoutesDataSource {
-        public String getSkinURL();
+        // textures.js
+        public String getSkinURL(String username);
 
-        public String getCloakURL();
+        public String getCloakURL(String username);
 
         // authenticate.js
         public String getAuthenticateURL();
@@ -170,13 +171,13 @@ public class MS2Proxy implements Runnable {
         }
 
         @Override
-        public String getSkinURL() {
-            return this.baseURL + "/skin";
+        public String getSkinURL(String username) {
+            return this.baseURL + "/skin/" + username;
         }
 
         @Override
-        public String getCloakURL() {
-            return this.baseURL + "/cloak";
+        public String getCloakURL(String username) {
+            return this.baseURL + "/cloak/" + username;
         }
 
         @Override
