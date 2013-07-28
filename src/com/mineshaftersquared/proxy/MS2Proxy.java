@@ -172,12 +172,14 @@ public class MS2Proxy implements Runnable {
 
         @Override
         public String getSkinURL(String username) {
-            return this.baseURL + "/skin/" + username;
+            return "http://mineshaftersquared.com/game/get_skin/" + username;
+            //return this.baseURL + "/skin/" + username;
         }
 
         @Override
         public String getCloakURL(String username) {
-            return this.baseURL + "/cloak/" + username;
+            return "http://mineshaftersquared.com/game/get_cloak/" + username;
+            //return this.baseURL + "/cloak/" + username;
         }
 
         @Override

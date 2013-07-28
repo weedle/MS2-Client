@@ -30,7 +30,7 @@ import com.mineshaftersquared.misc.MS2Utils;
 /**
  * Credits to download13 of Mineshafter
  * Modified by Adrian
- * <p/>
+ *
  * TODO: closing resources...
  */
 public class MS2HttpProxyHandler implements MS2Proxy.Handler {
