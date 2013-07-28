@@ -137,10 +137,10 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			this.sendResponse(out, "image/png", data);
 			return true;
 		} else if (checkserverMatcher.matches()) {
-			this.sendResponse(out, "text/plain", "yes".getBytes(Charset.forName("utf-8")));
+			this.sendResponse(out, "text/plain", "YES".getBytes(Charset.forName("utf-8")));
 			return true;
 		} else if (joinserverMatcher.matches()) {
-			this.sendResponse(out, "text/plain", "ok".getBytes(Charset.forName("utf-8")));
+			this.sendResponse(out, "text/plain", "OK".getBytes(Charset.forName("utf-8")));
 			return true;
 		} else {
 			return false;
@@ -305,9 +305,24 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			if (port == -1) {
 				port = 80;
 			}
-			Socket socket = new Socket(urlObject.getHost(), port); // TODO: close
-			SimpleStreams.pipeStreamsConcurrently(socket.getInputStream(), out);
-			SimpleStreams.pipeStreamsConcurrently(in, socket.getOutputStream());
+			final Socket socket = new Socket(urlObject.getHost(), port);
+			
+			final boolean[] lock = new boolean[0];
+			
+			SimpleStreams.PipeStreamDoneListener listener = new SimpleStreams.PipeStreamDoneListener() {
+				@Override
+				public void onDone(int bytesPiped) {
+					synchronized (lock) {
+						if (lock[0] == true) {
+							IOUtils.closeQuietly(socket);
+						} else {
+							lock[0] = true;
+						}
+					}
+				}
+			};
+			SimpleStreams.pipeStreamsConcurrently(socket.getInputStream(), out, listener);
+			SimpleStreams.pipeStreamsConcurrently(in, socket.getOutputStream(), listener);
 		} else if (method.equals("head")) {
 			HttpURLConnection con = (HttpURLConnection) urlObject.openConnection(Proxy.NO_PROXY);
 			con.setRequestMethod("HEAD");
