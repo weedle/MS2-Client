@@ -108,4 +108,11 @@
 			<arg value="scripts/download_libs.sh" />
 		</exec>
 	</target>
+	
+	<target name="package.mac" description="Package OSX .app executable">
+		<copy todir="${dist.dir}/mineshaftersquared.app">
+			<fileset dir="${resources.dir}/mineshaftersquared.app" includes="**" />
+		</copy>
+		<copy file="${dist.dir}/mineshaftersquared.jar" tofile="${dist.dir}/mineshaftersquared.app/Contents/Resources/Java/mineshaftersquared.jar" />
+	</target>
 </project>
