@@ -43,25 +43,25 @@ import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.models.MCVersion;
 
 public class ServerAdminsTab extends JPanel {
-	
+
 	private final UniversalLauncher app;
 	public static final String SERVER_NAME_TEMPLATE = "minecraft_server.%1$s.jar";
 	public static final String SERVER_DOWNLOAD_TEMPLATE = String.format("https://s3.amazonaws.com/Minecraft.Download/versions/%%1$s/%1$s", SERVER_NAME_TEMPLATE);
 	private JTextArea javaArgs;
 	private JTextArea mcArgs;
-	
+
 	public ServerAdminsTab(UniversalLauncher app) {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.app = app;
 		this.javaArgs = null;
 		this.mcArgs = null;
-		
+
 		this.add(this.createInfoPanel());
 		this.add(this.createLaunchPanel());
 		this.add(this.createOptionsPanel());
 		//this.add(new Box.Filler(new Dimension(0, 0), new Dimension(0, Integer.MAX_VALUE), new Dimension(0, Integer.MAX_VALUE)));
 	}
-	
+
 	private JPanel createInfoPanel() {
 		JPanel wrapper = new JPanel();
 		JPanel panel = new JPanel(new GridBagLayout());
@@ -71,24 +71,24 @@ public class ServerAdminsTab extends JPanel {
 		c.insets = new Insets(5, 5, 5, 5);
 		c.weightx = 1;
 		c.weighty = 1;
-		
+
 		JLabel info = new JLabel(
-			"<html><ul>"
-				+ "<li>Put server Jars in the same folder as this launcher</li>"
-				+ "<li>You can start the server by command line:<ul>"
-					+ "<li>java [java options, such as -Xms2G -Xmx2G for 2GB of RAM] -jar [mineshaftersquared.jar]</li>"
-					+ "<li>[MS2 options: -server=&lt;&gt; -bukkit, or -help for all options]</li>"
-					+ "<li>-mc (this tells MS2 that the rest of the arguments are for Minecraft)</li>"
-					+ "<li>[Minecraft options (usually only for a few server mods)]</li>"
-				+ "</ul></li>"
-				+ "<li>For more information go to ms2.creatifcubed.com/server_admins.php</li>"
-			+ "</ul></html>");
-		
+				"<html><ul>"
+						+ "<li>Put server Jars in the same folder as this launcher</li>"
+						+ "<li>You can start the server by command line:<ul>"
+						+ "<li>java [java options, such as -Xms2G -Xmx2G for 2GB of RAM] -jar [mineshaftersquared.jar]</li>"
+						+ "<li>[MS2 options: -server=&lt;&gt; -bukkit, or -help for all options]</li>"
+						+ "<li>-mc (this tells MS2 that the rest of the arguments are for Minecraft)</li>"
+						+ "<li>[Minecraft options (usually only for a few server mods)]</li>"
+						+ "</ul></li>"
+						+ "<li>For more information go to ms2.creatifcubed.com/server_admins.php</li>"
+						+ "</ul></html>");
+
 		panel.add(info, c);
 		wrapper.add(panel);
 		return wrapper;
 	}
-	
+
 	private JPanel createLaunchPanel() {
 		JPanel wrapper = new JPanel();
 		JPanel panel = new JPanel(new GridBagLayout());
@@ -99,7 +99,7 @@ public class ServerAdminsTab extends JPanel {
 		c.ipadx = 10;
 		c.weightx = 1;
 		c.weighty = 1;
-		
+
 		JLabel downloadLabel = new JLabel("Download");
 		final JComboBox<MCVersion> downloadableVersions = new JComboBox<MCVersion>();
 		JButton download = new JButton("Download");
@@ -110,13 +110,13 @@ public class ServerAdminsTab extends JPanel {
 		final JCheckBox isBukkit = new JCheckBox("Is Bukkit?", this.app.prefs.getBoolean("server.isbukkit", false));
 		JButton launch = new JButton("Launch");
 		JButton refresh = new JButton("Refresh");
-		
+
 
 		final File local = MS2Utils.getLocalDir();
 		this.refreshRemoteVersions(downloadableVersions);
 		this.refreshLocalServerJars(local, server);
 		this.loadLastServer(server);
-		
+
 		download.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -128,12 +128,11 @@ public class ServerAdminsTab extends JPanel {
 						protected Void doInBackground() throws Exception {
 							String serverDownload = String.format(SERVER_DOWNLOAD_TEMPLATE, version.id);
 							String serverName = String.format(String.format(SERVER_NAME_TEMPLATE, version.id));
-                            waiter.stdout().println("Downloading from " + serverDownload + " to " + serverName + " ...");
+							waiter.stdout().println("Downloading from " + serverDownload + " to " + serverName + " ...");
 
-                            FileUtils.copyURLToFile(new URL(serverDownload), new File(local, serverName));
+							FileUtils.copyURLToFile(new URL(serverDownload), new File(local, serverName));
 
-                            // auto refresh local jar list
-                            ServerAdminsTab.this.refreshLocalServerJars(local, server);
+							ServerAdminsTab.this.refreshLocalServerJars(local, server);
 							return null;
 						}
 					};
@@ -203,7 +202,7 @@ public class ServerAdminsTab extends JPanel {
 				ServerAdminsTab.this.loadLastServer(server);
 			}
 		});
-		
+
 		c.gridx = 0;
 		c.gridy = 0;
 		panel.add(downloadLabel, c);
@@ -226,11 +225,11 @@ public class ServerAdminsTab extends JPanel {
 		panel.add(launch, c);
 		c.gridx = 4;
 		panel.add(refresh, c);
-		
+
 		wrapper.add(panel);
 		return wrapper;
 	}
-	
+
 	private JPanel createOptionsPanel() {
 		JPanel wrapper = new JPanel();
 		JPanel panel = new JPanel(new GridBagLayout());
@@ -241,7 +240,7 @@ public class ServerAdminsTab extends JPanel {
 		c.ipadx = 10;
 		c.weightx = 1;
 		c.weighty = 1;
-		
+
 		JLabel info = new JLabel("Separate arguments with a new line");
 		JLabel javaOptionsLabel = new JLabel("Java Options (e.g. -Xms2G (newline) -Xmx4G)");
 		JTextArea javaOptions = new JTextArea(4, 24);
@@ -250,10 +249,10 @@ public class ServerAdminsTab extends JPanel {
 		JLabel minecraftOptionsLabel = new JLabel("Minecraft Options (for mods)");
 		JTextArea minecraftOptions = new JTextArea(4, 24);
 		JButton save = new JButton("Save");
-		
+
 		this.javaArgs = javaOptions;
 		this.mcArgs = minecraftOptions;
-		
+
 		javaOptions.setLineWrap(true);
 		ms2Options.setLineWrap(true);
 		minecraftOptions.setLineWrap(true);
@@ -266,7 +265,7 @@ public class ServerAdminsTab extends JPanel {
 				ServerAdminsTab.this.app.prefs.setProperty("server.mcargs", ServerAdminsTab.this.mcArgs());
 			}
 		});
-		
+
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 3;
@@ -274,31 +273,33 @@ public class ServerAdminsTab extends JPanel {
 		c.gridy++;
 		c.gridwidth = 1;
 		panel.add(javaOptionsLabel, c);
-//		c.gridx = 1;
-//		panel.add(ms2OptionsLabel, c);
+		//		c.gridx = 1;
+		//		panel.add(ms2OptionsLabel, c);
 		c.gridx = 1;
 		panel.add(minecraftOptionsLabel, c);
 		c.gridx = 0;
 		c.gridy++;
 		panel.add(new JScrollPane(javaOptions, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), c);
-//		c.gridx = 1;
-//		panel.add(new JScrollPane(ms2Options, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), c);
+		//		c.gridx = 1;
+		//		panel.add(new JScrollPane(ms2Options, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), c);
 		c.gridx = 1;
 		panel.add(new JScrollPane(minecraftOptions, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), c);
 		c.gridx = 1;
 		c.gridy++;
 		c.anchor = GridBagConstraints.FIRST_LINE_END;
 		panel.add(save, c);
-		
+
 		wrapper.add(panel);
 		return wrapper;
 	}
-	
+
 	private void loadLastServer(JComboBox<String> server) {
 		String lastServer = this.app.prefs.getString("server.lastjar", null);
-		server.setSelectedItem(lastServer);
+		if (lastServer != null) {
+			server.setSelectedItem(lastServer);
+		}
 	}
-	
+
 	private void refreshLocalServerJars(File local, JComboBox<String> server) {
 		String[] serverJars = local.list(new FilenameFilter() {
 			@Override
@@ -308,7 +309,7 @@ public class ServerAdminsTab extends JPanel {
 		});
 		server.setModel(new DefaultComboBoxModel<String>(serverJars));
 	}
-	
+
 	private void refreshRemoteVersions(final JComboBox<MCVersion> downloads) {
 		new Thread(new Runnable() {
 			@Override
@@ -325,15 +326,15 @@ public class ServerAdminsTab extends JPanel {
 			}
 		}).start();
 	}
-	
+
 	private String[] javaArgs() {
 		return this.filterEmpty(this.javaArgs.getText().split("\n"));
 	}
-	
+
 	private String[] mcArgs() {
 		return this.filterEmpty(this.mcArgs.getText().split("\n"));
 	}
-	
+
 	private String[] filterEmpty(String[] arr) {
 		List<String> list = new LinkedList<String>();
 		for (String each : arr) {

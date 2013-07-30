@@ -137,7 +137,7 @@ public class ServerEntry {
 				if (clazz.isAssignableFrom(each.getType())) {
 					each.setAccessible(true);
 					Object instance = each.get(clazz);
-					System.out.println("Found instance");
+					UniversalLauncher.log.info("Found instance");
 					for (Field property : each.getType().getDeclaredFields()) {
 						UniversalLauncher.log.info("Found object field " + property.getName() + ", is type " + property.getType().getName());
 						if (Proxy.class.isAssignableFrom(property.getType())) {
@@ -152,7 +152,7 @@ public class ServerEntry {
 			if (foundProxy) {
 				UniversalLauncher.log.info("Found proxy field");
 			} else {
-				UniversalLauncher.log.info("Unable to find proxy!");
+				UniversalLauncher.log.info("Unable to find proxy field!");
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();

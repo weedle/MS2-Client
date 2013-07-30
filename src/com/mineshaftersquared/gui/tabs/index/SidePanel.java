@@ -1,6 +1,7 @@
 package com.mineshaftersquared.gui.tabs.index;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -109,6 +110,8 @@ public class SidePanel extends JPanel {
 		JButton launch = new JButton("Start MC Launcher");
 		JLabel info = new JLabel("<html>Checking 'start automatically' will create a file<br />'" + UniversalLauncher.MC_START_AUTOMATICALLY + "'"
 				+ ". Delete this file<br />to disable auto-launching</html>");
+		JButton openDir = new JButton("Open App Data Folder");
+		
 		startAutomatically.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent event) {
@@ -135,6 +138,18 @@ public class SidePanel extends JPanel {
 				}
 			}
 		});
+		openDir.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				File dir = MS2Utils.getAppDataDir();
+				try {
+					Desktop.getDesktop().open(dir);
+				} catch (IOException ex) {
+					ex.printStackTrace();
+					JOptionPane.showMessageDialog(SidePanel.this, "Unable to open folder " + dir.getAbsolutePath());
+				}
+			}
+		});
 		
 		c.gridx = 0;
 		c.gridy= 0;
@@ -143,6 +158,8 @@ public class SidePanel extends JPanel {
 		panel.add(startAutomatically, c);
 		c.gridy++;
 		panel.add(info, c);
+		c.gridy++;
+		panel.add(openDir, c);
 		
 		return panel;
 	}

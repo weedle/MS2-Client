@@ -24,7 +24,6 @@ import org.apache.commons.io.IOUtils;
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleStreams;
 import com.google.gson.Gson;
-import com.mineshaftersquared.UniversalLauncher;
 import com.mineshaftersquared.misc.MS2Utils;
 
 /**
@@ -115,7 +114,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 	public boolean onGet(String url, Map<String, String> headers,
 			InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
-		UniversalLauncher.log.info("Proxy - get - " + url);
+		MS2Proxy.log.info("Proxy - get - " + url);
 		Matcher skinMatcher = MS2Proxy.SKIN_URL.matcher(url);
 		Matcher cloakMatcher = MS2Proxy.CLOAK_URL.matcher(url);
 		Matcher checkserverMatcher = MS2Proxy.CHECKSERVER_URL.matcher(url);
@@ -123,7 +122,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 		if (skinMatcher.matches()) {
 			String username = skinMatcher.group(1);
-			UniversalLauncher.log.info("Proxy - skin - " + username);
+			MS2Proxy.log.info("Proxy - skin - " + username);
 			byte[] data = this.skinCache.get(username);
 
 			if (data == null) {
@@ -136,7 +135,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			return true;
 		} else if (cloakMatcher.matches()) {
 			String username = cloakMatcher.group(1);
-			UniversalLauncher.log.info("Proxy - cloak - " + username);
+			MS2Proxy.log.info("Proxy - cloak - " + username);
 			byte[] data = this.cloakCache.get(username);
 
 			if (data == null) {
@@ -148,7 +147,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			this.sendResponse(out, "image/png", data);
 			return true;
 		} else if (checkserverMatcher.matches()) {
-			UniversalLauncher.log.info("CHECKSERVER");
+			MS2Proxy.log.info("Proxy - checkserver");
 			String[] request = url.split("[?]");
 			String response = this.authMultiplayerAction("checkserver",
 					request[1], ms2Proxy);
@@ -158,7 +157,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 			return true;
 		} else if (joinserverMatcher.matches()) {
-			UniversalLauncher.log.info("JOINSERVER");
+			MS2Proxy.log.info("Proxy - joinserver");
 			String[] request = url.split("[?]");
 			String response = this.authMultiplayerAction("joinserver",
 					request[1], ms2Proxy);
@@ -173,32 +172,22 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 	public boolean onPost(String url, Map<String, String> headers,
 			InputStream in, OutputStream out, MS2Proxy ms2Proxy) {
-		UniversalLauncher.log.info("Proxy - post - " + url);
+		MS2Proxy.log.info("Proxy - post - " + url);
 		int contentLength = Integer.parseInt(headers.get("content-length"));
 		Matcher authServerMatcher = MS2Proxy.AUTH_URL.matcher(url);
 
 		if (authServerMatcher.matches()) {
-			UniversalLauncher.log.info("Proxy - auth");
+			MS2Proxy.log.info("Proxy - auth");
 
 			String action = authServerMatcher.group(1);
 			try {
 				char[] body = new char[contentLength];
-				InputStreamReader reader = new InputStreamReader(in/*
-																	 * ,
-																	 * Charset.
-																	 * forName
-																	 * ("utf-8")
-																	 */);
+				InputStreamReader reader = new InputStreamReader(in, Charset.forName("utf-8"));
 				int x = reader.read(body);
 				String postedJSON = new String(body);
-				for (String key : headers.keySet()) {
-					System.out.println(key + ": " + headers.get(key));
-				}
-				System.out.println("Content length was : " + contentLength);
-				System.out.println("Read: " + x);
-				System.out.println("String length: " + postedJSON.length());
-				System.out.println("Posted json: " + postedJSON);
-				System.out.flush();
+//				for (String key : headers.keySet()) {
+//					MS2Proxy.log.info(key + ": " + headers.get(key));
+//				}
 				String response = this.authServerAction(action, postedJSON,
 						ms2Proxy);
 				this.sendResponse(out, "application/json",
@@ -243,7 +232,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 	private String authServerAction(String action, String postedJSON,
 			MS2Proxy ms2Proxy) {
-		UniversalLauncher.log.info("Proxy - auth - action: " + action
+		MS2Proxy.log.info("Proxy - auth - action: " + action
 				+ ", postedJSON - " + postedJSON);
 		Gson gson = new Gson();
 		MCYggdrasilRequest data = gson.fromJson(postedJSON,
@@ -283,7 +272,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 	private String authMultiplayerAction(String action, String data,
 			MS2Proxy ms2Proxy) {
-		UniversalLauncher.log.info("Proxy - auth - action: " + action
+		MS2Proxy.log.info("Proxy - auth - action: " + action
 				+ ", data - " + data);
 
 		SimpleHTTPRequest request;

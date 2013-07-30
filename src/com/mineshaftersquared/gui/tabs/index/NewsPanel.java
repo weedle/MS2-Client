@@ -43,11 +43,12 @@ public class NewsPanel extends JPanel {
 	
 	private JPanel createMS2Panel() {
 		//return new WebsitePanel("http://mineshaftersquared.tumblr.com/mobile");
-JPanel panel = new JPanel(new BorderLayout());
-		
-		JPanel websitePanel = new SimpleWebsitePanel("http://mineshaftersquared.tumblr.com/");
+		JPanel panel = new JPanel(new BorderLayout());
+		final String url = "http://mineshaftersquared.tumblr.com/";
+		final SimpleWebsitePanel websitePanel = new SimpleWebsitePanel(url);
 		//JPanel websitePanel = new SimpleWebsitePanel("http://creatifcubed.com/tmp/index.html");
 		JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5)); // 5 is default
+		JButton refresh = new JButton("Refresh");
 		JLabel currentVersion = new JLabel(String.format("Current Version: %s", UniversalLauncher.MS2_VERSION.toString()));
 		final JLabel latestVersion = new JLabel("Latest Version: Loading...");
 		JButton update = new JButton("Update");
@@ -69,8 +70,22 @@ JPanel panel = new JPanel(new BorderLayout());
 				SimpleUtils.openLink("http://ms2.creatifcubed.com");
 			}
 		});
+		refresh.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				latestVersion.setText("Latest Version: Loading...");
+				websitePanel.setPage(url);
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						NewsPanel.this.app.versionUpdates();
+					}
+				}).start();
+			}
+		});
 		
-		toolbar.add(currentVersion);
+		//toolbar.add(currentVersion);
+		toolbar.add(refresh);
 		toolbar.add(latestVersion);
 		toolbar.add(update);
 		panel.add(websitePanel, BorderLayout.CENTER);

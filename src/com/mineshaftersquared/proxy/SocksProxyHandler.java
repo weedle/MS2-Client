@@ -67,8 +67,6 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 		if (msg.ip == null) {
 			if (msg instanceof Socks5Message) {
 				msg.ip = InetAddress.getByName(msg.host);
-				System.out.println("Host was: " + msg.host);
-				System.out.println("IP was: " + msg.ip);
 			} else {
 				return;
 			}
@@ -95,7 +93,7 @@ public class SocksProxyHandler implements MS2Proxy.Handler {
 		response.write(out);
 		
 		if (!this.delegate.onConnect(proxy, msg, in, out)) {
-			Socket socket = new Socket(msg.ip, msg.port); // TODO: close
+			Socket socket = new Socket(msg.ip, msg.port);
 			try {
 				SimpleStreams.pipeStreamsConcurrently(in, socket.getOutputStream());
 				SimpleStreams.pipeStreams(socket.getInputStream(), out);
