@@ -80,7 +80,7 @@
 		<delete file="${dist.dir}/${libs.alljars}" />
 	</target>
 	
-	<target name="package" depends="jar, package.existing">
+	<target name="package" depends="jar, package.existing" description="Recompiles and prepares for distribution">
 	</target>
 	
 	<target name="package.existing" description="Package an existing Jar for distribution">
@@ -97,13 +97,14 @@
 		<copy file="${dist.dir}/${dist.jarname}" tofile="${dist.dir}/${v}/${dist.jarname}" />
 	</target>
 	
-	<target name="all" depends="package.resources, package.dist" description="Everything">
+	<target name="all" depends="package.resources, package.dist" description="Recompiles sources and resources, packages for distribution">
 	</target>
 
-	<target name="main" depends="package" description="Build and package">
+	<target name="main" depends="package" description="Recompiles sources, packages run scripts">
 	</target>
 	
 	<target name="downloadlibs" description="Download libs (calls scripts/download_libs.sh)">
+		<mkdir dir="${libs.dir}" />
 		<exec executable="bash">
 			<arg value="scripts/download_libs.sh" />
 		</exec>

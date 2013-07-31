@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ ! -d "libs" ];
 then
-	echo "Run this from the project root"
+	echo "Run this from the project root. Make sure dir 'libs' exists"
 	exit -1
 fi
 
