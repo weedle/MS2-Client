@@ -44,7 +44,7 @@ public class NewsPanel extends JPanel {
 	private JPanel createMS2Panel() {
 		//return new WebsitePanel("http://mineshaftersquared.tumblr.com/mobile");
 		JPanel panel = new JPanel(new BorderLayout());
-		final String url = "http://mineshaftersquared.tumblr.com/";
+		final String url = "http://api.mineshaftersquared.com/news";
 		final SimpleWebsitePanel websitePanel = new SimpleWebsitePanel(url);
 		//JPanel websitePanel = new SimpleWebsitePanel("http://creatifcubed.com/tmp/index.html");
 		JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5)); // 5 is default
