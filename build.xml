@@ -35,7 +35,7 @@
 	</target>
 
 	<target name="compile" depends="clean" description="Compile launcher sources">
-		<javac destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.6" source="1.6" includeantruntime="false">
+		<javac destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.7" source="1.7" includeantruntime="false">
 			<src path="${src.dir}" />
 			<exclude name="com/adrian/playground/**" />
 			<exclude name="net/minecraft/**" />
@@ -105,7 +105,7 @@
 	</target>
 	
 	<target name="compile.resources" depends="clean" description="Compile resources (MC patches)">
-		<javac destdir="${build.dir}" classpathref="resources.classpath" encoding="utf-8" target="1.6" source="1.6" includeantruntime="false">
+		<javac destdir="${build.dir}" classpathref="resources.classpath" encoding="utf-8" target="1.7" source="1.7" includeantruntime="false">
 			<src path="${src.dir}" />
 			<include name="net/minecraft/**" />
 		</javac>

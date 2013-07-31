@@ -27,7 +27,7 @@
 		<key>MainClass</key>
 		<string>com.mineshaftersquared.MS2Entry</string>
 		<key>JVMVersion</key>
-		<string>1.5+</string>
+		<string>1.7+</string>
 		<key>ClassPath</key>
 			<string>$JAVAROOT/mineshaftersquared.jar</string>
 	</dict>

@@ -46,7 +46,7 @@ public class UniversalLauncher implements Runnable {
 	public final MCVersionManager mcVersionManager;
 	public final XMLConfiguration seenMessages;
 
-	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0");
+	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.0-GM");
 	public static final String POLLING_SERVER = "http://ms2.creatifcubed.com/polling_scripts/";
 	public static final String DEFAULT_AUTH_SERVER = "http://api.mineshaftersquared.com";
 	//public static final String MS2_RESOURCES_DIR = "ms2-resources";
@@ -114,6 +114,8 @@ public class UniversalLauncher implements Runnable {
 				UniversalLauncher.this.mainWindow.setVisible(true);
 				
 				SimpleSwingUtils.setIcon(UniversalLauncher.this.mainWindow, "com/mineshaftersquared/resources/ms2.png");
+				
+				UniversalLauncher.this.doDebug();
 				
 				new Thread(new Runnable() {
 					@Override
@@ -237,5 +239,30 @@ public class UniversalLauncher implements Runnable {
 			ex.printStackTrace();
 		}
 		return null;
+	}
+	
+	public void doDebug() {
+		UniversalLauncher.log.info("Listing properties");
+		System.getProperties().list(System.out);
+		
+		String verStr = System.getProperty("java.version");
+		try {
+			String[] verParts = verStr.split("\\.");
+			int minor = Integer.parseInt(verParts[1]);
+			if (minor < 7) {
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						int choice = JOptionPane.showConfirmDialog(UniversalLauncher.this.mainWindow(), "Mineshafter Squared 4.3 requires Java 7. Click OK to learn more", "Java 7", JOptionPane.OK_CANCEL_OPTION);
+						if (choice == JOptionPane.OK_OPTION) {
+							SimpleUtils.openLink("http://ms2.creatifcubed.com/pages/java7.php");
+						}
+					}
+				});
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			UniversalLauncher.log.info("Unable to parse Java version (was " + verStr + "). Please make sure you have Java 7");
+		}
 	}
 }
