@@ -6,6 +6,8 @@
 	<property name="libs.dir" location="libs" />
 	<property name="resources.dir" location="resources" />
 	<property name="dist.jarname" value="mineshaftersquared.jar" />
+	<property name="dist.macapp" value="mineshaftersquared.app" />
+	<property name="dist.winexe" value="mineshaftersquared.exe" />
 	<property name="manifest.mainclass" value="com.mineshaftersquared.MS2Entry" />
 	<property name="mc.jar" value="mc-launcher.jar" />
 	<property name="libs.alljars" value="alllibs.jar" />
@@ -32,30 +34,12 @@
 		<mkdir dir="${dist.dir}" />
 	</target>
 
-	<target name="compile" depends="prepare, clean" description="Compile launcher sources">
+	<target name="compile" depends="clean" description="Compile launcher sources">
 		<javac destdir="${build.dir}" classpathref="build.classpath" encoding="utf-8" target="1.6" source="1.6" includeantruntime="false">
 			<src path="${src.dir}" />
 			<exclude name="com/adrian/playground/**" />
 			<exclude name="net/minecraft/**" />
 		</javac>
-	</target>
-	
-	<target name="compile.resources" depends="prepare, clean" description="Compile resources (MC patches)">
-		<javac destdir="${build.dir}" classpathref="resources.classpath" encoding="utf-8" target="1.6" source="1.6" includeantruntime="false">
-			<src path="${src.dir}" />
-			<include name="net/minecraft/**" />
-		</javac>
-	</target>
-	
-	<target name="package.resources" depends="compile.resources" description="Package resources (MC patches)">
-		<delete>
-			<fileset dir="${resources.dir}" includes="*.class" />
-		</delete>
-		<copy todir="${resources.dir}" flatten="true" includeemptydirs="false">
-			<fileset dir="${build.dir}">
-				<include name="net/minecraft/**" />
-			</fileset>
-		</copy>
 	</target>
 	
 	<target name="jar" depends="compile, jar.existing" description="Compile and create Jar">
@@ -80,27 +64,62 @@
 		<delete file="${dist.dir}/${libs.alljars}" />
 	</target>
 	
-	<target name="package" depends="jar, package.existing" description="Recompiles and prepares for distribution">
-	</target>
-	
-	<target name="package.existing" description="Package an existing Jar for distribution">
+	<target name="package.gen" description="Package shell scripts">
 		<copy todir="${dist.dir}">
-			<fileset dir="${resources.dir}">
-				<include name="ms2-run-*.*" />
-			</fileset>
-		</copy>
+		<fileset dir="${resources.dir}">
+			<include name="ms2-run-*.*" />
+		</fileset>
+	</copy>
 	</target>
 	
-	<target name="package.dist" depends="package" description="Package for distribution">
+	<target name="package.zip" description="Package zip">
 		<zip basedir="${dist.dir}" destfile="${dist.dir}/ms2-${v}.zip" />
+	</target>
+	
+	<target name="package.mac" description="Package OSX .app executable">
+		<copy todir="${dist.dir}/${dist.macapp}">
+			<fileset dir="${resources.dir}/${dist.macapp}" includes="**" />
+		</copy>
+		<copy file="${dist.dir}/${dist.jarname}" tofile="${dist.dir}/mineshaftersquared.app/Contents/Resources/Java/${dist.jarname}" />
+		<zip basedir="${dist.dir}/${dist.macapp}" destfile="${dist.dir}/${dist.macapp}.zip" />
+	</target>
+	
+	<target name="package.windows" description="Package Windows .exe executable">
+	</target>
+	
+	<target name="package.all" depends="package.gen, package.zip, package.mac, package.windows" description="Packages all">
 		<mkdir dir="${dist.dir}/${v}" />
 		<copy file="${dist.dir}/${dist.jarname}" tofile="${dist.dir}/${v}/${dist.jarname}" />
+		<!--<copy todir="${dist.dir}/${v}/${dist.macapp}">
+			<fileset dir="${resources.dir}/${dist.macapp}" includes="**" />
+		</copy>-->
+		<copy file="${dist.dir}/${dist.macapp}.zip" tofile="${dist.dir}/${v}/${dist.macapp}.zip" />
+		<copy file="${dist.dir}/${dist.winexe}" tofile="${dist.dir}${v}/${dist.winexe}" failonerror="false" />
+		<copy file="${dist.dir}/ms2-${v}.zip" tofile="${dist.dir}/${v}/ms2-${v}.zip" />
 	</target>
 	
-	<target name="all" depends="package.resources, package.dist" description="Recompiles sources and resources, packages for distribution">
+	<target name="all" depends="compile.resources, package.resources, jar, package.all" description="Recompiles sources and resources, packages for distribution. Give flag -Dv=[version]">
 	</target>
 
-	<target name="main" depends="package" description="Recompiles sources, packages run scripts">
+	<target name="main" depends="jar" description="Recompiles sources, produces jar">
+	</target>
+	
+	<target name="compile.resources" depends="clean" description="Compile resources (MC patches)">
+		<javac destdir="${build.dir}" classpathref="resources.classpath" encoding="utf-8" target="1.6" source="1.6" includeantruntime="false">
+			<src path="${src.dir}" />
+			<include name="net/minecraft/**" />
+		</javac>
+	</target>
+	
+	<target name="package.resources" description="Package resources (MC patches)">
+		<delete>
+			<fileset dir="${resources.dir}" includes="*.class" />
+		</delete>
+		<copy todir="${resources.dir}" flatten="true" includeemptydirs="false">
+			<fileset dir="${build.dir}">
+				<include name="net/minecraft/**" />
+			</fileset>
+		</copy>
 	</target>
 	
 	<target name="downloadlibs" description="Download libs (calls scripts/download_libs.sh)">
@@ -108,12 +127,5 @@
 		<exec executable="bash">
 			<arg value="scripts/download_libs.sh" />
 		</exec>
-	</target>
-	
-	<target name="package.mac" description="Package OSX .app executable">
-		<copy todir="${dist.dir}/mineshaftersquared.app">
-			<fileset dir="${resources.dir}/mineshaftersquared.app" includes="**" />
-		</copy>
-		<copy file="${dist.dir}/mineshaftersquared.jar" tofile="${dist.dir}/mineshaftersquared.app/Contents/Resources/Java/mineshaftersquared.jar" />
 	</target>
 </project>
