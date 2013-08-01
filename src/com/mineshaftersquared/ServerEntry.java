@@ -35,6 +35,7 @@ import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.swing.SimpleGUIConsole;
 import com.creatifcubed.simpleapi.swing.SimpleSwingUtils;
 import com.mineshaftersquared.misc.ExtendedGnuParser;
+import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.proxy.MS2HttpProxyHandlerFactory;
 import com.mineshaftersquared.proxy.MS2Proxy;
 import com.mineshaftersquared.proxy.MS2ProxyHandlerFactory;
@@ -116,7 +117,14 @@ public class ServerEntry {
 			Attributes attributes = null;
 			String mainClassName = null;
 			JarFile jar = new JarFile(server);
-			Class<?> clazz = null;
+			Class<?> mainClazz = null;
+			String serverClazzName = MS2Utils.getBukkitMinecraftServerClass(jar);
+			if (serverClazzName == null) {
+				UniversalLauncher.log.info("Unable to get Minecraft Server class");
+				return;
+			} else {
+				UniversalLauncher.log.info("Found Minecraft Server class " + serverClazzName);
+			}
 			URLClassLoader cl = new URLClassLoader(new URL[] { new File(server).toURI().toURL() });
 			try {
 				attributes = jar.getManifest().getMainAttributes();
@@ -124,19 +132,21 @@ public class ServerEntry {
 			} finally {
 				IOUtils.closeQuietly(jar);
 			}
-			clazz = cl.loadClass(mainClassName);
+			mainClazz = cl.loadClass(mainClassName);
 			
 			UniversalLauncher.log.info("Starting class " + mainClassName + " ... Passing args " + Arrays.asList(mcArgs) + " ...");
-			Method main = clazz.getDeclaredMethod("main", new Class[] { String[].class });
-			main.invoke(clazz, new Object[] { mcArgs });
+			Method main = mainClazz.getDeclaredMethod("main", new Class[] { String[].class });
+			main.invoke(mainClazz, new Object[] { mcArgs });
+			
+			Class<?> serverClazz = cl.loadClass(serverClazzName);
 			
 			boolean foundProxy = false;
 			outerloop:
-			for (Field each : clazz.getDeclaredFields()) {
+			for (Field each : serverClazz.getDeclaredFields()) {
 				UniversalLauncher.log.info("Found class field " + each.getName() + ", is type " + each.getType().getName());
-				if (clazz.isAssignableFrom(each.getType())) {
+				if (serverClazz.isAssignableFrom(each.getType())) {
 					each.setAccessible(true);
-					Object instance = each.get(clazz);
+					Object instance = each.get(serverClazz);
 					UniversalLauncher.log.info("Found instance");
 					for (Field property : each.getType().getDeclaredFields()) {
 						UniversalLauncher.log.info("Found object field " + property.getName() + ", is type " + property.getType().getName());
