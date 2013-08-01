@@ -12,8 +12,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +33,7 @@ public class MS2Utils {
 	}
 	
 	public static File getMS2Dir() {
-		return new File(getAppDataDir(), "mineshafter_squared");
+		return new File(getAppDataDir(), UniversalLauncher.MS2_DIR);
 	}
 	
 	public static File getAppDataDir() {
@@ -159,5 +163,17 @@ public class MS2Utils {
 			ex.printStackTrace();
 		}
 		return new String(out.toByteArray(), Charset.forName("utf-8"));
+	}
+	
+	public static String getBukkitMinecraftServerClass(JarFile jar) {
+		Enumeration<JarEntry> entries = jar.entries();
+		while (entries.hasMoreElements()) {
+			JarEntry jarEntry = entries.nextElement();
+			String name = jarEntry.getName();
+			if (name.matches("net/minecraft/server/.*/MinecraftServer\\.class")) {
+				return name.substring(0, name.indexOf(".class")).replace('/', '.');
+			}
+		}
+		return null;
 	}
 }

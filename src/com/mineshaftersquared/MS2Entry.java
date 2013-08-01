@@ -16,6 +16,7 @@ import org.apache.commons.cli.Options;
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.mineshaftersquared.misc.ExtendedGnuParser;
+import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.misc.UpdateMessage;
 
 public class MS2Entry {
@@ -55,7 +56,7 @@ public class MS2Entry {
 		} else if (args.length > 0) {
 			showHelp();
 		} else {
-			if (new File(UniversalLauncher.MC_START_AUTOMATICALLY).exists()) {
+			if (new File(MS2Utils.getMS2Dir(), UniversalLauncher.MC_START_AUTOMATICALLY).exists()) {
 				final UniversalLauncher app = new UniversalLauncher();
 				final String msg = app.versionUpdates();
 				final UpdateMessage[] updatesMessages = app.updatesMessages();
