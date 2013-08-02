@@ -12,6 +12,10 @@
 	<property name="mc.jar" value="mc-launcher.jar" />
 	<property name="libs.alljars" value="alllibs.jar" />
 	
+	
+	
+	<!--<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask"/>-->
+	
 	<path id="build.classpath">
 		<fileset dir="${libs.dir}">
 			<include name="*.jar" />
@@ -77,11 +81,18 @@
 	</target>
 	
 	<target name="package.mac" description="Package OSX .app executable">
-		<copy todir="${dist.dir}/${dist.macapp}">
-			<fileset dir="${resources.dir}/${dist.macapp}" includes="**" />
-		</copy>
-		<copy file="${dist.dir}/${dist.jarname}" tofile="${dist.dir}/mineshaftersquared.app/Contents/Resources/Java/${dist.jarname}" />
-		<zip basedir="${dist.dir}/${dist.macapp}" destfile="${dist.dir}/${dist.macapp}.zip" />
+		<!--<copy todir="${dist.dir}" >  
+			<fileset dir="${resources.dir}">  
+				<include name="${dist.macapp}/**" />
+			</fileset>
+		</copy>-->
+		<!--<copy file="${dist.dir}/${dist.jarname}" tofile="${dist.dir}/${dist.macapp}/Contents/Java/${dist.jarname}" />
+		<copy file="${resources.dir}/ms2.icns" tofile="${dist.dir}/${dist.macapp}/Contents/Resources/ms2.icns" />-->
+		<!--<zip destfile="${dist.dir}/${dist.macapp}.zip" >
+			<fileset dir="${dist.dir}">
+				<include name="${dist.macapp}/**" />
+			</fileset>
+		</zip>-->
 	</target>
 	
 	<target name="package.windows" description="Package Windows .exe executable">
@@ -93,7 +104,7 @@
 		<!--<copy todir="${dist.dir}/${v}/${dist.macapp}">
 			<fileset dir="${resources.dir}/${dist.macapp}" includes="**" />
 		</copy>-->
-		<copy file="${dist.dir}/${dist.macapp}.zip" tofile="${dist.dir}/${v}/${dist.macapp}.zip" />
+		<!--<copy file="${dist.dir}/${dist.macapp}.zip" tofile="${dist.dir}/${v}/${dist.macapp}.zip" />-->
 		<copy file="${dist.dir}/${dist.winexe}" tofile="${dist.dir}${v}/${dist.winexe}" failonerror="false" />
 		<copy file="${dist.dir}/ms2-${v}.zip" tofile="${dist.dir}/${v}/ms2-${v}.zip" />
 	</target>
