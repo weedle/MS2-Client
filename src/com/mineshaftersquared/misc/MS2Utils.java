@@ -166,14 +166,19 @@ public class MS2Utils {
 	}
 	
 	public static String getBukkitMinecraftServerClass(JarFile jar) {
+		String match = null;
 		Enumeration<JarEntry> entries = jar.entries();
 		while (entries.hasMoreElements()) {
 			JarEntry jarEntry = entries.nextElement();
 			String name = jarEntry.getName();
-			if (name.matches("net/minecraft/server/.*/?MinecraftServer\\.class")) {
-				return name.substring(0, name.indexOf(".class")).replace('/', '.');
+			if (name.contains("MinecraftServer")) {
+				UniversalLauncher.log.info("Possible server class " + name);
+				if (name.matches("net/minecraft/server/(?:[a-zA-Z0-9_]+/)?MinecraftServer\\.class")) {
+					UniversalLauncher.log.info("Matched server class " + name);
+					match = name.substring(0, name.indexOf(".class")).replace('/', '.');
+				}
 			}
 		}
-		return null;
+		return match;
 	}
 }
