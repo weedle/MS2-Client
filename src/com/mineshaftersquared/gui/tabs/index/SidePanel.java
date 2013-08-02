@@ -173,11 +173,11 @@ public class SidePanel extends JPanel {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				final String message = new String(new SimpleHTTPRequest(UniversalLauncher.POLLING_SERVER + "updates_messages.php").doGet(Proxy.NO_PROXY), Charset.forName("utf-8"));
+				final byte[] data = new SimpleHTTPRequest(UniversalLauncher.POLLING_SERVER + "updates_messages.php").doGet(Proxy.NO_PROXY);
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						label.setText(message);
+						label.setText(data == null ? "Unable to fetch bulletin" : new String(data, Charset.forName("utf-8")));
 					}
 				});
 			}

@@ -46,7 +46,7 @@ public class UniversalLauncher implements Runnable {
 	public final MCVersionManager mcVersionManager;
 	public final XMLConfiguration seenMessages;
 
-	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.1");
+	public static final SimpleVersion MS2_VERSION = new SimpleVersion("4.3.2");
 	public static final String POLLING_SERVER = "http://ms2.creatifcubed.com/polling_scripts/";
 	public static final String DEFAULT_AUTH_SERVER = "http://api.mineshaftersquared.com";
 	//public static final String MS2_RESOURCES_DIR = "ms2-resources";
@@ -94,10 +94,6 @@ public class UniversalLauncher implements Runnable {
 	
 	public MS2LauncherWindow mainWindow() {
 		return this.mainWindow;
-	}
-	
-	public void setClientToken(UUID token) {
-		
 	}
 	
 	@Override
@@ -149,6 +145,7 @@ public class UniversalLauncher implements Runnable {
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			this.eventBus.emit("latestversion", new EventBus.EventData("n/a"));
 			return "Error checking updates. Please check manually at ms2.creatifcubed.com";
 		}
 		return null;
@@ -174,9 +171,9 @@ public class UniversalLauncher implements Runnable {
 	
 	public boolean showUpdatesMessages(JFrame frame, String msg, UpdateMessage[] updatesMessages) {
 		boolean mustupdate = false;
-		if (msg != null) {
-			JOptionPane.showMessageDialog(frame, msg);
-		}
+//		if (msg != null) {
+//			JOptionPane.showMessageDialog(frame, msg);
+//		}
 		if (updatesMessages == null) {
 			JOptionPane.showMessageDialog(frame, "Error checking update messages. Please check manually at ms2.creatifcubed.com");
 		} else {
@@ -238,6 +235,10 @@ public class UniversalLauncher implements Runnable {
 			return messages.toArray(new UpdateMessage[messages.size()]);
 		} catch (Exception ex) {
 			ex.printStackTrace();
+		}
+		if (!SimpleUtils.httpPing(POLLING_SERVER)) {
+			UniversalLauncher.log.info("Unable to reach polling server");
+			return new UpdateMessage[0];
 		}
 		return null;
 	}

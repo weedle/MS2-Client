@@ -60,11 +60,10 @@ public class MS2Entry {
 				final UniversalLauncher app = new UniversalLauncher();
 				final String msg = app.versionUpdates();
 				final UpdateMessage[] updatesMessages = app.updatesMessages();
-				final JFrame frame = null;
 				SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						if (app.showUpdatesMessages(frame, msg, updatesMessages)) {
+						if (app.showUpdatesMessages(null, msg, updatesMessages)) {
 							System.exit(0);
 						}
 					}
