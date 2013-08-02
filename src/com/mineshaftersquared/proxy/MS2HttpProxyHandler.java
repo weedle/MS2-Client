@@ -43,8 +43,8 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 	public MS2HttpProxyHandler() {
 		this.skinCache = new HashMap<String, byte[]>();
 		this.cloakCache = new HashMap<String, byte[]>();
-		this.yggdrasilOffline = new MCYggdrasilOffline(new File(
-				MS2Utils.getDefaultMCDir(), "launcher_profiles.json"));
+		//this.yggdrasilOffline = new MCYggdrasilOffline(new File(MS2Utils.getDefaultMCDir(), "launcher_profiles.json"));
+		this.yggdrasilOffline = null;
 	}
 
 	public void handle(MS2Proxy ms2Proxy, Socket socket) {
