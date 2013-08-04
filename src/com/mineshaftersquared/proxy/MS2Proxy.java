@@ -33,6 +33,7 @@ public class MS2Proxy implements Runnable {
 	private final Object isRunningLock;
 	private boolean isInitialized;
 	private final Object isInitializedLock;
+	public boolean offline;
 
 	public MS2Proxy(RoutesDataSource routes, HandlerFactory handlerFactory) {
 		this.routes = routes;
@@ -43,6 +44,7 @@ public class MS2Proxy implements Runnable {
 		this.isRunningLock = new Object();
 		this.isInitialized = false;
 		this.isInitializedLock = new Object();
+		this.offline = false;
 	}
 
 	public Thread async() {

@@ -1,7 +1,13 @@
 package com.mineshaftersquared;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.net.Proxy;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -14,17 +20,20 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.creatifcubed.simpleapi.SimpleHTTPRequest;
+import com.creatifcubed.simpleapi.SimpleResources;
 import com.creatifcubed.simpleapi.SimpleVersion;
 import com.mineshaftersquared.misc.ExtendedGnuParser;
+import com.mineshaftersquared.misc.JarUtils;
 import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.misc.UpdateMessage;
 
 public class MS2Entry {
 	
 	public static final Option serverOption = new Option("server", true, "Server jar to start");
-	public static final Option bukkitOption = new Option("bukkit", false, "server: Use this flag for Bukkit and derivatives if you want a GUI console");
+	public static final Option bukkitOption = new Option("guiconsole", false, "server: Use this flag for a GUI console (beta)");
 	public static final Option authserverOption = new Option("authserver", true, "server: Domain to poll for authentication, skins, etc. Defaults to " + UniversalLauncher.DEFAULT_AUTH_SERVER);
 	public static final Option mcSeparatorOption = new Option("mc", false, "Everything after this is an argument for Minecraft");
+	public static final Option authOfflineOption = new Option("offline", false, "Don't use auth server; authenticate everything");
 	
 	public static final Options cmdOptions = new Options() {{
 		addOption("help", false, "About the Mineshafter Squared Universal Launcher");
@@ -34,6 +43,9 @@ public class MS2Entry {
 		addOption(authserverOption);
 		addOption("game", false, "Start the Minecraft launcher directly");
 		addOption("gui", false, "Start the MS2 launcher (ignores " + UniversalLauncher.MC_START_AUTOMATICALLY + ")");
+		addOption("proxy", false, "Start the proxy");
+		addOption(authOfflineOption);
+		addOption("patchbungee", true, "Patch BungeeCord jar");
 		addOption(mcSeparatorOption);
 	}};
 	
@@ -49,8 +61,40 @@ public class MS2Entry {
 		
 		if (cmd.hasOption("server")) {
 			ServerEntry.main(args);
-		}  else if (cmd.hasOption("game")) {
+		} else if (cmd.hasOption("game")) {
 			MCEntry.main(args);
+		} else if (cmd.hasOption("proxy")) {
+			MS2ProxyEntry.main(args);
+		} else if (cmd.hasOption("patchbungee")) {
+			String jarFile = cmd.getOptionValue("patchbungee");
+			File file = new File(jarFile);
+			File patched = new File("ms2-" + jarFile);
+			if (!file.exists()) {
+				System.out.println("Bungee jar does not exist. Is it in the same folder as this jar?");
+				return;
+			}
+			UniversalLauncher.log.info("Patching bungee...");
+			Map<String, InputStream> replacements = new HashMap<String, InputStream>();
+			replacements.put("net/md_5/bungee/connection/InitialHandler.*\\.class", null);
+			Map<String, InputStream> additions = new HashMap<String, InputStream>();
+			InputStream in = SimpleResources.loadAsStream("net/mineshaftersquared/InitialHandler.class");
+			System.out.println("Is null: " + (in == null));
+			in = SimpleResources.loadAsStream("net/mineshaftersquared/InitialHandler$1.class");
+			System.out.println("Is nulll: " + (in == null));
+			additions.put("net/md_5/bungee/connection/InitialHandler.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/InitialHandler.class"));
+			additions.put("net/md_5/bungee/connection/InitialHandler$1.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/InitialHandler$1.class"));
+			additions.put("net/md_5/bungee/connection/InitialHandler$2.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/InitialHandler$2.class"));
+			additions.put("net/md_5/bungee/connection/InitialHandler$3.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/InitialHandler$3.class"));
+			additions.put("net/md_5/bungee/connection/InitialHandler$3$1.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/InitialHandler$3$1.class"));
+			additions.put("net/md_5/bungee/connection/InitialHandler$4.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/InitialHandler$4.class"));
+			additions.put("net/md_5/bungee/connection/InitialHandler$4$1.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/InitialHandler$4$1.class"));
+			additions.put("net/md_5/bungee/connection/InitialHandler$State.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/InitialHandler$State.class"));
+			
+			if (JarUtils.patchJar(file, patched, replacements, additions)) {
+				UniversalLauncher.log.info("Done patching.");
+			} else {
+				UniversalLauncher.log.info("Error patching");
+			}
 		} else if (cmd.hasOption("help")) {
 			showHelp();
 		} else if (args.length > 0) {
@@ -68,6 +112,11 @@ public class MS2Entry {
 						}
 					}
 				});
+				boolean offline = app.prefs.getBoolean("launcher.offline", false);
+				ArrayList<String> allArgs = new ArrayList<String>(args.length + (offline ? 1 : 0));
+				if (offline) {
+					allArgs.add("-offline");
+				}
 				MCEntry.main(args);
 			} else {
 				UniversalLauncher.main(args);

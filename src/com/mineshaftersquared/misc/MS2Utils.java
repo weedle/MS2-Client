@@ -70,7 +70,7 @@ public class MS2Utils {
 		return new File(getAppDataDir(), mcDir);
 	}
 	
-	public static Process launchGame(File local, String authserver) {
+	public static Process launchGame(File local, String authserver, boolean offline) {
 		try {
 			ProcessBuilder pb = new ProcessBuilder();
 			pb.directory(local);
@@ -80,6 +80,9 @@ public class MS2Utils {
 			args.add("-jar");
 			args.add(SimpleUtils.getJarPath(UniversalLauncher.class).getCanonicalPath());
 			args.add("-game");
+			if (offline) {
+				args.add("-offline");
+			}
 			pb.command(args);
 			Process p = pb.start();
 			return p;
@@ -93,7 +96,7 @@ public class MS2Utils {
 		try {
 			ProcessBuilder pb = new ProcessBuilder();
 			pb.directory(local);
-			// java [java args] -jar [mineshaftersquared.jar] -server=[server] -authserver=[authserver] [-bukkit]? -mc [mc args]
+			// java [java args] -jar [mineshaftersquared.jar] -server=[server] -authserver=[authserver] [-guiconsole]? -mc [mc args]
 			List<String> args = new ArrayList<String>(1 + javaArgs.length + 4 + (isBukkit ? 1 : 0) + 1 + mcArgs.length);
 			args.add("java");
 			args.addAll(Arrays.asList(javaArgs));
@@ -101,7 +104,7 @@ public class MS2Utils {
 			args.add(SimpleUtils.getJarPath(UniversalLauncher.class).getCanonicalPath());
 			args.add("-server=" + server);
 			if (isBukkit) {
-				args.add("-bukkit");
+				args.add("-guiconsole");
 			}
 			args.add("-mc");
 			args.addAll(Arrays.asList(mcArgs));

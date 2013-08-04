@@ -35,16 +35,13 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 	private final Map<String, byte[]> skinCache;
 	private final Map<String, byte[]> cloakCache;
-
-	private final MCYggdrasilOffline yggdrasilOffline;
+	
 	private static final String[] BLACKLISTED_HEADERS = new String[] {
 			"Connection", "Proxy-Connection", "Transfer-Encoding" };
 
 	public MS2HttpProxyHandler() {
 		this.skinCache = new HashMap<String, byte[]>();
 		this.cloakCache = new HashMap<String, byte[]>();
-		//this.yggdrasilOffline = new MCYggdrasilOffline(new File(MS2Utils.getDefaultMCDir(), "launcher_profiles.json"));
-		this.yggdrasilOffline = null;
 	}
 
 	public void handle(MS2Proxy ms2Proxy, Socket socket) {
@@ -232,12 +229,16 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 	private String authServerAction(String action, String postedJSON,
 			MS2Proxy ms2Proxy) {
+		MCYggdrasilOffline yggdrasil = null;
+		if (ms2Proxy.offline) {
+			yggdrasil = new MCYggdrasilOffline(new File(MS2Utils.getDefaultMCDir(), MCYggdrasilOffline.LAUNCHER_PROFILES));
+		}
 		MS2Proxy.log.info("Proxy - auth - action: " + action
 				+ ", postedJSON - " + postedJSON);
 		Gson gson = new Gson();
 		MCYggdrasilRequest data = gson.fromJson(postedJSON,
 				MCYggdrasilRequest.class);
-
+		
 		/**
 		 * The 3 return statements here make the difference between online and
 		 * offline authentication. A few if statements and a flag can give users
@@ -246,22 +247,28 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 		 */
 		SimpleHTTPRequest request;
 		if (action.equalsIgnoreCase("authenticate")) {
+			if (ms2Proxy.offline) {
+				return yggdrasil.authenticate(data);
+			}
 			request = new SimpleHTTPRequest(
 					ms2Proxy.routes.getAuthenticateURL());
 			request.addPost("username", data.username);
 			request.addPost("password", data.password);
 			request.addPost("clientToken", data.clientToken);
-			// return this.yggdrasilOffline.authenticate(data);
 		} else if (action.equalsIgnoreCase("refresh")) {
+			if (ms2Proxy.offline) {
+				return yggdrasil.refresh(data);
+			}
 			request = new SimpleHTTPRequest(ms2Proxy.routes.getRefreshURL());
 			request.addPost("clientToken", data.clientToken);
 			request.addPost("accessToken", data.accessToken);
-			// return this.yggdrasilOffline.refresh(data);
 		} else if (action.equalsIgnoreCase("invalidate")) {
+			if (ms2Proxy.offline) {
+				return yggdrasil.invalidate(data);
+			}
 			request = new SimpleHTTPRequest(ms2Proxy.routes.getInvalidateURL());
 			request.addPost("clientToken", data.clientToken);
 			request.addPost("accessToken", data.accessToken);
-			// return this.yggdrasilOffline.invalidate(data);
 		} else {
 			throw new IllegalArgumentException("Unknown action " + action);
 		}

@@ -27,6 +27,10 @@ import java.util.jar.Pack200;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 
 import SevenZip.Compression.LZMA.Decoder;
@@ -34,6 +38,7 @@ import SevenZip.Compression.LZMA.Decoder;
 import com.creatifcubed.simpleapi.SimpleResources;
 import com.creatifcubed.simpleapi.SimpleStreams;
 import com.creatifcubed.simpleapi.swing.SimpleSwingWaiter;
+import com.mineshaftersquared.misc.ExtendedGnuParser;
 import com.mineshaftersquared.misc.JarUtils;
 import com.mineshaftersquared.misc.MS2Utils;
 import com.mineshaftersquared.proxy.MS2Proxy;
@@ -48,19 +53,29 @@ public class MCEntry extends JFrame implements Runnable {
 	private static final Dimension DEFAULT_DIMENSIONS = new Dimension(854, 480);
 	private static final int MC_BOOTSTRAP_VERSION = 4;
 	
+	public static final Options options = new Options() {{
+		addOption(MS2Entry.authOfflineOption);
+		addOption(MS2Entry.authserverOption);
+		addOption(MS2Entry.mcSeparatorOption);
+	}};
+	
 	private final File mcDir;
 	private final File launcherJar;
 	private final File packedLauncherJar;
 	private final File packedLauncherJarNew;
 	private final File patchedLauncherJar;
+	private final String authserver;
+	private final boolean offline;
 	
-	public MCEntry(File mcDir) {
+	public MCEntry(File mcDir, String authserver, boolean offline) {
 		super("Minecraft Launcher");
 		this.mcDir = mcDir;
 		this.launcherJar  = new File(mcDir, "launcher.jar");
 		this.packedLauncherJar = new File(mcDir, "launcher.pack.lzma");
 		this.packedLauncherJarNew = new File(mcDir, "launcher.pack.lzma.new");
 		this.patchedLauncherJar = new File(mcDir, "ms2-launcher.jar");
+		this.authserver = authserver;
+		this.offline = offline;
 	}
 	
 	public void run() {
@@ -164,11 +179,12 @@ public class MCEntry extends JFrame implements Runnable {
 		replacements.put("net/minecraft/launcher/Http\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Http.class"));
 		replacements.put("net/minecraft/launcher/updater/download/Downloadable\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Downloadable.class"));
 		replacements.put("net/minecraft/hopper/Util\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Util.class"));
-		return JarUtils.patchJar(this.launcherJar, this.patchedLauncherJar, replacements);
+		return JarUtils.patchJar(this.launcherJar, this.patchedLauncherJar, replacements, null);
 	}
 	
 	public boolean startLauncher() {
-		MS2Proxy ms2Proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource("http://api.mineshaftersquared.com"), new MS2ProxyHandlerFactory());
+		MS2Proxy ms2Proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource(this.authserver), new MS2ProxyHandlerFactory());
+		ms2Proxy.offline = this.offline;
 		Thread t = ms2Proxy.startAsync();
 		
 		Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(InetAddress.getLoopbackAddress(), ms2Proxy.getProxyPort()));
@@ -193,11 +209,13 @@ public class MCEntry extends JFrame implements Runnable {
 		return false;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException {
+		CommandLineParser cmdParser = new ExtendedGnuParser();
+		CommandLine cmd = cmdParser.parse(options, args);
+		
 		File mcDir = MS2Utils.getDefaultMCDir();
 		mcDir.mkdirs();
-		new MCEntry(mcDir).run();
-		UniversalLauncher.log.info("Here");
+		new MCEntry(mcDir, cmd.getOptionValue(MS2Entry.authserverOption.getArgName(), UniversalLauncher.DEFAULT_AUTH_SERVER), cmd.hasOption(MS2Entry.authOfflineOption.getArgName())).run();
 	}
 	
 	public static boolean downloadMCLauncher(final File file, final String md5) {

@@ -110,6 +110,7 @@ public class SidePanel extends JPanel {
 		JButton launch = new JButton("Start MC Launcher");
 		JLabel info = new JLabel("<html>Checking 'start automatically' will create a file<br />'" + UniversalLauncher.MC_START_AUTOMATICALLY + "'"
 				+ ". Delete this file<br />to disable auto-launching</html>");
+		final JCheckBox offline = new JCheckBox("Offline", this.app.prefs.getBoolean("launcher.offline", false));
 		JButton openDir = new JButton("Open App Data Folder");
 		
 		startAutomatically.addItemListener(new ItemListener() {
@@ -130,12 +131,18 @@ public class SidePanel extends JPanel {
 		launch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				Process p = MS2Utils.launchGame(MS2Utils.getLocalDir(), SidePanel.this.app.prefs.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER));
+				Process p = MS2Utils.launchGame(MS2Utils.getLocalDir(), SidePanel.this.app.prefs.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER), offline.isSelected());
 				if (p == null) {
 					JOptionPane.showMessageDialog(SidePanel.this, "Unable to start game. See debug tab");
 				} else {
 					new Thread(new JavaProcessOutputRedirector(p, "[MS2Game] %s")).start();
 				}
+			}
+		});
+		offline.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent event) {
+				SidePanel.this.app.prefs.setProperty("launcher.offline", offline.isSelected());
 			}
 		});
 		openDir.addActionListener(new ActionListener() {

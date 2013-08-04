@@ -10,13 +10,14 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.google.gson.Gson;
-import com.mineshaftersquared.proxy.MCYggdrasilOffline.ProfilesJSON.OuterProfile;
 
 /**
  * Credits to download13 of Mineshafter
  * 
  */
 public class MCYggdrasilOffline {
+	
+	public static final String LAUNCHER_PROFILES = "launcher_profiles.json";
 
 	private final List<Profile> profiles;
 	private final Gson gson;
@@ -27,10 +28,9 @@ public class MCYggdrasilOffline {
 
 		try {
 			ProfilesJSON profiles = gson.fromJson(new FileReader(profilesFile), ProfilesJSON.class);
-			Map<String, OuterProfile> map = profiles.profiles;
+			Map<String, Profile> map = profiles.profiles;
 			for (String key : map.keySet()) {
-				OuterProfile op = map.get(key);
-				Profile p = op.auth;
+				Profile p = map.get(key);
 				if (p == null) {
 					continue;
 				}
@@ -109,6 +109,8 @@ public class MCYggdrasilOffline {
 		public String accessToken;
 		public final String uuid;
 		public String displayName;
+		public String name;
+		public String playerUUID;
 
 		public Profile(String username, String accessToken, String uuid, String displayName) {
 			this.username = username;
@@ -119,26 +121,10 @@ public class MCYggdrasilOffline {
 	}
 
 	public static class ProfilesJSON {
-		public final Map<String, OuterProfile> profiles;
-		public final String selectedProfile;
-		public final String clientToken;
-
-		public ProfilesJSON(String selectedProfile, String clientToken) {
-			this.profiles = new HashMap<String, OuterProfile>();
-			this.selectedProfile = selectedProfile;
-			this.clientToken = clientToken;
-		}
-
-
-		public static class OuterProfile {
-			public final String name;
-			public final Profile auth;
-
-			public OuterProfile(String name, Profile auth) {
-				this.name = name;
-				this.auth = auth;
-			}
-		}
+		public Map<String, Profile> profiles;
+		public String selectedProfile;
+		public String clientToken;
+		public Map<String, Profile> authenticationDatabase;
 	}
 	public static class ProfileResponse {
 		public final String id;
