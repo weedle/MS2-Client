@@ -1,13 +1,23 @@
 package com.mineshaftersquared.proxy;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -34,6 +44,8 @@ public class MS2Proxy implements Runnable {
 	private boolean isInitialized;
 	private final Object isInitializedLock;
 	public boolean offline;
+	private volatile File playerCache;
+	private final Object playerCacheLock;
 
 	public MS2Proxy(RoutesDataSource routes, HandlerFactory handlerFactory) {
 		this.routes = routes;
@@ -45,6 +57,62 @@ public class MS2Proxy implements Runnable {
 		this.isInitialized = false;
 		this.isInitializedLock = new Object();
 		this.offline = false;
+		this.playerCache = null;
+		this.playerCacheLock = new Object();
+	}
+	
+	public void setPlayerCache(File f) {
+		synchronized (this.playerCacheLock) {
+			this.playerCache = f;
+		}
+	}
+	
+	public File getPlayerCache() {
+		synchronized (this.playerCacheLock) {
+			return this.playerCache;
+		}
+	}
+	
+	public void markPlayer(String player) {
+		synchronized (this.playerCacheLock) {
+			if (this.playerCache == null) {
+				return;
+			}
+			player = player.trim().toLowerCase();
+			BufferedWriter bw = null;
+			try {
+				bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.playerCache), Charset.forName("utf-8")));
+				bw.append(player);
+				bw.append("\n");
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			} finally {
+				IOUtils.closeQuietly(bw);
+			}
+		}
+	}
+	
+	public boolean isPlayerMarked(String player) {
+		synchronized (this.playerCacheLock) {
+			if (this.playerCache == null) {
+				return false;
+			}
+			player = player.trim().toLowerCase();
+			try {
+				FileUtils.touch(this.playerCache);
+				String[] players = StringUtils.split(IOUtils.toString(new FileInputStream(this.playerCache), Charset.forName("utf-8")), "\n");
+				for (String each : players) {
+					if (each.trim().toLowerCase().equals(player)) {
+						return true;
+					}
+				}
+			} catch (FileNotFoundException ex) {
+				ex.printStackTrace();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+			return false;
+		}
 	}
 
 	public Thread async() {

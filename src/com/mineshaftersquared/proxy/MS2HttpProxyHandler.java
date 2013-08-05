@@ -287,17 +287,42 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 		SimpleHTTPRequest request = null;
 		if (action.equals("joinserver")) {
-			request = new SimpleHTTPRequest(MOJANG_JOINSERVER);
+			request = new SimpleHTTPRequest(ms2Proxy.routes.getJoinServerURL());
 			// return "OK";
 		} else if (action.equals("checkserver")) {
-			request = new SimpleHTTPRequest(MOJANG_CHECKSERVER);
+			request = new SimpleHTTPRequest(ms2Proxy.routes.getCheckServerURL());
 			// return "YES";
 		} else {
 			throw new IllegalArgumentException("Unknown action " + action);
 		}
 		request.addGet(data);
-		String mojangResponse = new String(request.doGet(Proxy.NO_PROXY),
+		String ms2Response = new String(request.doGet(Proxy.NO_PROXY),
 				Charset.forName("utf-8"));
+		
+		if (action.equals("joinserver")) {
+			if (ms2Response.equals("OK")) {
+				return "OK";
+			}
+		} else if (action.equals("checkserver")) {
+			if (ms2Response.equals("YES")) {
+				return "YES";
+			}
+		}
+		
+//		if (ms2Proxy.isPlayerMarked(player)) {
+//			return ms2Response;
+//		}
+		
+		MS2Proxy.log.info("Player not authenticated with Mineshafter Squared. Trying Mojang (passthrough)");
+		
+		SimpleHTTPRequest request2 = null;
+		if (action.equals("joinserver")) {
+			request2 = new SimpleHTTPRequest(MOJANG_JOINSERVER);
+		} else if (action.equals("checkserver")) {
+			request2 = new SimpleHTTPRequest(MOJANG_CHECKSERVER);
+		}
+		request2.addGet(data);
+		String mojangResponse = new String(request2.doGet(Proxy.NO_PROXY), Charset.forName("utf-8"));
 		
 		if (action.equals("joinserver")) {
 			if (mojangResponse.equals("OK")) {
@@ -309,14 +334,9 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			}
 		}
 		
-		SimpleHTTPRequest request2 = null;
-		if (action.equals("joinserver")) {
-			request2 = new SimpleHTTPRequest(ms2Proxy.routes.getJoinServerURL());
-		} else if (action.equals("checkserver")) {
-			request2 = new SimpleHTTPRequest(ms2Proxy.routes.getCheckServerURL());
-		}
-		request2.addGet(data);
-		return new String(request2.doGet(Proxy.NO_PROXY), Charset.forName("utf-8"));
+//		ms2Proxy.markPlayer(player);
+		
+		return mojangResponse;
 	}
 
 	public void noProxy(String method, String url, Map<String, String> headers,
