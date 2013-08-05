@@ -120,8 +120,7 @@ public class ServerEntry {
 			Class<?> mainClazz = null;
 			String serverClazzName = MS2Utils.getBukkitMinecraftServerClass(jar);
 			if (serverClazzName == null) {
-				UniversalLauncher.log.info("Unable to get Minecraft Server class");
-				return;
+				UniversalLauncher.log.info("Unable to get Minecraft Server class!");
 			} else {
 				UniversalLauncher.log.info("Found Minecraft Server class " + serverClazzName);
 			}
@@ -138,31 +137,33 @@ public class ServerEntry {
 			Method main = mainClazz.getDeclaredMethod("main", new Class[] { String[].class });
 			main.invoke(mainClazz, new Object[] { mcArgs });
 			
-			Class<?> serverClazz = cl.loadClass(serverClazzName);
-			
-			boolean foundProxy = false;
-			outerloop:
-			for (Field each : serverClazz.getDeclaredFields()) {
-				UniversalLauncher.log.info("Found class field " + each.getName() + ", is type " + each.getType().getName());
-				if (serverClazz.isAssignableFrom(each.getType())) {
-					each.setAccessible(true);
-					Object instance = each.get(serverClazz);
-					UniversalLauncher.log.info("Found instance");
-					for (Field property : each.getType().getDeclaredFields()) {
-						UniversalLauncher.log.info("Found object field " + property.getName() + ", is type " + property.getType().getName());
-						if (Proxy.class.isAssignableFrom(property.getType())) {
-							property.setAccessible(true);
-							property.set(instance, proxy);
-							foundProxy = true;
-							break outerloop;
+			if (serverClazzName != null) {
+				Class<?> serverClazz = cl.loadClass(serverClazzName);
+				
+				boolean foundProxy = false;
+				outerloop:
+				for (Field each : serverClazz.getDeclaredFields()) {
+					UniversalLauncher.log.info("Found class field " + each.getName() + ", is type " + each.getType().getName());
+					if (serverClazz.isAssignableFrom(each.getType())) {
+						each.setAccessible(true);
+						Object instance = each.get(serverClazz);
+						UniversalLauncher.log.info("Found instance");
+						for (Field property : each.getType().getDeclaredFields()) {
+							UniversalLauncher.log.info("Found object field " + property.getName() + ", is type " + property.getType().getName());
+							if (Proxy.class.isAssignableFrom(property.getType())) {
+								property.setAccessible(true);
+								property.set(instance, proxy);
+								foundProxy = true;
+								break outerloop;
+							}
 						}
 					}
 				}
-			}
-			if (foundProxy) {
-				UniversalLauncher.log.info("Found proxy field");
-			} else {
-				UniversalLauncher.log.info("Unable to find proxy field!");
+				if (foundProxy) {
+					UniversalLauncher.log.info("Found proxy field");
+				} else {
+					UniversalLauncher.log.info("Unable to find proxy field!");
+				}
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();

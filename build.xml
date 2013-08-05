@@ -64,13 +64,6 @@
 			<zipfileset dir="${resources.dir}" includes="Http.class" fullpath="com/mineshaftersquared/resources/Http.class" />
 			<zipfileset dir="${resources.dir}" includes="Downloadable.class" fullpath="com/mineshaftersquared/resources/Downloadable.class" />
 			<zipfileset dir="${resources.dir}" includes="InitialHandler.class" fullpath="com/mineshaftersquared/resources/InitialHandler.class" />
-			<zipfileset dir="${resources.dir}" includes="InitialHandler$1.class" fullpath="com/mineshaftersquared/resources/InitialHandler$1.class" />
-			<zipfileset dir="${resources.dir}" includes="InitialHandler$2.class" fullpath="com/mineshaftersquared/resources/InitialHandler$2.class" />
-			<zipfileset dir="${resources.dir}" includes="InitialHandler$3.class" fullpath="com/mineshaftersquared/resources/InitialHandler$3.class" />
-			<zipfileset dir="${resources.dir}" includes="InitialHandler$3$1.class" fullpath="com/mineshaftersquared/resources/InitialHandler$3$1.class" />
-			<zipfileset dir="${resources.dir}" includes="InitialHandler$4.class" fullpath="com/mineshaftersquared/resources/InitialHandler$4.class" />
-			<zipfileset dir="${resources.dir}" includes="InitialHandler$4$1.class" fullpath="com/mineshaftersquared/resources/InitialHandler$4$1.class" />
-			<zipfileset dir="${resources.dir}" includes="InitialHandler$State.class" fullpath="com/mineshaftersquared/resources/InitialHandler$State.class" />
 			<zipfileset src="${dist.dir}/${libs.alljars}">
 				<include name="**/*.class" />
 			</zipfileset>
@@ -134,7 +127,7 @@
 	
 	<target name="package.resources" description="Package resources (MC patches)">
 		<delete>
-			<fileset dir="${resources.dir}" includes="*.class" excludes="InitialHandler*.class" />
+			<fileset dir="${resources.dir}" includes="*.class" excludes="InitialHandler.class" />
 		</delete>
 		<copy todir="${resources.dir}" flatten="true" includeemptydirs="false">
 			<fileset dir="${build.dir}">
