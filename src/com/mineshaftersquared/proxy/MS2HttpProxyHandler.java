@@ -36,8 +36,11 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 	private final Map<String, byte[]> skinCache;
 	private final Map<String, byte[]> cloakCache;
 	
+	public static final String MOJANG_JOINSERVER = "http://session.minecraft.net/game/joinserver.jsp";
+	public static final String MOJANG_CHECKSERVER = "http://session.minecraft.net/game/checkserver.jsp";
+
 	private static final String[] BLACKLISTED_HEADERS = new String[] {
-			"Connection", "Proxy-Connection", "Transfer-Encoding" };
+		"Connection", "Proxy-Connection", "Transfer-Encoding" };
 
 	public MS2HttpProxyHandler() {
 		this.skinCache = new HashMap<String, byte[]>();
@@ -238,7 +241,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 		Gson gson = new Gson();
 		MCYggdrasilRequest data = gson.fromJson(postedJSON,
 				MCYggdrasilRequest.class);
-		
+
 		/**
 		 * The 3 return statements here make the difference between online and
 		 * offline authentication. A few if statements and a flag can give users
@@ -282,20 +285,38 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 		MS2Proxy.log.info("Proxy - auth - action: " + action
 				+ ", data - " + data);
 
-		SimpleHTTPRequest request;
-		if (action.equalsIgnoreCase("joinserver")) {
-			request = new SimpleHTTPRequest(ms2Proxy.routes.getJoinServerURL());
+		SimpleHTTPRequest request = null;
+		if (action.equals("joinserver")) {
+			request = new SimpleHTTPRequest(MOJANG_JOINSERVER);
 			// return "OK";
-		} else if (action.equalsIgnoreCase("checkserver")) {
-			request = new SimpleHTTPRequest(ms2Proxy.routes.getCheckServerURL());
+		} else if (action.equals("checkserver")) {
+			request = new SimpleHTTPRequest(MOJANG_CHECKSERVER);
 			// return "YES";
 		} else {
 			throw new IllegalArgumentException("Unknown action " + action);
 		}
-
 		request.addGet(data);
-		return new String(request.doGet(Proxy.NO_PROXY),
+		String mojangResponse = new String(request.doGet(Proxy.NO_PROXY),
 				Charset.forName("utf-8"));
+		
+		if (action.equals("joinserver")) {
+			if (mojangResponse.equals("OK")) {
+				return "OK";
+			}
+		} else if (action.equals("checkserver")) {
+			if (mojangResponse.equals("YES")) {
+				return "YES";
+			}
+		}
+		
+		SimpleHTTPRequest request2 = null;
+		if (action.equals("joinserver")) {
+			request2 = new SimpleHTTPRequest(ms2Proxy.routes.getJoinServerURL());
+		} else if (action.equals("checkserver")) {
+			request2 = new SimpleHTTPRequest(ms2Proxy.routes.getCheckServerURL());
+		}
+		request2.addGet(data);
+		return new String(request2.doGet(Proxy.NO_PROXY), Charset.forName("utf-8"));
 	}
 
 	public void noProxy(String method, String url, Map<String, String> headers,
@@ -310,10 +331,10 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 
 			for (String key : headers.keySet()) {
 				con.setRequestProperty(key, headers.get(key)); // TODO Might
-																// need to
-																// blacklist
-																// these as well
-																// later
+				// need to
+				// blacklist
+				// these as well
+				// later
 			}
 
 			if (post) {
