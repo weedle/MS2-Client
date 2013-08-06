@@ -40,16 +40,21 @@ do
 	echo
 done
 
-git clone https://github.com/Raekye/SimpleAPI-Java.git
-if [ -f "simpleapi.jar" ];
+if [ -d "SimpleAPI-Java" ];
 then
-	echo "simpleapi.jar already exists"
-else
+	echo "Updating SimpleAPI-Java"
 	cd SimpleAPI-Java
-	ant
+	git pull origin master
 	cd ..
-	cp SimpleAPI-Java/dist/simpleapi.jar simpleapi.jar
+else
+	echo "Downloading SimpleAPI-Java"
+	git clone https://github.com/Raekye/SimpleAPI-Java.git
 fi
+cd SimpleAPI-Java
+echo "Rebuilding SimpleAPI-Java"
+ant
+cd ..
+cp SimpleAPI-Java/dist/simpleapi.jar simpleapi.jar
 echo
 
 if [ -d "google-gson-2.2.4" ];

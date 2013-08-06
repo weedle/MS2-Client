@@ -101,14 +101,16 @@ public class MS2Entry {
 				final UniversalLauncher app = new UniversalLauncher();
 				final String msg = app.versionUpdates();
 				final UpdateMessage[] updatesMessages = app.updatesMessages();
-				SwingUtilities.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						if (app.showUpdatesMessages(null, msg, updatesMessages)) {
-							System.exit(0);
+				if (updatesMessages != null && updatesMessages.length > 0) {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							if (app.showUpdatesMessages(null, msg, updatesMessages)) {
+								System.exit(0);
+							}
 						}
-					}
-				});
+					});
+				}
 				boolean offline = app.prefs.getBoolean("launcher.offline", false);
 				ArrayList<String> allArgs = new ArrayList<String>(args.length + (offline ? 1 : 0));
 				if (offline) {

@@ -1,11 +1,5 @@
 package com.mineshaftersquared.models;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
-import com.creatifcubed.simpleapi.SimpleOS;
-
 public class MCVersion {
 	public final String id;
 	
@@ -16,6 +10,20 @@ public class MCVersion {
 	@Override
 	public String toString() {
 		return this.id;
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof MCVersion) {
+			MCVersion that = (MCVersion) other;
+			return this.id.equals(that.id);
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.id.hashCode();
 	}
 }
 /*
