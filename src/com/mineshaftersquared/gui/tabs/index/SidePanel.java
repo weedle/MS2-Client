@@ -131,7 +131,7 @@ public class SidePanel extends JPanel {
 		launch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				Process p = MS2Utils.launchGame(MS2Utils.getLocalDir(), SidePanel.this.app.prefs.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER), offline.isSelected());
+				Process p = MS2Utils.launchGame(MS2Utils.getLocalDir(), SidePanel.this.app.prefs.getString("proxy.authserver", UniversalLauncher.DEFAULT_AUTH_SERVER)/*, offline.isSelected()*/);
 				if (p == null) {
 					JOptionPane.showMessageDialog(SidePanel.this, "Unable to start game. See debug tab");
 				} else {
@@ -167,6 +167,8 @@ public class SidePanel extends JPanel {
 		panel.add(info, c);
 		c.gridy++;
 		panel.add(openDir, c);
+		c.gridy++;
+		panel.add(offline, c);
 		
 		return panel;
 	}

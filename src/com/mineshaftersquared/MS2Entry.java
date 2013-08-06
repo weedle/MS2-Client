@@ -73,7 +73,7 @@ public class MS2Entry {
 				System.out.println("Bungee jar does not exist. Is it in the same folder as this jar?");
 				return;
 			}
-			String[] initialHandlers = { "", /*"$1", "$2", "$3", "$3$1"*/ };
+			String[] initialHandlers = { "", /*"$Authenticator", /*"$1", "$2", "$3", "$3$1"*/ };
 			UniversalLauncher.log.info("Patching bungee...");
 			Map<String, InputStream> replacements = new HashMap<String, InputStream>();
 			Map<String, InputStream> additions = new HashMap<String, InputStream>();
@@ -90,6 +90,8 @@ public class MS2Entry {
 			} else {
 				UniversalLauncher.log.info("Error patching");
 			}
+		} else if (cmd.hasOption("gui")) {
+			UniversalLauncher.main(args);
 		} else if (cmd.hasOption("help")) {
 			showHelp();
 		} else if (args.length > 0) {
@@ -112,7 +114,7 @@ public class MS2Entry {
 				if (offline) {
 					allArgs.add("-offline");
 				}
-				MCEntry.main(args);
+				MCEntry.main(allArgs.toArray(new String[allArgs.size()]));
 			} else {
 				UniversalLauncher.main(args);
 			}

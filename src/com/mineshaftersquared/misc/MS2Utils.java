@@ -70,7 +70,7 @@ public class MS2Utils {
 		return new File(getAppDataDir(), mcDir);
 	}
 	
-	public static Process launchGame(File local, String authserver, boolean offline) {
+	public static Process launchGame(File local, String authserver) {
 		try {
 			ProcessBuilder pb = new ProcessBuilder();
 			pb.directory(local);
@@ -80,9 +80,9 @@ public class MS2Utils {
 			args.add("-jar");
 			args.add(SimpleUtils.getJarPath(UniversalLauncher.class).getCanonicalPath());
 			args.add("-game");
-			if (offline) {
-				args.add("-offline");
-			}
+//			if (offline) {
+//				args.add("-offline");
+//			}
 			pb.command(args);
 			Process p = pb.start();
 			return p;

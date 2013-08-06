@@ -22,8 +22,8 @@ public class MS2ProxyEntry {
 		CommandLineParser cmdParser = new ExtendedGnuParser();
 		CommandLine cmd = cmdParser.parse(options, args);
 		
-		MS2Proxy proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource(cmd.getOptionValue(MS2Entry.authserverOption.getArgName(), UniversalLauncher.DEFAULT_AUTH_SERVER)), new MS2HttpProxyHandlerFactory());
-		proxy.offline = cmd.hasOption(MS2Entry.authOfflineOption.getArgName());
+		MS2Proxy proxy = new MS2Proxy(new MS2Proxy.MS2RoutesDataSource(cmd.getOptionValue("authserver", UniversalLauncher.DEFAULT_AUTH_SERVER)), new MS2HttpProxyHandlerFactory());
+		proxy.offline = cmd.hasOption("offline");
 		Thread t = proxy.startAsync();
 		int port = proxy.getProxyPort();
 		System.out.println("Type 'quit' to exit, 'port' to get port");

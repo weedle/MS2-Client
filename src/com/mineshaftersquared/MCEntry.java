@@ -215,7 +215,7 @@ public class MCEntry extends JFrame implements Runnable {
 		
 		File mcDir = MS2Utils.getDefaultMCDir();
 		mcDir.mkdirs();
-		new MCEntry(mcDir, cmd.getOptionValue(MS2Entry.authserverOption.getArgName(), UniversalLauncher.DEFAULT_AUTH_SERVER), cmd.hasOption(MS2Entry.authOfflineOption.getArgName())).run();
+		new MCEntry(mcDir, cmd.getOptionValue("authserver", UniversalLauncher.DEFAULT_AUTH_SERVER), cmd.hasOption("offline")).run();
 	}
 	
 	public static boolean downloadMCLauncher(final File file, final String md5) {

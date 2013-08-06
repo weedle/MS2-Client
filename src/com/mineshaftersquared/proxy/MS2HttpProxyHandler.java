@@ -179,7 +179,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 		if (authServerMatcher.matches()) {
 			MS2Proxy.log.info("Proxy - auth");
 
-			String action = authServerMatcher.group(1);
+			String action = authServerMatcher.group(1).toLowerCase();
 			try {
 				char[] body = new char[contentLength];
 				InputStreamReader reader = new InputStreamReader(in, Charset.forName("utf-8"));
@@ -234,6 +234,7 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			MS2Proxy ms2Proxy) {
 		MCYggdrasilOffline yggdrasil = null;
 		if (ms2Proxy.offline) {
+			MS2Proxy.log.info("Using offline authentication");
 			yggdrasil = new MCYggdrasilOffline(new File(MS2Utils.getDefaultMCDir(), MCYggdrasilOffline.LAUNCHER_PROFILES));
 		}
 		MS2Proxy.log.info("Proxy - auth - action: " + action
@@ -251,7 +252,9 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 		SimpleHTTPRequest request;
 		if (action.equalsIgnoreCase("authenticate")) {
 			if (ms2Proxy.offline) {
-				return yggdrasil.authenticate(data);
+				String response = yggdrasil.authenticate(data);
+				MS2Proxy.log.info("Proxy - auth - returnedJSON - " + response);
+				return response;
 			}
 			request = new SimpleHTTPRequest(
 					ms2Proxy.routes.getAuthenticateURL());
@@ -260,14 +263,18 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			request.addPost("clientToken", data.clientToken);
 		} else if (action.equalsIgnoreCase("refresh")) {
 			if (ms2Proxy.offline) {
-				return yggdrasil.refresh(data);
+				String response = yggdrasil.refresh(data);
+				MS2Proxy.log.info("Proxy - auth - returnedJSON - " + response);
+				return response;
 			}
 			request = new SimpleHTTPRequest(ms2Proxy.routes.getRefreshURL());
 			request.addPost("clientToken", data.clientToken);
 			request.addPost("accessToken", data.accessToken);
 		} else if (action.equalsIgnoreCase("invalidate")) {
 			if (ms2Proxy.offline) {
-				return yggdrasil.invalidate(data);
+				String response = yggdrasil.invalidate(data);
+				MS2Proxy.log.info("Proxy - auth - returnedJSON (offline) - " + response);
+				return response;
 			}
 			request = new SimpleHTTPRequest(ms2Proxy.routes.getInvalidateURL());
 			request.addPost("clientToken", data.clientToken);
@@ -276,8 +283,10 @@ public class MS2HttpProxyHandler implements MS2Proxy.Handler {
 			throw new IllegalArgumentException("Unknown action " + action);
 		}
 
-		return new String(request.doPost(Proxy.NO_PROXY),
+		String response = new String(request.doPost(Proxy.NO_PROXY),
 				Charset.forName("utf-8"));
+		MS2Proxy.log.info("Proxy - auth - returnedJSON - " + response);
+		return response;
 	}
 
 	private String authMultiplayerAction(String action, String data,
