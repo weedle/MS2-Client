@@ -73,7 +73,7 @@ public class MS2Entry {
 				System.out.println("Bungee jar does not exist. Is it in the same folder as this jar?");
 				return;
 			}
-			String[] initialHandlers = { "", /*"$Authenticator", /*"$1", "$2", "$3", "$3$1"*/ };
+			String[] initialHandlers = { "", "$1MS2Connection", /*"$Authenticator", /*"$1", "$2", "$3", "$3$1"*/ };
 			UniversalLauncher.log.info("Patching bungee...");
 			Map<String, InputStream> replacements = new HashMap<String, InputStream>();
 			Map<String, InputStream> additions = new HashMap<String, InputStream>();

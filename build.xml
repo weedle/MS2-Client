@@ -64,6 +64,7 @@
 			<zipfileset dir="${resources.dir}" includes="Http.class" fullpath="com/mineshaftersquared/resources/Http.class" />
 			<zipfileset dir="${resources.dir}" includes="Downloadable.class" fullpath="com/mineshaftersquared/resources/Downloadable.class" />
 			<zipfileset dir="${resources.dir}" includes="InitialHandler.class" fullpath="com/mineshaftersquared/resources/InitialHandler.class" />
+			<zipfileset dir="${resources.dir}" includes="InitialHandler$1MS2Connection.class" fullpath="com/mineshaftersquared/resources/InitialHandler$1MS2Connection.class" />
 			<zipfileset src="${dist.dir}/${libs.alljars}">
 				<include name="**/*.class" />
 			</zipfileset>
@@ -127,7 +128,7 @@
 	
 	<target name="package.resources" description="Package resources (MC patches)">
 		<delete>
-			<fileset dir="${resources.dir}" includes="*.class" excludes="InitialHandler.class" />
+			<fileset dir="${resources.dir}" includes="*.class" excludes="InitialHandler*.class" />
 		</delete>
 		<copy todir="${resources.dir}" flatten="true" includeemptydirs="false">
 			<fileset dir="${build.dir}">
