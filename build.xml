@@ -45,6 +45,7 @@
 			<src path="${src.dir}" />
 			<exclude name="com/adrian/playground/**" />
 			<exclude name="net/minecraft/**" />
+			<exclude name="com/mojang/**" />
 		</javac>
 	</target>
 	
@@ -65,6 +66,7 @@
 			<zipfileset dir="${resources.dir}" includes="Downloadable.class" fullpath="com/mineshaftersquared/resources/Downloadable.class" />
 			<zipfileset dir="${resources.dir}" includes="InitialHandler.class" fullpath="com/mineshaftersquared/resources/InitialHandler.class" />
 			<zipfileset dir="${resources.dir}" includes="InitialHandler$1MS2Connection.class" fullpath="com/mineshaftersquared/resources/InitialHandler$1MS2Connection.class" />
+			<zipfileset dir="${resources.dir}" includes="HttpAuthenticationService.class" fullpath="com/mineshaftersquared/resources/HttpAuthenticationService.class" />
 			<zipfileset src="${dist.dir}/${libs.alljars}">
 				<include name="**/*.class" />
 			</zipfileset>
@@ -123,6 +125,7 @@
 		<javac destdir="${build.dir}" classpathref="resources.classpath" encoding="utf-8" target="1.7" source="1.7" includeantruntime="false">
 			<src path="${src.dir}" />
 			<include name="net/minecraft/**" />
+			<include name="com/mojang/**" />
 		</javac>
 	</target>
 	
@@ -133,6 +136,7 @@
 		<copy todir="${resources.dir}" flatten="true" includeemptydirs="false">
 			<fileset dir="${build.dir}">
 				<include name="net/minecraft/**" />
+				<include name="com/mojang/**" />
 			</fileset>
 		</copy>
 	</target>

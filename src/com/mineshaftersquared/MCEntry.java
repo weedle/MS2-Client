@@ -179,6 +179,7 @@ public class MCEntry extends JFrame implements Runnable {
 		replacements.put("net/minecraft/launcher/Http\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Http.class"));
 		replacements.put("net/minecraft/launcher/updater/download/Downloadable\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Downloadable.class"));
 		replacements.put("net/minecraft/hopper/Util\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/Util.class"));
+		replacements.put("com/mojang/authlib/HttpAuthenticationService\\.class", SimpleResources.loadAsStream("com/mineshaftersquared/resources/HttpAuthenticationService.class"));
 		return JarUtils.patchJar(this.launcherJar, this.patchedLauncherJar, replacements, null);
 	}
 	
